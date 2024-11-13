@@ -378,8 +378,8 @@ $functions_php_content = "<?php\n\n// Child theme functions\n";
 
 function logical_create_and_activate_child_theme()
 {
-    $parent_theme = 'logical-theme'; // Parent theme folder name
-    $child_theme = 'logical-theme-child'; // Child theme folder name
+    $parent_theme = 'the-logical-theme'; // Parent theme folder name
+    $child_theme = 'the-logical-theme-child'; // Child theme folder name
     $child_theme_dir = get_theme_root() . '/' . $child_theme;
     $functions_php_content = "<?php
         function logical_theme_child_enqueue_styles() {
