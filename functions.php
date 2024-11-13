@@ -383,8 +383,8 @@ function logical_create_and_activate_child_theme()
     $child_theme_dir = get_theme_root() . '/' . $child_theme;
     $functions_php_content = "<?php
         function logical_theme_child_enqueue_styles() {
-            wp_enqueue_style( 'logical-theme-style', get_template_directory_uri() . '/style.css' );
-            wp_enqueue_style( 'logical-theme-child-style', get_stylesheet_directory_uri() . '/style.css', array( 'logical-theme-style' ) );
+            wp_enqueue_style( 'the-logical-theme-style', get_template_directory_uri() . '/style.css' );
+            wp_enqueue_style( 'the-logical-theme-child-style', get_stylesheet_directory_uri() . '/style.css', array( 'logical-theme-style' ) );
         }
         add_action( 'wp_enqueue_scripts', 'logical_theme_child_enqueue_styles' );
     ?>";
