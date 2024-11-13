@@ -20,8 +20,8 @@ function logical_theme_setup()
 
     // Register navigation menus
     register_nav_menus(array(
-        'main-menu' => __('Main Menu', 'logical_theme'),
-        'footer-menu' => __('Footer Menu', 'logical_theme'),
+        'main-menu' => __('Main Menu', 'the_logical_theme'),
+        'footer-menu' => __('Footer Menu', 'the_logical_theme'),
     ));
 }
 
@@ -405,9 +405,9 @@ function logical_create_and_activate_child_theme()
     // Write the style.css file for child theme
     $style_css_content = "
     /*
-    Theme Name: Logical Theme Child
+    Theme Name: The Logical Theme Child
     Template: $parent_theme
-    Text Domain: logical_theme_child
+    Text Domain: the_logical_theme_child
     */
     ";
 
