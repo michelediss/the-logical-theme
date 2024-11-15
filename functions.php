@@ -140,20 +140,6 @@ function logical_theme_enqueue_scripts()
 
 add_action('wp_enqueue_scripts', 'logical_theme_enqueue_scripts');
 
-/**
- * Enqueue custom scripts
- */
-function logical_theme_custom_scripts()
-{
-    // Enqueue custom GSAP script
-    wp_enqueue_script('custom-gsap-script', get_stylesheet_directory_uri() . '/assets/js/gsap-script.js', array('gsap', 'gsap-scrolltrigger'), '1.0', true);
-
-    // Enqueue main theme script
-    wp_enqueue_script('theme-script', get_template_directory_uri() . '/assets/js/theme.js', array('jquery'), '1.0.0', true);
-}
-
-add_action('wp_enqueue_scripts', 'logical_theme_custom_scripts');
-
 
 // ===================================================
 // Enqueue Admin Styles
