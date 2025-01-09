@@ -234,22 +234,44 @@ add_action('after_setup_theme', 'logical_theme_conditional_snippets');
 /**
  * Automatically include all PHP files in /components/ directory
  */
-function include_all_component_files()
-{
-    // Define the path to the components directory
-    $components_dir = get_template_directory() . '/components/';
+function include_all_component_files_with_override() {
+    $parent_components_dir = get_template_directory() . '/components/';
+    $child_components_dir = get_stylesheet_directory() . '/components/';
 
-    // Use glob to find all PHP files in components directory
-    $component_files = glob($components_dir . '*.php');
+    $parent_component_files = glob($parent_components_dir . '*.php');
+    $child_component_files = glob($child_components_dir . '*.php') ?: array();
 
-    // Include each found file
-    foreach ($component_files as $file) {
-        require_once $file;
+    // Manteniamo traccia dei file già inclusi per evitare doppioni
+    $included_files = array();
+
+    // Per ogni file del parent, controlliamo se esiste una versione nel child
+    foreach ($parent_component_files as $parent_file) {
+        $filename = basename($parent_file);
+        $child_file = $child_components_dir . $filename;
+
+        if (file_exists($child_file)) {
+            // Carica il file del child al posto di quello del parent
+            require_once $child_file;
+            $included_files[] = $filename;
+        } else {
+            // Se non esiste nel child, carica il parent
+            require_once $parent_file;
+            $included_files[] = $filename;
+        }
+    }
+
+    // Includi tutti i file del child non ancora inclusi (quelli non presenti nel parent)
+    foreach ($child_component_files as $child_file) {
+        $filename = basename($child_file);
+        if (!in_array($filename, $included_files)) {
+            require_once $child_file;
+        }
     }
 }
 
-// Execute the function to include components
-include_all_component_files();
+// Richiama la funzione
+include_all_component_files_with_override();
+
 
 
 // ===================================================
