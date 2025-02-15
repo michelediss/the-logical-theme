@@ -1,5 +1,9 @@
 // custom.scss
 
+/* variable usage example
+    background-color: var(--primary-dark);
+*/
+
 /* Fadein animation */
 @keyframes fadein {
     from {
@@ -47,8 +51,4 @@ footer .row>* {
     height: 80vh;
     background-size: cover;
     background-position: center;
-}
-
-footer {
-    background-color: var(--primary);
 }
