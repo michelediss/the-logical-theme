@@ -1,0 +1,5 @@
+#wp-statistics-post-visitors-locked-widget, #advanced-sortables {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+}

@@ -1,0 +1,71 @@
+// ========================================
+// input parameters
+// ========================================
+
+// ====== typographic scale
+
+$BaseSettings: (
+  paragraph: (
+    baseSize: 16,
+    r: 1.2,
+    incrementFactor: 1.01,
+  ),
+  heading: (
+    baseSize: 18,
+    r: 1.333,
+    incrementFactor: 1.01,
+  ),
+  caption: (
+    baseSize: 14,
+    r: 1.275,
+    incrementFactor: 1.01,
+  )
+);
+
+// ====== cromatic scales
+
+$black: #1e201f;
+$white: #fcfcfe;
+
+$my-colors: (
+  "primary": #f05252,
+  "secondary": #c27803,
+  "tertiary": #0e9f6e,
+  "accent": #3f83f8,
+  "gray": #6b7280
+);
+
+$my-colors-variations: (
+  "primary": ( "white": 90, "light": 60, "dark": 60, "black": 90 ),
+  "secondary": ( "white": 90, "light": 60, "dark": 60, "black": 90 ),
+  "tertiary": ( "white": 90, "light": 60, "dark": 60, "black": 90 ),
+  "accent": ( "white": 90, "light": 60, "dark": 60, "black": 90 ),
+  "gray": ( "white": 90, "light": 60, "dark": 60, "black": 90 )
+);
+
+// ====== breakpoints
+
+$grid-breakpoints: (
+  null: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1600px,
+  3xl: 1920px,
+  4xl: 2560px,
+  5xl: 3840px,
+) !default;
+
+// ====== max-widths for .container
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  2xl: 1440px,
+  3xl: 1680px,
+  4xl: 1920px,
+  5xl: 2560px,
+) !default;
