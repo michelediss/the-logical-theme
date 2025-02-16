@@ -3,7 +3,10 @@ name: Build and Release WordPress Theme
 on:
   push:
     branches:
-      - master  
+      - master
+
+permissions:
+  contents: write  # Concede il permesso di creare una Release
 
 jobs:
   build_and_release:
@@ -29,8 +32,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.${{ github.run_number }}  
-          release_name: "Release v1.0.${{ github.run_number }}"
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
           body: "Nuova release del tema WordPress generata automaticamente."
           draft: false
           prerelease: false
