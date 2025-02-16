@@ -277,15 +277,16 @@ include_all_pods_files();
 
 
 // ===================================================
-// Installation of the Logical Plugin Manager Plugin
+// Installation of the Logical Plugin Manager 
 // ===================================================
 
-function install_logical_plugin_manager()
-{
-    $plugin_zip_url = 'https://github.com/michelediss/wp-logical-plugin-manager/archive/refs/heads/main.zip';
-    $plugin_slug = 'wp-logical-plugin-manager-main';
+function install_logical_plugin_manager() {
+    // Aggiorna questo URL se usi un link differente (es. da una Release)
+    // che punta a "logical-plugin-manager.zip"
+    $plugin_zip_url   = 'https://github.com/michelediss/wp-logical-plugin-manager/releases/latest/download/logical-plugin-manager.zip';
+    $plugin_slug      = 'logical-plugin-manager';
     $plugin_main_file = 'logical-plugin-manager.php';
-    $plugin_dir = WP_PLUGIN_DIR . '/' . $plugin_slug;
+    $plugin_dir       = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
     if (!function_exists('request_filesystem_credentials')) {
         require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -295,6 +296,7 @@ function install_logical_plugin_manager()
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
     }
 
+    // Se il plugin risulta già attivo, interrompi
     if (is_plugin_active($plugin_slug . '/' . $plugin_main_file)) {
         return;
     }
@@ -302,6 +304,7 @@ function install_logical_plugin_manager()
     WP_Filesystem();
     global $wp_filesystem;
 
+    // Scarica lo ZIP in una cartella temporanea
     $zip_file = download_url($plugin_zip_url);
     if (is_wp_error($zip_file)) {
         return;
@@ -313,6 +316,7 @@ function install_logical_plugin_manager()
         return;
     }
 
+    // Estrai lo ZIP
     $result = unzip_file($zip_file, $temp_dir);
     if (is_wp_error($result)) {
         @unlink($zip_file);
@@ -320,21 +324,26 @@ function install_logical_plugin_manager()
         return;
     }
 
-    $source = $temp_dir . '/' . $plugin_slug;
+    // Percorso alla cartella estratta (cartella principale = $plugin_slug)
+    $source      = $temp_dir . '/' . $plugin_slug;
     $destination = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
+    // Copia la cartella estratta in wp-content/plugins/<plugin_slug>
     if (!copy_dir($source, $destination)) {
         @unlink($zip_file);
         $wp_filesystem->delete($temp_dir, true);
         return;
     }
 
+    // Pulisci i file temporanei
     $wp_filesystem->delete($temp_dir, true);
     @unlink($zip_file);
 
+    // Se esiste il file principale, attiva il plugin
     if (file_exists($destination . '/' . $plugin_main_file)) {
         $activate_result = activate_plugin($plugin_slug . '/' . $plugin_main_file);
         if (is_wp_error($activate_result)) {
+            // Se c'è stato un errore nell'attivazione, interrompi (opzionale)
             return;
         }
     }
