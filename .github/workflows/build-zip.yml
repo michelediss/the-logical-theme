@@ -1,32 +1,39 @@
-name: Build ZIP on Push
+name: Build and Release WordPress Theme
 
 on:
   push:
     branches:
-      - master
+      - master  
 
 jobs:
-  build:
+  build_and_release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Creare directory temporanea per il tema
-        run: mkdir -p build/the-logical-theme
+      - name: Creare directory temporanea e copiare i file
+        run: mkdir ${{ github.event.repository.name }}-build && rsync -a . ${{ github.event.repository.name }}-build
 
-      - name: Copiare i file del tema escludendo quelli inutili
-        run: rsync -av --exclude='.git' --exclude='.github' --exclude='README.md' --exclude='.gitignore' ./ build/the-logical-theme
-
-      - name: Creare il file ZIP
+      - name: Creare il file ZIP del tema
         run: |
-          cd build
-          zip -r the-logical-theme.zip the-logical-theme
-          mv the-logical-theme.zip ../
+          cd ${{ github.event.repository.name }}-build
+          zip -r ../${{ github.event.repository.name }}.zip * -x "${{ github.event.repository.name }}-build/*"
+          cd ..
+      
+      - name: Pulizia della directory temporanea
+        run: rm -rf ${{ github.event.repository.name }}-build
 
-      - name: Salvare lo ZIP come Artifact
-        uses: actions/upload-artifact@v4
+      - name: Creare una GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
         with:
-          name: the-logical-theme
-          path: the-logical-theme.zip
+          tag_name: v1.0.${{ github.run_number }}  
+          release_name: "Release v1.0.${{ github.run_number }}"
+          body: "Nuova release del tema WordPress generata automaticamente."
+          draft: false
+          prerelease: false
+          files: ${{ github.event.repository.name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
