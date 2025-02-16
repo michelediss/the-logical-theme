@@ -16,17 +16,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Creare directory temporanea e copiare i file
-        run: mkdir ${{ github.event.repository.name }}-build && rsync -a . ${{ github.event.repository.name }}-build
-
-      - name: Creare il file ZIP del tema
+      - name: Creare directory con il nome corretto e copiare i file
         run: |
-          cd ${{ github.event.repository.name }}-build
-          zip -r ../${{ github.event.repository.name }}.zip * -x "${{ github.event.repository.name }}-build/*"
+          mkdir -p build/${{ github.event.repository.name }}
+          rsync -a . build/${{ github.event.repository.name }} --exclude='.git' --exclude='.github' --exclude='README.md' --exclude='.gitignore'
+
+      - name: Creare il file ZIP del tema con cartella principale
+        run: |
+          cd build
+          zip -r ../${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
           cd ..
       
       - name: Pulizia della directory temporanea
-        run: rm -rf ${{ github.event.repository.name }}-build
+        run: rm -rf build
 
       - name: Creare una GitHub Release
         id: create_release
