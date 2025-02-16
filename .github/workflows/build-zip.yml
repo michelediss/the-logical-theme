@@ -13,11 +13,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Rimuovere file inutili
-        run: rm -rf .git .github README.md .gitignore
+      - name: Creare directory temporanea per il tema
+        run: mkdir -p build/the-logical-theme
+
+      - name: Copiare i file del tema escludendo quelli inutili
+        run: rsync -av --exclude='.git' --exclude='.github' --exclude='README.md' --exclude='.gitignore' ./ build/the-logical-theme
 
       - name: Creare il file ZIP
-        run: zip -r the-logical-theme.zip ./*
+        run: |
+          cd build
+          zip -r the-logical-theme.zip the-logical-theme
+          mv the-logical-theme.zip ../
 
       - name: Salvare lo ZIP come Artifact
         uses: actions/upload-artifact@v4
