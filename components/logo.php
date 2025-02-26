@@ -1,21 +1,22 @@
 <?php
-/**
- * Function to generate a reusable SVG logo with customizable fill attribute
- *
- * @param string $size SVG icon size
- * @param string $fill SVG icon fill color
- * @param string $class Additional CSS classes for customization
- * @return string HTML code for the SVG logo
- */
-function custom_logo($size = '50px', $fill = '#000000', $class = '')
-{
-	$class_attr = $class ? ' ' . esc_attr($class) : '';
-	// Define the URL of the homepage
-	$home_url = home_url();
+if ( ! function_exists( 'custom_logo' ) ) {
+    /**
+     * Function to generate a reusable SVG logo with customizable fill attribute
+     *
+     * @param string $size SVG icon size
+     * @param string $fill SVG icon fill color
+     * @param string $class Additional CSS classes for customization
+     * @return string HTML code for the SVG logo
+     */
+    function custom_logo($size = '50px', $fill = '#000000', $class = '')
+    {
+        $class_attr = $class ? ' ' . esc_attr($class) : '';
+        // Define the URL of the homepage
+        $home_url = home_url();
 
-	// Example SVG code (replace with your SVG code)
-	$svg_code = '
-        <svg height="100%" width="' . esc_attr($size) . '" fill="' . esc_attr($fill) . '" version="1.1" id="logo_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        // Example SVG code (replace with your SVG code)
+        $svg_code = '
+            <svg height="100%" width="' . esc_attr($size) . '" fill="' . esc_attr($fill) . '" version="1.1" id="logo_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
         	 viewBox="0 0 140 30" xml:space="preserve">
 
     <path
@@ -57,14 +58,14 @@ function custom_logo($size = '50px', $fill = '#000000', $class = '')
         class="cneutral" card-text text-base"></path>
 		
         </svg>
+        ';
 
-    ';
+        // Build the link with the SVG logo inside
+        $logo_html = '<a aria-label="Logo" href="' . esc_url($home_url) . '" class="d-inline-block logo' . $class_attr . '">';
+        $logo_html .= $svg_code;
+        $logo_html .= '</a>';
 
-	// Build the link with the SVG logo inside
-	$logo_html = '<a aria-label="Logo" href="' . esc_url($home_url) . '" class="d-inline-block logo' . $class_attr . '">';
-	$logo_html .= $svg_code;
-	$logo_html .= '</a>';
-
-	return $logo_html;
+        return $logo_html;
+    }
 }
 ?>
