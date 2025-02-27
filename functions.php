@@ -233,22 +233,33 @@ add_action('after_setup_theme', 'logical_theme_conditional_snippets');
 /**
  * Automatically include all PHP files in /components/ directory
  */
-function include_all_component_files()
-{
-    // Define the path to the components directory
-    $components_dir = get_template_directory() . '/components/';
+function include_all_component_files() {
+    $child_dir  = get_stylesheet_directory() . '/components/';
+    $parent_dir = get_template_directory() . '/components/';
 
-    // Use glob to find all PHP files in components directory
-    $component_files = glob($components_dir . '*.php');
+    // Carica i file del parent, ma se esiste una versione nel child, includi quella.
+    $parent_files = glob($parent_dir . '*.php');
+    foreach ($parent_files as $file) {
+        $basename = basename($file);
+        if ( file_exists( $child_dir . $basename ) ) {
+            require_once $child_dir . $basename;
+        } else {
+            require_once $file;
+        }
+    }
 
-    // Include each found file
-    foreach ($component_files as $file) {
-        require_once $file;
+    // Carica eventuali file presenti nel child che non esistono nel parent
+    if ( is_dir( $child_dir ) ) {
+        $child_files = glob( $child_dir . '*.php' );
+        foreach ( $child_files as $file ) {
+            $basename = basename( $file );
+            if ( ! file_exists( $parent_dir . $basename ) ) {
+                require_once $file;
+            }
+        }
     }
 }
 
-// Execute the function to include components
-include_all_component_files();
 
 
 // ===================================================
