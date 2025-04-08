@@ -9,7 +9,7 @@
 <nav id="navbar-scroll" class="transition navbar navbar-expand-lg bg-light text-primary fixed-top z-3 w-100 border-bottom border-light">
 <div class="container">
     <!-- Logo -->
-    <?php echo custom_logo('140px', '#198754', ' '); ?>
+    <?php echo custom_logo('140px', ' ', 'fill-primary'); ?>
 
     <!-- Navbar toggler button for mobile -->
     <button class="navbar-toggler border border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"

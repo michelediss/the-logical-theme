@@ -7,7 +7,7 @@
 $BaseSettings: (
   paragraph: (
     baseSize: 16,
-    r: 1.2,
+    r: 1.333,
     incrementFactor: 1.01,
   ),
   heading: (
@@ -28,12 +28,11 @@ $black: #1e201f;
 $white: #fcfcfe;
 
 $my-colors: (
-  "primary": #f05252,
-  "secondary": #c27803,
-  "tertiary": #0e9f6e,
-  "accent": #3f83f8,
-  "gray": #6b7280
+  "primary": #ff8818,     
+  "accent": #ffc107,      
+  "gray": #4b4b4b       
 );
+
 
 $my-colors-variations: (
   "primary": ( "white": 90, "light": 60, "dark": 60, "black": 90 ),

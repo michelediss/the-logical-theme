@@ -40,6 +40,13 @@
   </div>
 </section>
 
+
+<?php
+render_post_grid([
+  'pagination' => true,
+]);
+?>
+
 <?php echo spacer(3.5); ?>
 
 

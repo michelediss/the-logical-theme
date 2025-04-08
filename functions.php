@@ -260,7 +260,7 @@ function include_all_component_files() {
     }
 }
 
-
+add_action('after_setup_theme', 'include_all_component_files', 5);
 
 // ===================================================
 // Pods

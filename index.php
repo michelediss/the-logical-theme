@@ -2,7 +2,7 @@
 // index.php - Main template file for your WordPress theme
 
 // Define the path to the page-home template
-$template_path = 'app/public/wp-content/themes/logical-theme/templates/page-home.php';
+$template_path = get_stylesheet_directory() . '/templates/front-page.php';
 
 // Check if the template exists, and load it if available
 if (file_exists(get_theme_file_path($template_path))) {

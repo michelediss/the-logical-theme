@@ -7,35 +7,35 @@ document.addEventListener("DOMContentLoaded", function () {
   const contentArea = document.querySelector(".post-content");
 
   contentArea.querySelectorAll("h1").forEach((el) => {
-    el.classList.add("heading", "text-3xl", "mt-4"); 
+    el.classList.add("heading", "text-3xl", "my-4"); 
   });
 
   contentArea.querySelectorAll("h2").forEach((el) => {
-    el.classList.add("heading", "text-2xl", "mt-4");
+    el.classList.add("heading", "text-2xl", "my-4");
   });
 
   contentArea.querySelectorAll("h3").forEach((el) => {
-    el.classList.add("heading", "text-xl", "mt-4");
+    el.classList.add("heading", "text-xl", "my-3");
   });
 
   contentArea.querySelectorAll("h4").forEach((el) => {
-    el.classList.add("heading", "text-lg", "mt-4");
+    el.classList.add("heading", "text-lg", "my-3");
   });
 
   contentArea.querySelectorAll("p").forEach((el) => {
-    el.classList.add("paragraph", "text-base", "text-2xl-lg");
+    el.classList.add("paragraph", "text-base");
   });
 
   contentArea.querySelectorAll("ul").forEach((el) => {
-    el.classList.add("paragraph", "text-base", "text-2xl-lg");
+    el.classList.add("paragraph", "text-base");
   });
 
   contentArea.querySelectorAll("ol").forEach((el) => {
-    el.classList.add("paragraph", "text-base", "text-2xl-lg");
+    el.classList.add("paragraph", "text-base");
   });
 
   contentArea.querySelectorAll("strong").forEach((el) => {
-    el.classList.add("paragraph", "bold");
+    el.classList.add("paragraph", "text-base", "bold");
   });
 
 });

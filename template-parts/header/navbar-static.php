@@ -9,7 +9,7 @@
 <nav id="navbar-static" data-bs-theme="dark" class="navbar navbar-expand-lg bg-transparent position-absolute z-2 w-100 border-bottom border-light">
   <div class="container">
     <!-- Logo -->
-    <?php echo custom_logo('140px', '#198754', ' '); ?>
+    <?php echo custom_logo('140px', ' ', 'fill-primary'); ?>
 
     <!-- Navbar toggler button for mobile -->
     <button class="navbar-toggler border border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"

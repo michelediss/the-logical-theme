@@ -8,9 +8,27 @@
     <?php wp_head(); ?>
 </head>
 
-<body data-barba="wrapper" <?php body_class(); ?>>
+<?php
+    global $post;
+    $extra_classes = [];
 
-    <div data-barba="container" data-barba-namespace="<?php echo get_post_type(); ?>">
+    // Se è una singola pagina o post
+    if ( is_singular() && isset($post) ) {
+        $extra_classes[] = 'page-id-' . $post->ID;
+        $extra_classes[] = 'page-slug-' . $post->post_name;
+    }
+
+    // Se è la pagina blog assegnata nelle impostazioni
+    if ( is_home() && !is_front_page() ) {
+        $blog_page_id = get_option('page_for_posts');
+        if ( $blog_page_id ) {
+            $extra_classes[] = 'page-id-' . $blog_page_id;
+            $extra_classes[] = 'page-slug-' . get_post_field( 'post_name', $blog_page_id );
+        }
+    }
+?>
+
+<body class="bg-primary-white" <?php body_class( $extra_classes ); ?>>
 
         <header id="header" class="site-header" role="banner">
 
@@ -20,4 +38,8 @@
 
         </header>
 
-        <div id="content" class="site-content">
+        <div class="site-content bg-primary-white">
+
+
+
+

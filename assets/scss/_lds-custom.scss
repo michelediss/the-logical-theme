@@ -22,9 +22,9 @@ body {
     opacity: 0;
 }
 
-footer .row>* {
-    opacity: 1;
-}
+// footer .row>* {
+//     opacity: 1;
+// }
 
 .transition {
     transition: opacity 0.3s ease-in-out;
@@ -39,6 +39,7 @@ footer .row>* {
     transition: transform 0.3s ease-out;
 }
 
+// navbar
 .navbar-toggler:focus, .navbar-toggler:focus-visible, .btn-close:focus, .btn-close:focus-visible {
     box-shadow: none;
 }
@@ -47,8 +48,22 @@ footer .row>* {
     transform: translateY(0);
 }
 
+// hero 
 .hero-slider {
     height: 80vh;
     background-size: cover;
     background-position: center;
+}
+
+// pagination
+.pagination{
+    .page-item.active>.page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--primary-white);
+    }
+    
+    .page-link {
+        color: var(--primary);
+    }
 }
