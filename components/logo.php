@@ -1,5 +1,5 @@
 <?php
-if ( ! function_exists( 'custom_logo' ) ) {
+if ( ! function_exists( 'theme_custom_logo' ) ) {
     /**
      * Function to generate a reusable SVG logo with customizable fill attribute
      *
@@ -8,7 +8,7 @@ if ( ! function_exists( 'custom_logo' ) ) {
      * @param string $class Additional CSS classes for customization
      * @return string HTML code for the SVG logo
      */
-    function custom_logo($size = '50px', $fill = '#000000', $class = '')
+    function theme_custom_logo($size = '50px', $fill = '#000000', $class = '')
     {
         $class_attr = $class ? ' ' . esc_attr($class) : '';
         // Define the URL of the homepage

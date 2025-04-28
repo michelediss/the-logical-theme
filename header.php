@@ -8,16 +8,14 @@
     <?php wp_head(); ?>
 </head>
 
-<body data-barba="wrapper" <?php body_class(); ?>>
+<body <?php body_class(); ?>>
 
-    <div data-barba="container" data-barba-namespace="<?php echo get_post_type(); ?>">
+    <header id="header" class="site-header" role="banner">
 
-        <header id="header" class="site-header" role="banner">
+        <?php get_template_part('template-parts/header/navbar-static', 'content'); ?>
+        <?php get_template_part('template-parts/header/navbar-scroll', 'content'); ?>
+        <?php get_template_part('template-parts/header/offcanvas', 'content'); ?>
 
-            <?php get_template_part('template-parts/header/navbar-static', 'content'); ?>
-            <?php get_template_part('template-parts/header/navbar-scroll', 'content'); ?>
-            <?php get_template_part('template-parts/header/offcanvas', 'content'); ?>
+    </header>
 
-        </header>
-
-        <div id="content" class="site-content">
+    <div id="content" class="site-content">

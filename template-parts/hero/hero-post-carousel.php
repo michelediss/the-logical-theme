@@ -1,5 +1,3 @@
-<?php get_header(); ?>
-
 <!-- Hero Slider Full Screen with Featured Posts -->
 <?php
 // Query per ottenere i post in evidenza
@@ -53,45 +51,3 @@ $featured_posts = new WP_Query($args);
         <span class="visually-hidden">Next</span>
     </button>
 </div>
-
-<!-- Paragraph Section + Image (2 Columns) -->
-<?php echo spacer(3.5); ?>
-
-<section class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h2 class="heading text-3xl">About Us</h2>
-            <p class="paragraph text-base">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vel risus nec
-                leo interdum tincidunt. Sed eu magna ac eros malesuada consectetur.</p>
-            <p class="paragraph text-base">Vivamus sit amet magna ac magna vehicula feugiat non sed lectus. Suspendisse
-                vitae libero nec ligula fermentum facilisis et sit amet dolor.</p>
-                <?php echo primary_button('Learn More', 'https://example.com', ' ', 'btn-primary btn-lg text-light rounded-pill px-4', true); ?>
-        </div>
-        <div class="col-md-6 mt-5 mt-md-0">
-        <img src="<?php echo get_the_post_thumbnail_url(get_the_ID(), 'full'); ?>" alt="About us image" class="img-fluid rounded">
-        </div>
-    </div>
-</section>
-
-<?php echo spacer(3.5); ?>
-
-<!-- Call to Action -->
-<section class="cta-section text-center text-white bg-primary">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 mx-auto py-5">
-                <h2 class="heading text-3xl">Ready to Start?</h2>
-                <?php echo spacer(.5); ?>
-                <p class="paragraph text-base">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                <?php echo spacer(.5); ?>
-                <?php echo primary_button('Learn More', 'https://example.com', ' ', 'btn-light btn-lg text-primary rounded-pill px-4', true); ?>
-            </div>
-        </div>
-    </div>
-</section>
-
-<?php get_footer(); ?>

@@ -1,11 +1,9 @@
 <?php
 /**
- * Genera le icone social utilizzando i campi impostati nella custom settings page "info".
+ * Genera le icone social utilizzando i campi impostati nella pagina ACF "info".
  *
- * Il pod "info" è di tipo settings; in questo caso i campi vengono salvati in modo "appiattito"
- * (senza il prefisso "social."), quindi si accede direttamente con il nome del campo (es. "instagram").
- *
- * Vengono visualizzate nel frontend solo le icone per cui il relativo campo website è valorizzato.
+ * I campi social sono organizzati in un gruppo ACF chiamato "social" nella pagina di opzioni "info".
+ * Vengono visualizzate nel frontend solo le icone per cui il relativo campo URL è valorizzato.
  *
  * @param string $fill                Colore per il riempimento delle icone (es. "currentColor" o "#fff").
  * @param string $width               Larghezza dell'icona.
@@ -17,31 +15,34 @@
 if ( ! function_exists( 'generate_social_icons' ) ) {
     function generate_social_icons( $fill = 'currentColor', $width = '24', $height = '24', $class_item = 'social-icons', $additional_classes = [] ) {
 
-        // Recupera il pod delle opzioni (settings) usando il nome "info"
-        $pods_info = pods( 'info' );
-        if ( ! $pods_info->exists() ) {
+        // Verifica se ACF è attivo
+        if ( ! function_exists( 'get_field' ) ) {
             return '';
         }
 
-        // Verifica direttamente il contenuto salvato nel wp_info
-        $social_meta = get_option( 'pods_info' );
+        // Recupera i campi social dal gruppo ACF nella pagina di opzioni "info"
+        $social_group = get_field('social', 'option');
+        
+        if ( empty( $social_group ) ) {
+            return '';
+        }
 
-        // Recupera i singoli campi utilizzando i nomi "appiattiti"
-        $facebook  = $pods_info->field( 'facebook', true );
-        $instagram = $pods_info->field( 'instagram', true );
-        $twitter_x = $pods_info->field( 'x', true );  // il campo per Twitter è nominato "x"
-        $tiktok    = $pods_info->field( 'tiktok', true );
-        $youtube   = $pods_info->field( 'youtube', true );
-        $spotify   = $pods_info->field( 'spotify', true );
+        // Recupera i singoli campi URL dai campi ACF
+        $facebook  = isset( $social_group['facebook'] )  ? $social_group['facebook']  : '';
+        $instagram = isset( $social_group['instagram'] ) ? $social_group['instagram'] : '';
+        $twitter_x = isset( $social_group['twitter-x'] ) ? $social_group['twitter-x'] : '';  // il campo per Twitter X è nominato "twitter-x" in ACF
+        $tiktok    = isset( $social_group['tiktok'] )    ? $social_group['tiktok']    : '';
+        $youtube   = isset( $social_group['youtube'] )   ? $social_group['youtube']   : '';
+        $spotify   = isset( $social_group['spotify'] )   ? $social_group['spotify']   : '';
 
-        // Costruisce gli URL; se un campo non è valorizzato, usa "#" come fallback
+        // Associa gli URL; se un campo non è valorizzato, assegna stringa vuota
         $urls = [
-            'facebook'  => ! empty( $facebook )  ? $facebook  : '#',
-            'instagram' => ! empty( $instagram ) ? $instagram : '#',
-            'twitter-x' => ! empty( $twitter_x ) ? $twitter_x : '#',
-            'tiktok'    => ! empty( $tiktok )    ? $tiktok    : '#',
-            'youtube'   => ! empty( $youtube )   ? $youtube   : '#',
-            'spotify'   => ! empty( $spotify )   ? $spotify   : '#'
+            'facebook'  => ! empty( $facebook )  ? $facebook  : '',
+            'instagram' => ! empty( $instagram ) ? $instagram : '',
+            'twitter-x' => ! empty( $twitter_x ) ? $twitter_x : '',
+            'tiktok'    => ! empty( $tiktok )    ? $tiktok    : '',
+            'youtube'   => ! empty( $youtube )   ? $youtube   : '',
+            'spotify'   => ! empty( $spotify )   ? $spotify   : ''
         ];
 
         // Definisce le icone SVG per ciascun social
@@ -54,12 +55,12 @@ if ( ! function_exists( 'generate_social_icons' ) ) {
             'spotify'   => '<svg xmlns="http://www.w3.org/2000/svg" width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" fill="' . esc_attr( $fill ) . '" class="bi bi-spotify" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858"/></svg>'
         ];
 
-        // Genera l'HTML solo per le icone che hanno URL valorizzati (diversi da "#")
+        // Genera l'HTML solo per le icone che hanno URL valorizzati
         $html = '<div class="social-icon-wrapper mx-0">';
         foreach ( $icons as $key => $icon ) {
-            if ( ! empty( $urls[ $key ] ) && $urls[ $key ] !== '#' ) {
+            if ( ! empty( $urls[ $key ] ) ) {
                 $additional_class = isset( $additional_classes[ $key ] ) ? ' ' . $additional_classes[ $key ] : '';
-                $html .= '<a href="' . esc_url( $urls[ $key ] ) . '" class="social-icon ' . esc_attr( $class_item . $additional_class ) . '" target="_blank" aria-label="' . esc_attr( ucfirst( $key ) ) . '">';
+                $html .= '<a href="' . esc_url( $urls[ $key ] ) . '" class="social-icon me-3 ' . esc_attr( $class_item . $additional_class ) . '" target="_blank" aria-label="' . esc_attr( ucfirst( $key ) ) . '">';
                 $html .= $icon;
                 $html .= '</a>';
             }
@@ -69,4 +70,3 @@ if ( ! function_exists( 'generate_social_icons' ) ) {
         return $html;
     }
 }
-?>

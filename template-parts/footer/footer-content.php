@@ -4,28 +4,33 @@
  */
 ?>
 
-<div class="container-fluid text-light py-5">
+<div class="container-fluid text-primary-light bg-primary-dark py-5">
     <div class="container">
         <div class="row">
             <!-- Logo Section -->
             <div class="col-md-4 mb-3">
                 <?php
                 // Display the custom logo with a custom size, color, and class
-                echo custom_logo('90%', '#fff', 'mb-3');
+                echo theme_custom_logo('90%', '#fff', 'mb-3');
+                ?>
+                <?php
+                if (function_exists('generate_social_icons')) {
+                    echo generate_social_icons(
+                        '#ffffff',                      // colore bianco per le icone
+                        '24',                           // larghezza 32px
+                        '24',                           // altezza 32px
+                        'fill-primary-white',                // classe base personalizzata
+                        [                               // classi aggiuntive per icone specifiche
+                            'facebook' => 'fb-hover',
+                            'instagram' => 'insta-hover',
+                            'twitter-x' => 'x-hover',
+                            'youtube' => 'yt-hover'
+                        ]
+                    );
+                }
                 ?>
 
-                <?php
-                echo generate_social_icons(
-                    '#fff', 
-                    '24',           
-                    '24',          
-                    'me-3', 
-                    [
-                        'facebook' => 'facebook-extra-class', // Classi aggiuntive per icone specifiche
-                        'instagram' => 'instagram-extra-class',
-                    ]
-                );
-                ?>
+
 
             </div>
 

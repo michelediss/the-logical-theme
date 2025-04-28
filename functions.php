@@ -1,5 +1,4 @@
 <?php
-
 // ===================================================
 // Parent Theme Setup
 // ===================================================
@@ -260,31 +259,7 @@ function include_all_component_files() {
     }
 }
 
-
-
-// ===================================================
-// Pods
-// ===================================================
-
-/**
- * Automatically include all PHP files in /pods/ directory
- */
-function include_all_pods_files()
-{
-    // Define the path to the pods directory
-    $pods_dir = get_template_directory() . '/pods/';
-
-    // Use glob to find all PHP files in pods directory
-    $pod_files = glob($pods_dir . '*.php');
-
-    // Include each found file
-    foreach ($pod_files as $file) {
-        require_once $file;
-    }
-}
-
-// Execute the function to include pods
-include_all_pods_files();
+add_action('after_setup_theme', 'include_all_component_files');
 
 
 // ===================================================
