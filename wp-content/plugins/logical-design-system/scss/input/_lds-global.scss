@@ -1,0 +1,135 @@
+// global.scss
+
+section.white {
+    background-color: var(--white);
+    .pretitle {
+        color: var(--secondary);
+    }
+    .heading {
+        color: var(--primary);
+    }
+    .separator {
+        background-color: var(--secondary);
+    }
+    .paragraph {
+        color: var(--black);
+    }
+    .button {
+        color: var(--white);
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--secondary);
+        background-color: transparent;
+    }
+}
+
+section.primary-white {
+    background-color: var(--primary-white);
+    .pretitle {
+        color: var(--secondary);
+    }
+    .heading {
+        color: var(--primary);
+    }
+    .separator {
+        background-color: var(--secondary);
+    }
+    .paragraph {
+        color: var(--black);
+    }
+    .button {
+        color: var(--white);
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--secondary);
+        background-color: transparent;
+    }
+}
+
+section.secondary-white {
+    background-color: var(--secondary-white);
+    .pretitle {
+        color: var(--secondary);
+    }
+    .heading {
+        color: var(--primary);
+    }
+    .separator {
+        background-color: var(--secondary);
+    }
+    .paragraph {
+        color: var(--black);
+    }
+    .button {
+        color: var(--white);
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--secondary);
+        background-color: transparent;
+    }
+}
+
+section.primary {
+    background-color: var(--primary);
+    .pretitle {
+        color: var(--white);
+    }
+    .heading {
+        color: var(--white);
+    }
+    .separator {
+        background-color: var(--secondary);
+    }
+    .paragraph {
+        color: var(--white);
+    }
+    .button {
+        color: var(--white);
+        background-color: transparent;
+        border-color: var(--white);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--primary);
+        background-color: var(--white);
+    }
+}
+
+section.secondary {
+    background-color: var(--secondary);
+    .pretitle {
+        color: var(--white);
+    }
+    .heading {
+        color: var(--white);
+    }
+    .separator {
+        background-color: var(--white);
+    }
+    .paragraph {
+        color: var(--white);
+    }
+    .button {
+        color: var(--white);
+        background-color: transparent;
+        border-color: var(--white);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--secondary);
+        background-color: var(--white);
+    }
+}
+
+.button {
+    transition: .2s ease-in-out;
+}

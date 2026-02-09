@@ -1,0 +1,50 @@
+{
+  "baseSettings": {
+    "baseSize": 16,
+    "r": 1.2,
+    "incrementFactor": 1.01
+  },
+  "baseColors": {
+    "black": "#1e201f",
+    "gray": "#666666",
+    "white": "#fcfcfe"
+  },
+  "bootstrap": {
+    "primary": "#f05252",
+    "secondary": "#c27803"
+  },
+  "colorVariations": {
+    "primary": { "white": 90, "light": 60, "dark": 60, "black": 90 },
+    "secondary": { "white": 90, "light": 60, "dark": 60, "black": 90 },
+    "tertiary": { "white": 90, "light": 60, "dark": 60, "black": 90 },
+    "accent": { "white": 90, "light": 60, "dark": 60, "black": 90 },
+    "gray": { "white": 90, "light": 60, "dark": 60, "black": 90 }
+  },
+  "breakpoints": {
+    "null": 0,
+    "sm": "576px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1600px",
+    "3xl": "1920px",
+    "4xl": "2560px",
+    "5xl": "3840px"
+  },
+  "containerMaxWidths": {
+    "sm": "540px",
+    "md": "720px",
+    "lg": "960px",
+    "xl": "1140px",
+    "2xl": "1440px",
+    "3xl": "1680px",
+    "4xl": "1920px",
+    "5xl": "2560px"
+  },
+  "font": {
+    "imports": [
+      "font-pairing-list/_Titillium_Web_+_Dosis"
+    ],
+    "classes": {}
+  }
+}

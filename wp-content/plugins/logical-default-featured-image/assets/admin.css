@@ -1,0 +1,36 @@
+.pap-default-featured-image-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.pap-default-featured-image-preview {
+    width: 240px;
+    min-height: 180px;
+    border: 1px dashed #c3c4c7;
+    border-radius: 4px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 8px;
+}
+
+.pap-default-featured-image-preview img {
+    width: 100%;
+    height: auto;
+}
+
+.pap-default-featured-image-placeholder {
+    text-align: center;
+    color: #646970;
+    font-style: italic;
+}
+
+.pap-default-featured-image-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

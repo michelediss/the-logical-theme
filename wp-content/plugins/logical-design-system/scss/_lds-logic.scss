@@ -1,0 +1,255 @@
+// _lds-logic.scss
+
+// =========================
+// Typography Logic
+// =========================
+
+// Scale names (above base)
+$scale-names-above-base: ('base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl') !global;
+
+// Scale names (below base)
+$scale-names-below-base: ('xs', 'sm') !global;
+
+// Bootstrap breakpoints (assume che $grid-breakpoints sia definito)
+$breakpoints: $grid-breakpoints !global;
+$typography-types: ('paragraph', 'heading', 'caption') !default;
+
+// Power function
+@function pow($base, $exponent) {
+  $result: 1;
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $result: $result * $base;
+    }
+  } @else if $exponent < 0 {
+    @for $i from 1 through abs($exponent) {
+      $result: $result / $base;
+    }
+  }
+  @return $result;
+}
+
+// Responsive base font-size mixin (applicato a html)
+// Utilizza baseSize e incrementFactor dalla mappa delle impostazioni
+@mixin generateResponsiveBaseFontSize($settings-map) {
+  $baseSize: map-get($settings-map, baseSize);
+  $incrementFactor: map-get($settings-map, incrementFactor);
+
+  html {
+    font-size: #{$baseSize}px;
+  }
+
+  @each $bp-name, $bp-value in $breakpoints {
+    // Calcola l'indice del breakpoint (a partire da 0)
+    $index: index(map-keys($breakpoints), $bp-name) - 1;
+    $size: $baseSize * pow($incrementFactor, $index + 1);
+    $size: round($size * 1000) / 1000;
+
+    @media (min-width: $bp-value) {
+      html {
+        font-size: #{$size}px;
+      }
+    }
+  }
+}
+
+// Genera la scala tipografica
+@function generateTypographicScale($baseFontSize, $ratio, $scaleNamesAboveBase, $scaleNamesBelowBase) {
+  $scale: ();
+
+  // Dimensioni uguali o superiori alla base
+  @for $i from 0 through length($scaleNamesAboveBase) - 1 {
+    $size: $baseFontSize * pow($ratio, $i);
+    $size: round($size * 1000) / 1000;
+    // Se $i è 0 il nome è 'base', altrimenti prendi il nome dalla lista
+    $scale-name: if($i == 0, 'base', nth($scaleNamesAboveBase, $i + 1));
+    $scale: map-merge($scale, ($scale-name: $size));
+  }
+
+  // Dimensioni inferiori alla base
+  @for $i from 1 through length($scaleNamesBelowBase) {
+    $size: $baseFontSize / pow($ratio, $i);
+    $size: round($size * 1000) / 1000;
+    $scale-name: nth($scaleNamesBelowBase, length($scaleNamesBelowBase) - $i + 1);
+    $scale: map-merge($scale, ($scale-name: $size));
+  }
+
+  @return $scale;
+}
+
+// Mixin per generare le classi tipografiche
+// Genera classi del tipo .[prefix].text-[scaleName] e varianti responsive
+@mixin createTypographyClasses($scale, $class-prefix) {
+  @each $name, $size in $scale {
+    .#{$class-prefix}.text-#{$name} {
+      font-size: $size;
+    }
+  }
+
+  @each $breakpoint, $breakpoint-size in $breakpoints {
+    @media (min-width: $breakpoint-size) {
+      @each $name, $size in $scale {
+        .#{$class-prefix}.text-#{$breakpoint}-#{$name} {
+          font-size: $size;
+        }
+      }
+    }
+  }
+}
+
+// Mixin per esportare le variabili CSS della tipografia
+@mixin export-typography-variables($type, $scale) {
+  :root {
+    @each $name, $size in $scale {
+      --#{$type}-font-#{$name}: #{$size};
+    }
+  }
+}
+
+// Usa una singola scala tipografica globale per tutti i tipi
+$global-type-ratio: map-get($BaseSettings, r);
+$global-font-scale: generateTypographicScale(1rem, $global-type-ratio, $scale-names-above-base, $scale-names-below-base);
+
+// Genera classi/variabili per ciascun tipo supportato
+@each $type in $typography-types {
+  $font-scale: $global-font-scale;
+  @include createTypographyClasses($font-scale, $type);
+  @include export-typography-variables($type, $font-scale);
+}
+
+// Applica il font-size base al root usando la scala globale
+@include generateResponsiveBaseFontSize($BaseSettings);
+
+// =========================
+// Cromatic Logic
+// =========================
+
+// Definisce i colori globali per white e black (se non già definiti)
+$white: #fcfcfe !default;
+$black: #1e201f !default;
+
+// Funzione per creare un tint (schiarimento) miscelando con il bianco
+@function tint-color($color, $percent) {
+  @return mix($white, $color, $percent);
+}
+
+// Funzione per creare uno shade (scurimento) miscelando con il nero
+@function shade-color($color, $percent) {
+  @return mix($black, $color, $percent);
+}
+
+// Funzione per generare una scala di colori per un determinato nome
+@function generate-color-scale($name, $base-color, $variation-map) {
+  $white-percent: map-get($variation-map, "white");
+  $light-percent: map-get($variation-map, "light");
+  $dark-percent: map-get($variation-map, "dark");
+  $black-percent: map-get($variation-map, "black");
+
+  $scale: (
+    "#{$name}-white": if($white-percent, tint-color($base-color, $white-percent), null),
+    "#{$name}-light": if($light-percent, tint-color($base-color, $light-percent), null),
+    "#{$name}": $base-color,
+    "#{$name}-dark": if($dark-percent, shade-color($base-color, $dark-percent), null),
+    "#{$name}-black": if($black-percent, shade-color($base-color, $black-percent), null)
+  );
+
+  @return $scale;
+}
+
+// Mixin per generare le classi per background, testo, bordo e fill per i colori con variazioni
+@mixin generate-color-classes($colors, $variations) {
+  @each $name, $base-color in $colors {
+    @if $name != "black" and $name != "white" {
+      $variation-map: map-get($variations, $name);
+
+      @if $variation-map != null {
+        $scale: generate-color-scale($name, $base-color, $variation-map);
+
+        @each $variant-name, $color-value in $scale {
+          @if $color-value != null {
+            .bg-#{$variant-name} {
+              background-color: $color-value !important;
+            }
+            .text-#{$variant-name} {
+              color: $color-value !important;
+            }
+            .border-#{$variant-name} {
+              border-color: $color-value !important;
+            }
+            .fill-#{$variant-name} {
+              fill: $color-value !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mixin per esportare le variabili CSS dei colori con variazioni
+@mixin export-color-variables($colors, $variations) {
+  :root {
+    @each $name, $base-color in $colors {
+      $variation-map: map-get($variations, $name);
+      @if $variation-map != null {
+        $scale: generate-color-scale($name, $base-color, $variation-map);
+        @each $variant, $value in $scale {
+          @if $value != null {
+            --#{$variant}: #{$value};
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mixin per generare le classi per background, testo, bordo e fill per i colori base (black e white)
+@mixin generate-base-color-classes($name, $color) {
+  .bg-#{$name} {
+    background-color: $color !important;
+  }
+  .text-#{$name} {
+    color: $color !important;
+  }
+  .border-#{$name} {
+    border-color: $color !important;
+  }
+  .fill-#{$name} {
+    fill: $color !important;
+  }
+}
+
+// Mixin per esportare le variabili CSS per i colori base (black e white)
+@mixin export-base-color-variables() {
+  :root {
+    --black: #{$black};
+    --white: #{$white};
+  }
+}
+
+// Genera le classi per i colori con variazioni e esporta le variabili CSS
+@include generate-color-classes($theme-colors, $my-colors-variations);
+@include export-color-variables($theme-colors, $my-colors-variations);
+
+// Genera le classi e le variabili per i colori base black e white
+@include generate-base-color-classes("black", $black);
+@include generate-base-color-classes("white", $white);
+@include export-base-color-variables();
+
+// =========================
+// Containers & Breakpoints
+// =========================
+
+@mixin container-max-widths($breakpoints, $max-widths) {
+  @each $label, $min-width in $breakpoints {
+    @if map-has-key($max-widths, $label) {
+      @media (min-width: #{map-get($breakpoints, $label)}) {
+        .container {
+          max-width: map-get($max-widths, $label);
+        }
+      }
+    }
+  }
+}
+
+@include container-max-widths($grid-breakpoints, $container-max-widths);

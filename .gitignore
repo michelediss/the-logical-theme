@@ -1,0 +1,32 @@
+# Monorepo allowlist: traccia solo tema e plugin custom
+*
+!.gitignore
+!README.md
+!wp-content/
+
+wp-content/*
+!wp-content/themes/
+!wp-content/plugins/
+
+wp-content/themes/*
+!wp-content/themes/logical-theme/
+!wp-content/themes/logical-theme/**
+
+wp-content/plugins/*
+!wp-content/plugins/logical-cookie-consent/
+!wp-content/plugins/logical-cookie-consent/**
+!wp-content/plugins/logical-default-featured-image/
+!wp-content/plugins/logical-default-featured-image/**
+!wp-content/plugins/logical-design-system/
+!wp-content/plugins/logical-design-system/**
+!wp-content/plugins/logical-design-system-preview/
+!wp-content/plugins/logical-design-system-preview/**
+!wp-content/plugins/logical-seo-toolbox/
+!wp-content/plugins/logical-seo-toolbox/**
+!wp-content/plugins/logical-social-share/
+!wp-content/plugins/logical-social-share/**
+!wp-content/plugins/turnstile-wp/
+!wp-content/plugins/turnstile-wp/**
+
+# macOS
+.DS_Store
