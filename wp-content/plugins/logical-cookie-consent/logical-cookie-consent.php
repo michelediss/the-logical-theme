@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Logical Cookie Consent
- * Description: Banner cookie CMP opt-in con WP Consent API + preferenze riapribili + tabella cookie.
- * Version: 0.1.0
- * Author: Michele Paolino
- * Author URI: https://michelepaolino.com
- * Text Domain: lcc
+* Plugin Name: Logical Cookie Consent
+* Description: Cookie banner
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
  */
 
 if (!defined('ABSPATH')) exit;

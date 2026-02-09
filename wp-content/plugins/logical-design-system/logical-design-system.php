@@ -1,11 +1,11 @@
 <?php
-/*
-Plugin Name: Logical Design System
-Plugin URI: https://github.com/michelediss/the-logical-theme
-Description: Finally a logical design system: color palette & typographic scale generator + 50 Google font pairings
-Version: 0.1.0
-Author: Michele Paolino
-Author URI: https://michelepaolino.com
+/** 
+* Plugin Name: Logical Design System
+* Description: Finally a logical design system: color palette & typographic scale generator + 50 Google font pairings
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
 */
 
 // Include the SCSSPHP library using the correct path

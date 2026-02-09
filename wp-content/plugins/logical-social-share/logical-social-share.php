@@ -1,10 +1,11 @@
 <?php
 /**
- * Plugin Name: Logical Social Share 
- * Description: Social buttons component
- * Version: 0.1.0
- * Author: Michele Paolino
- * Author URI: https://michelepaolino.com 
+* Plugin Name: Logical Social Share 
+* Description: Social buttons component
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }

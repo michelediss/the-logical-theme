@@ -1,9 +1,11 @@
 <?php
 /*
-Plugin Name: Logical Design System Preview
-Description: Live preview offcanvas editor for Logical Design System JSON with apply + build pipeline integration.
-Version: 0.1.0
-Author: Michele Paolino
+* Plugin Name: Logical Design System Preview
+* Description: Live preview offcanvas editor for Logical Design System.
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
 */
 
 if (!defined('ABSPATH')) {

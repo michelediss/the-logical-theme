@@ -1,11 +1,12 @@
 <?php
 /**
- * Plugin Name: Default Featured Image
- * Description: Permette di impostare dall'admin un'immagine in evidenza di default per i contenuti che non ne hanno una specifica.
- * Version: 0.1.0
- * Author: Michele Paolino
- * Author URI: https://michelepaolino.com
- */
+* Plugin Name: Default Featured Image
+* Description: Lets you set a default featured image from the admin area for content that does not have one.
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
+*/
 
 if (! defined('ABSPATH')) {
     exit;

@@ -1,12 +1,11 @@
 <?php
 /*
- * Plugin Name: Logical SEO Toolbox
- * Plugin URI: https://github.com/michelediss/logical-seo-toolbox
- * Description: A minimal WP plugin for SEO: managing meta tags, sitemap, robots.txt, noindex, canonical, and social optimization.
- * Version: 0.1.0
- * Author: Michele Paolino
- * Author URI: https://www.michelepaolino.me
- * Text Domain: logical-seo-toolbox
+* Plugin Name: Logical SEO Toolbox
+* Description: A minimal WP plugin for SEO: managing meta tags, sitemap, robots.txt, noindex, canonical, and social optimization.
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
 */
 
 // Ensure the file is not accessed directly

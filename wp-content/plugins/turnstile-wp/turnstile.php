@@ -1,11 +1,12 @@
 <?php
 /**
- * Plugin Name: Cloudflare Turnstile Login 
- * Description: Protegge il login di WordPress usando Cloudflare Turnstile, salvando le chiavi in una tabella DB personalizzata.
- * Version: 0.1.0
- * Author: Michele Paolino
- * Author URI: https://michelepaolino.com
- */
+* Plugin Name: Cloudflare Turnstile Login 
+* Description: Protects WordPress login with Cloudflare Turnstile, storing keys in a custom database table.
+* Version: 0.1.0
+* Plugin URI: https://github.com/michelediss/the-logical-theme
+* Author: Michele Paolino
+* Author URI: https://michelepaolino.com
+*/
 
 if (!defined('ABSPATH')) {
     exit; // Impedisce l'accesso diretto
