@@ -2,6 +2,9 @@
 *
 !.gitignore
 !README.md
+!.github/
+!.github/workflows/
+!.github/workflows/release.yml
 !wp-content/
 
 wp-content/*

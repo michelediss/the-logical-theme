@@ -1,0 +1,143 @@
+name: Release Packages
+
+on:
+  push:
+    tags:
+      - "theme-logical-theme-v*"
+      - "plugin-logical-cookie-consent-v*"
+      - "plugin-logical-default-featured-image-v*"
+      - "plugin-logical-design-system-v*"
+      - "plugin-logical-design-system-preview-v*"
+      - "plugin-logical-seo-toolbox-v*"
+      - "plugin-logical-social-share-v*"
+      - "plugin-turnstile-wp-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da rilasciare (es: plugin-logical-cookie-consent-v1.4.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Tag
+        id: resolve_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Validate and map component
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.resolve_tag.outputs.tag }}"
+
+          case "$TAG" in
+            theme-logical-theme-v*)
+              SLUG="logical-theme"
+              TYPE="theme"
+              VERSION="${TAG#theme-logical-theme-v}"
+              SOURCE_PATH="wp-content/themes/logical-theme"
+              ;;
+            plugin-logical-cookie-consent-v*)
+              SLUG="logical-cookie-consent"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-cookie-consent-v}"
+              SOURCE_PATH="wp-content/plugins/logical-cookie-consent"
+              ;;
+            plugin-logical-default-featured-image-v*)
+              SLUG="logical-default-featured-image"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-default-featured-image-v}"
+              SOURCE_PATH="wp-content/plugins/logical-default-featured-image"
+              ;;
+            plugin-logical-design-system-v*)
+              SLUG="logical-design-system"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-design-system-v}"
+              SOURCE_PATH="wp-content/plugins/logical-design-system"
+              ;;
+            plugin-logical-design-system-preview-v*)
+              SLUG="logical-design-system-preview"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-design-system-preview-v}"
+              SOURCE_PATH="wp-content/plugins/logical-design-system-preview"
+              ;;
+            plugin-logical-seo-toolbox-v*)
+              SLUG="logical-seo-toolbox"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-seo-toolbox-v}"
+              SOURCE_PATH="wp-content/plugins/logical-seo-toolbox"
+              ;;
+            plugin-logical-social-share-v*)
+              SLUG="logical-social-share"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-social-share-v}"
+              SOURCE_PATH="wp-content/plugins/logical-social-share"
+              ;;
+            plugin-turnstile-wp-v*)
+              SLUG="turnstile-wp"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-turnstile-wp-v}"
+              SOURCE_PATH="wp-content/plugins/turnstile-wp"
+              ;;
+            *)
+              echo "Tag non supportato: $TAG" >&2
+              exit 1
+              ;;
+          esac
+
+          [ -d "$SOURCE_PATH" ] || { echo "Percorso mancante: $SOURCE_PATH" >&2; exit 1; }
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "type=$TYPE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "source_path=$SOURCE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Create package zip
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/tmp
+
+          SLUG="${{ steps.meta.outputs.slug }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          SOURCE_PATH="${{ steps.meta.outputs.source_path }}"
+
+          cp -R "$SOURCE_PATH" "dist/tmp/$SLUG"
+          cd dist/tmp
+          zip -r "../${SLUG}-${VERSION}.zip" "$SLUG"
+          cd -
+
+          echo "asset_path=dist/${SLUG}-${VERSION}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.type }} ${{ steps.meta.outputs.slug }} v${{ steps.meta.outputs.version }}
+          body: |
+            Automated release package for `${{ steps.meta.outputs.slug }}`.
+            - Type: `${{ steps.meta.outputs.type }}`
+            - Version: `${{ steps.meta.outputs.version }}`
+          files: ${{ steps.package.outputs.asset_path }}
+          fail_on_unmatched_files: true
