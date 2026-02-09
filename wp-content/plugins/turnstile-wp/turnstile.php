@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cloudflare Turnstile Login 
  * Description: Protegge il login di WordPress usando Cloudflare Turnstile, salvando le chiavi in una tabella DB personalizzata.
- * Version: 1.0
+ * Version: 0.1.0
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com
  */

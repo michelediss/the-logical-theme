@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Logical Cookie Consent
  * Description: Banner cookie CMP opt-in con WP Consent API + preferenze riapribili + tabella cookie.
- * Version: 1.4.0
+ * Version: 0.1.0
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com
  * Text Domain: lcc
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 final class Logical_Cookie_Consent_WPCA {
-  const VER = '1.4.0';
+  const VER = '0.1.0';
   private $banner_rendered = false;
   private static $fallback_cookie_store = [];
 

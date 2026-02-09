@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Logical Social Share 
  * Description: Social buttons component
- * Version: 1.2
+ * Version: 0.1.0
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com 
  */
@@ -21,7 +21,7 @@ function sss_enqueue_assets() {
         return;
     }
 
-    $version = '1.2';
+    $version = '0.1.0';
 
     wp_enqueue_script(
         'logical-social-share-js',

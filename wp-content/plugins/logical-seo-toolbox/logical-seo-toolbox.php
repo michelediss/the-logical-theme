@@ -3,7 +3,7 @@
  * Plugin Name: Logical SEO Toolbox
  * Plugin URI: https://github.com/michelediss/logical-seo-toolbox
  * Description: A minimal WP plugin for SEO: managing meta tags, sitemap, robots.txt, noindex, canonical, and social optimization.
- * Version: 1.0.0
+ * Version: 0.1.0
  * Author: Michele Paolino
  * Author URI: https://www.michelepaolino.me
  * Text Domain: logical-seo-toolbox
@@ -97,4 +97,3 @@ function generate_sitemap() {
     $sitemap_file = ABSPATH . 'sitemap.xml';
     $xml->asXML($sitemap_file);
 }
-

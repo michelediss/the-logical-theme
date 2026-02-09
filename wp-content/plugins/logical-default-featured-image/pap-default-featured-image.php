@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Default Featured Image
  * Description: Permette di impostare dall'admin un'immagine in evidenza di default per i contenuti che non ne hanno una specifica.
- * Version: 1.0.0
+ * Version: 0.1.0
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com
  */
@@ -49,7 +49,7 @@ class PAP_Default_Featured_Image {
             'pap-default-featured-image-admin',
             plugins_url('assets/admin.js', __FILE__),
             ['jquery'],
-            '1.0.0',
+            '0.1.0',
             true
         );
         wp_localize_script('pap-default-featured-image-admin', 'papDefaultFeaturedImage', [
@@ -62,7 +62,7 @@ class PAP_Default_Featured_Image {
             'pap-default-featured-image-admin',
             plugins_url('assets/admin.css', __FILE__),
             [],
-            '1.0.0'
+            '0.1.0'
         );
     }
 

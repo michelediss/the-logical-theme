@@ -2,19 +2,12 @@ name: Release Packages
 
 on:
   push:
-    tags:
-      - "theme-logical-theme-v*"
-      - "plugin-logical-cookie-consent-v*"
-      - "plugin-logical-default-featured-image-v*"
-      - "plugin-logical-design-system-v*"
-      - "plugin-logical-design-system-preview-v*"
-      - "plugin-logical-seo-toolbox-v*"
-      - "plugin-logical-social-share-v*"
-      - "plugin-turnstile-wp-v*"
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       mode:
-        description: "single = un tag, all = tutte le release dai file versione"
+        description: "single = un tag specifico, all = tutte le release con versione 0.1.X"
         required: true
         default: "all"
         type: choice
@@ -23,6 +16,10 @@ on:
           - single
       tag:
         description: "Richiesto solo con mode=single (es: plugin-logical-cookie-consent-v1.4.0)"
+        required: false
+        type: string
+      seq:
+        description: "Opzionale con mode=all. Se vuoto usa il numero progressivo run."
         required: false
         type: string
 
@@ -46,33 +43,30 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "push" ]; then
-            TAGS=("${GITHUB_REF_NAME}")
-          elif [ "${{ inputs.mode }}" = "single" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "single" ]; then
             if [ -z "${{ inputs.tag }}" ]; then
               echo "Con mode=single devi compilare input tag" >&2
               exit 1
             fi
             TAGS=("${{ inputs.tag }}")
           else
-            theme_ver=$(sed -n 's/^Version:[[:space:]]*//p' wp-content/themes/logical-theme/style.css | head -n1 | tr -d '\r')
-            lcc_ver=$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-cookie-consent/logical-cookie-consent.php | head -n1 | tr -d '\r')
-            dfi_ver=$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-default-featured-image/pap-default-featured-image.php | head -n1 | tr -d '\r')
-            lds_ver=$(sed -n 's/^[[:space:]]*\*?[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-design-system/logical-design-system.php | head -n1 | tr -d '\r')
-            ldsp_ver=$(sed -n 's/^[[:space:]]*\*?[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-design-system-preview/logical-design-system-preview.php | head -n1 | tr -d '\r')
-            lst_ver=$(sed -n 's/^[[:space:]]*\*?[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-seo-toolbox/logical-seo-toolbox.php | head -n1 | tr -d '\r')
-            lss_ver=$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/logical-social-share/logical-social-share.php | head -n1 | tr -d '\r')
-            ts_ver=$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*//p' wp-content/plugins/turnstile-wp/turnstile.php | head -n1 | tr -d '\r')
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.seq }}" ]; then
+              SEQ="${{ inputs.seq }}"
+            else
+              SEQ="${GITHUB_RUN_NUMBER}"
+            fi
+
+            BASE_VERSION="0.1.${SEQ}"
 
             TAGS=(
-              "theme-logical-theme-v${theme_ver}"
-              "plugin-logical-cookie-consent-v${lcc_ver}"
-              "plugin-logical-default-featured-image-v${dfi_ver}"
-              "plugin-logical-design-system-v${lds_ver}"
-              "plugin-logical-design-system-preview-v${ldsp_ver}"
-              "plugin-logical-seo-toolbox-v${lst_ver}"
-              "plugin-logical-social-share-v${lss_ver}"
-              "plugin-turnstile-wp-v${ts_ver}"
+              "theme-logical-theme-v${BASE_VERSION}"
+              "plugin-logical-cookie-consent-v${BASE_VERSION}"
+              "plugin-logical-default-featured-image-v${BASE_VERSION}"
+              "plugin-logical-design-system-v${BASE_VERSION}"
+              "plugin-logical-design-system-preview-v${BASE_VERSION}"
+              "plugin-logical-seo-toolbox-v${BASE_VERSION}"
+              "plugin-logical-social-share-v${BASE_VERSION}"
+              "plugin-turnstile-wp-v${BASE_VERSION}"
             )
           fi
 
