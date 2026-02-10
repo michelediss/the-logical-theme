@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) exit;
 
 final class Logical_Cookie_Consent_WPCA {
   const VER = '0.1.0';
+  const COOKIE_REGISTRY_RELATIVE_PATH = 'assets/json/lcc-cookies.json';
+
   private $banner_rendered = false;
   private static $fallback_cookie_store = [];
 
@@ -40,10 +42,559 @@ final class Logical_Cookie_Consent_WPCA {
 
     // Shortcode tabella cookie
     add_shortcode('lcc_cookie_table', [$this, 'shortcode_cookie_table']);
+
+    // Admin pagina gestione registro cookie (JSON nel tema).
+    add_action('admin_menu', [$this, 'register_admin_page']);
+    add_action('admin_post_lcc_add_cookie', [$this, 'handle_admin_add_cookie']);
+    add_action('admin_post_lcc_delete_cookie', [$this, 'handle_admin_delete_cookie']);
+    add_action('admin_post_lcc_update_cookie', [$this, 'handle_admin_update_cookie']);
   }
 
   public function load_textdomain() {
     load_plugin_textdomain('lcc', false, dirname(plugin_basename(__FILE__)) . '/languages');
+  }
+
+  private static function get_default_cookie_entries() : array {
+    return [
+      [
+        'name' => 'lcc_consent',
+        'service' => 'Logical Cookie Consent',
+        'category' => 'functional',
+        'duration' => '1 anno',
+        'description' => 'Memorizza lo stato di consenso per ogni categoria di cookie.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wordpress_[hash]',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => 'Sessione',
+        'description' => 'Mantiene la sessione autenticata nell’area wp-admin.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wordpress_sec_[hash]',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => 'Sessione',
+        'description' => 'Mantiene la sessione autenticata durante l’uso dei plugin.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wordpress_logged_in_[hash]',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => 'Sessione',
+        'description' => 'Memorizza l’utente autenticato dopo il login.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wordpress_test_cookie',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => 'Sessione',
+        'description' => 'Verifica se il browser accetta i cookie.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wp_lang',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => 'Sessione',
+        'description' => 'Salva la lingua corrente dell’interfaccia.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wp-settings-1',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => '1 anno',
+        'description' => 'Conserva le preferenze personali della dashboard.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'wp-settings-time-1',
+        'service' => 'WordPress',
+        'category' => 'functional',
+        'duration' => '1 anno',
+        'description' => 'Registra il timestamp di aggiornamento delle impostazioni utente.',
+        'first_party' => true,
+      ],
+      [
+        'name' => 'youtube_*',
+        'service' => 'YouTube',
+        'category' => 'marketing',
+        'duration' => 'Fino a 2 anni',
+        'description' => 'Memorizza preferenze di riproduzione e traccia le visualizzazioni dei video incorporati.',
+        'first_party' => false,
+      ],
+      [
+        'name' => 'spotify_*',
+        'service' => 'Spotify',
+        'category' => 'marketing',
+        'duration' => 'Sessione / 1 anno',
+        'description' => 'Permette a Spotify di caricare player embed e raccogliere statistiche sull’ascolto.',
+        'first_party' => false,
+      ],
+      [
+        'name' => 'x.com_*',
+        'service' => 'X (Twitter)',
+        'category' => 'marketing',
+        'duration' => 'Fino a 2 anni',
+        'description' => 'Traccia interazioni con i tweet incorporati e personalizza i contenuti pubblicitari.',
+        'first_party' => false,
+      ],
+      [
+        'name' => 'facebook_*',
+        'service' => 'Facebook',
+        'category' => 'marketing',
+        'duration' => 'Fino a 2 anni',
+        'description' => 'Cookie usati da Facebook per misurare e personalizzare i contenuti degli embed.',
+        'first_party' => false,
+      ],
+      [
+        'name' => 'instagram_*',
+        'service' => 'Instagram',
+        'category' => 'marketing',
+        'duration' => 'Sessione / 1 anno',
+        'description' => 'Gestisce il caricamento dei post e delle storie incorporati e raccoglie metriche.',
+        'first_party' => false,
+      ],
+      [
+        'name' => 'tiktok_*',
+        'service' => 'TikTok',
+        'category' => 'marketing',
+        'duration' => 'Fino a 13 mesi',
+        'description' => 'Serve a TikTok per riprodurre i video embed e analizzare l’engagement.',
+        'first_party' => false,
+      ],
+    ];
+  }
+
+  private function get_cookie_registry_paths() : array {
+    $relative = self::COOKIE_REGISTRY_RELATIVE_PATH;
+    $paths = [];
+
+    $paths[] = trailingslashit(get_stylesheet_directory()) . $relative;
+
+    $template_path = trailingslashit(get_template_directory()) . $relative;
+    if ($template_path !== $paths[0]) {
+      $paths[] = $template_path;
+    }
+
+    return $paths;
+  }
+
+  private function get_cookie_registry_read_path() : string {
+    $paths = $this->get_cookie_registry_paths();
+
+    foreach ($paths as $path) {
+      if (is_readable($path)) {
+        return $path;
+      }
+    }
+
+    return $paths[0];
+  }
+
+  private function get_cookie_registry_write_path() : string {
+    $paths = $this->get_cookie_registry_paths();
+    return $paths[0];
+  }
+
+  private function ensure_cookie_registry_file() : void {
+    $read_path = $this->get_cookie_registry_read_path();
+    if (file_exists($read_path)) {
+      return;
+    }
+
+    $write_path = $this->get_cookie_registry_write_path();
+    $dir = dirname($write_path);
+    if (!is_dir($dir)) {
+      wp_mkdir_p($dir);
+    }
+
+    $json = wp_json_encode(
+      self::get_default_cookie_entries(),
+      JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+
+    if ($json) {
+      file_put_contents($write_path, $json . PHP_EOL, LOCK_EX);
+    }
+  }
+
+  private static function normalize_registry_category($value) : string {
+    $value = trim(wp_strip_all_tags((string) $value));
+    $key = sanitize_key($value);
+
+    if ($key === 'statistics_anonymous') {
+      return 'statistics-anonymous';
+    }
+
+    if (in_array($key, ['third_party', 'thirdparty', 'terze_parti', 'tereze_parti'], true)) {
+      return 'marketing';
+    }
+
+    $allowed = ['functional', 'preferences', 'statistics-anonymous', 'statistics', 'marketing'];
+    if (in_array($key, $allowed, true)) {
+      return $key;
+    }
+
+    if ($value === 'terze parti' || $value === 'tereze parti') {
+      return 'marketing';
+    }
+
+    return '';
+  }
+
+  private static function sanitize_cookie_entry(array $entry) : ?array {
+    $name = sanitize_text_field((string) ($entry['name'] ?? ''));
+    $service = sanitize_text_field((string) ($entry['service'] ?? ''));
+    $category = self::normalize_registry_category($entry['category'] ?? '');
+    $duration = sanitize_text_field((string) ($entry['duration'] ?? ''));
+    $description = sanitize_textarea_field((string) ($entry['description'] ?? ''));
+
+    if ($name === '' || $service === '' || $category === '') {
+      return null;
+    }
+
+    $first_party = null;
+    if (array_key_exists('first_party', $entry)) {
+      $first_party = (bool) $entry['first_party'];
+    }
+
+    return [
+      'name' => $name,
+      'service' => $service,
+      'category' => $category,
+      'duration' => $duration,
+      'description' => $description,
+      'first_party' => $first_party,
+    ];
+  }
+
+  private function read_cookie_entries_from_registry() : array {
+    $this->ensure_cookie_registry_file();
+
+    $path = $this->get_cookie_registry_read_path();
+    if (!is_readable($path)) {
+      return self::get_default_cookie_entries();
+    }
+
+    $raw = file_get_contents($path);
+    if (!is_string($raw) || trim($raw) === '') {
+      return self::get_default_cookie_entries();
+    }
+
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+      return self::get_default_cookie_entries();
+    }
+
+    $entries = [];
+    foreach ($decoded as $row) {
+      if (!is_array($row)) {
+        continue;
+      }
+
+      $clean = self::sanitize_cookie_entry($row);
+      if ($clean !== null) {
+        $entries[] = $clean;
+      }
+    }
+
+    return $entries;
+  }
+
+  private function write_cookie_entries_to_registry(array $entries) : bool {
+    $write_path = $this->get_cookie_registry_write_path();
+    $dir = dirname($write_path);
+    if (!is_dir($dir) && !wp_mkdir_p($dir)) {
+      return false;
+    }
+
+    $json = wp_json_encode(
+      array_values($entries),
+      JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+
+    if (!$json) {
+      return false;
+    }
+
+    return file_put_contents($write_path, $json . PHP_EOL, LOCK_EX) !== false;
+  }
+
+  private static function is_third_party_service(string $service) : bool {
+    $service = strtolower(trim($service));
+    $known = ['youtube', 'spotify', 'x (twitter)', 'twitter', 'facebook', 'instagram', 'tiktok'];
+    return in_array($service, $known, true);
+  }
+
+  public function register_admin_page() : void {
+    add_options_page(
+      __('Logical Cookie Consent', 'lcc'),
+      __('Cookie Registry', 'lcc'),
+      'manage_options',
+      'lcc-cookie-registry',
+      [$this, 'render_admin_page']
+    );
+  }
+
+  private function get_admin_page_url(array $args = []) : string {
+    $base = admin_url('options-general.php?page=lcc-cookie-registry');
+    return empty($args) ? $base : add_query_arg($args, $base);
+  }
+
+  public function handle_admin_add_cookie() : void {
+    if (!current_user_can('manage_options')) {
+      wp_die(esc_html__('Permessi insufficienti.', 'lcc'));
+    }
+
+    check_admin_referer('lcc_add_cookie');
+
+    $entry = self::sanitize_cookie_entry([
+      'name' => isset($_POST['name']) ? wp_unslash($_POST['name']) : '',
+      'service' => isset($_POST['service']) ? wp_unslash($_POST['service']) : '',
+      'category' => isset($_POST['category']) ? wp_unslash($_POST['category']) : '',
+      'duration' => isset($_POST['duration']) ? wp_unslash($_POST['duration']) : '',
+      'description' => isset($_POST['description']) ? wp_unslash($_POST['description']) : '',
+      'first_party' => !empty($_POST['first_party']),
+    ]);
+
+    if ($entry === null) {
+      wp_safe_redirect($this->get_admin_page_url(['lcc_status' => 'error']));
+      exit;
+    }
+
+    $entries = $this->read_cookie_entries_from_registry();
+    $entries[] = $entry;
+
+    $ok = $this->write_cookie_entries_to_registry($entries);
+    wp_safe_redirect($this->get_admin_page_url(['lcc_status' => $ok ? 'added' : 'error']));
+    exit;
+  }
+
+  public function handle_admin_delete_cookie() : void {
+    if (!current_user_can('manage_options')) {
+      wp_die(esc_html__('Permessi insufficienti.', 'lcc'));
+    }
+
+    check_admin_referer('lcc_delete_cookie');
+
+    $index = isset($_POST['cookie_index']) ? (int) $_POST['cookie_index'] : -1;
+    $entries = $this->read_cookie_entries_from_registry();
+
+    if (!isset($entries[$index])) {
+      wp_safe_redirect($this->get_admin_page_url(['lcc_status' => 'error']));
+      exit;
+    }
+
+    unset($entries[$index]);
+    $ok = $this->write_cookie_entries_to_registry(array_values($entries));
+
+    wp_safe_redirect($this->get_admin_page_url(['lcc_status' => $ok ? 'deleted' : 'error']));
+    exit;
+  }
+
+  public function handle_admin_update_cookie() : void {
+    if (!current_user_can('manage_options')) {
+      wp_die(esc_html__('Permessi insufficienti.', 'lcc'));
+    }
+
+    check_admin_referer('lcc_update_cookie');
+
+    $index = isset($_POST['cookie_index']) ? (int) $_POST['cookie_index'] : -1;
+    $entries = $this->read_cookie_entries_from_registry();
+
+    if (!isset($entries[$index])) {
+      wp_safe_redirect($this->get_admin_page_url(['lcc_status' => 'error']));
+      exit;
+    }
+
+    $entry = self::sanitize_cookie_entry([
+      'name' => isset($_POST['name']) ? wp_unslash($_POST['name']) : '',
+      'service' => isset($_POST['service']) ? wp_unslash($_POST['service']) : '',
+      'category' => isset($_POST['category']) ? wp_unslash($_POST['category']) : '',
+      'duration' => isset($_POST['duration']) ? wp_unslash($_POST['duration']) : '',
+      'description' => isset($_POST['description']) ? wp_unslash($_POST['description']) : '',
+      'first_party' => !empty($_POST['first_party']),
+    ]);
+
+    if ($entry === null) {
+      wp_safe_redirect($this->get_admin_page_url(['lcc_status' => 'error', 'lcc_edit' => $index]));
+      exit;
+    }
+
+    $entries[$index] = $entry;
+    $ok = $this->write_cookie_entries_to_registry($entries);
+
+    wp_safe_redirect($this->get_admin_page_url(['lcc_status' => $ok ? 'updated' : 'error']));
+    exit;
+  }
+
+  public function render_admin_page() : void {
+    if (!current_user_can('manage_options')) {
+      return;
+    }
+
+    $entries = $this->read_cookie_entries_from_registry();
+    $read_path = $this->get_cookie_registry_read_path();
+    $write_path = $this->get_cookie_registry_write_path();
+    $status = isset($_GET['lcc_status']) ? sanitize_key((string) $_GET['lcc_status']) : '';
+    $edit_index = isset($_GET['lcc_edit']) ? (int) $_GET['lcc_edit'] : -1;
+    $edit_entry = isset($entries[$edit_index]) ? $entries[$edit_index] : null;
+    ?>
+    <div class="wrap">
+      <h1><?php esc_html_e('Registro Cookie', 'lcc'); ?></h1>
+      <p><?php esc_html_e('Il plugin legge prima il file del child theme e, in fallback, quello del parent theme.', 'lcc'); ?></p>
+      <p>
+        <strong><?php esc_html_e('File in uso:', 'lcc'); ?></strong>
+        <code><?php echo esc_html($read_path); ?></code><br>
+        <strong><?php esc_html_e('File in scrittura:', 'lcc'); ?></strong>
+        <code><?php echo esc_html($write_path); ?></code>
+      </p>
+
+      <?php if ($status === 'added') : ?>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Cookie aggiunto.', 'lcc'); ?></p></div>
+      <?php elseif ($status === 'deleted') : ?>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Cookie eliminato.', 'lcc'); ?></p></div>
+      <?php elseif ($status === 'updated') : ?>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Cookie aggiornato.', 'lcc'); ?></p></div>
+      <?php elseif ($status === 'error') : ?>
+        <div class="notice notice-error is-dismissible"><p><?php esc_html_e('Operazione non riuscita. Verifica i campi obbligatori e i permessi di scrittura.', 'lcc'); ?></p></div>
+      <?php endif; ?>
+
+      <h2><?php esc_html_e('Cookie registrati', 'lcc'); ?></h2>
+      <table class="widefat striped">
+        <thead>
+          <tr>
+            <th><?php esc_html_e('Nome', 'lcc'); ?></th>
+            <th><?php esc_html_e('Servizio', 'lcc'); ?></th>
+            <th><?php esc_html_e('Categoria', 'lcc'); ?></th>
+            <th><?php esc_html_e('Durata', 'lcc'); ?></th>
+            <th><?php esc_html_e('Descrizione', 'lcc'); ?></th>
+            <th><?php esc_html_e('First party', 'lcc'); ?></th>
+            <th><?php esc_html_e('Azioni', 'lcc'); ?></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if (empty($entries)) : ?>
+            <tr><td colspan="7"><?php esc_html_e('Nessun cookie registrato.', 'lcc'); ?></td></tr>
+          <?php else : ?>
+            <?php foreach ($entries as $index => $entry) : ?>
+              <tr>
+                <td><?php echo esc_html((string) ($entry['name'] ?? '')); ?></td>
+                <td><?php echo esc_html((string) ($entry['service'] ?? '')); ?></td>
+                <td><code><?php echo esc_html((string) ($entry['category'] ?? '')); ?></code></td>
+                <td><?php echo esc_html((string) ($entry['duration'] ?? '')); ?></td>
+                <td><?php echo esc_html((string) ($entry['description'] ?? '')); ?></td>
+                <td><?php echo !empty($entry['first_party']) ? 'true' : 'false'; ?></td>
+                <td>
+                  <a class="button button-secondary" href="<?php echo esc_url($this->get_admin_page_url(['lcc_edit' => $index])); ?>">
+                    <?php esc_html_e('Modifica', 'lcc'); ?>
+                  </a>
+                  <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <?php wp_nonce_field('lcc_delete_cookie'); ?>
+                    <input type="hidden" name="action" value="lcc_delete_cookie">
+                    <input type="hidden" name="cookie_index" value="<?php echo esc_attr((string) $index); ?>">
+                    <button type="submit" class="button button-link-delete"><?php esc_html_e('Elimina', 'lcc'); ?></button>
+                  </form>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </tbody>
+      </table>
+
+      <?php if (is_array($edit_entry)) : ?>
+        <h2 style="margin-top: 30px;"><?php esc_html_e('Modifica cookie', 'lcc'); ?></h2>
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+          <?php wp_nonce_field('lcc_update_cookie'); ?>
+          <input type="hidden" name="action" value="lcc_update_cookie">
+          <input type="hidden" name="cookie_index" value="<?php echo esc_attr((string) $edit_index); ?>">
+          <table class="form-table" role="presentation">
+            <tr>
+              <th scope="row"><label for="lcc-edit-name"><?php esc_html_e('Nome cookie', 'lcc'); ?></label></th>
+              <td><input id="lcc-edit-name" name="name" type="text" class="regular-text" required value="<?php echo esc_attr((string) ($edit_entry['name'] ?? '')); ?>"></td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="lcc-edit-service"><?php esc_html_e('Servizio', 'lcc'); ?></label></th>
+              <td><input id="lcc-edit-service" name="service" type="text" class="regular-text" required value="<?php echo esc_attr((string) ($edit_entry['service'] ?? '')); ?>"></td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="lcc-edit-category"><?php esc_html_e('Categoria', 'lcc'); ?></label></th>
+              <td>
+                <select id="lcc-edit-category" name="category">
+                  <option value="functional" <?php selected((string) ($edit_entry['category'] ?? ''), 'functional'); ?>>functional</option>
+                  <option value="preferences" <?php selected((string) ($edit_entry['category'] ?? ''), 'preferences'); ?>>preferences</option>
+                  <option value="statistics-anonymous" <?php selected((string) ($edit_entry['category'] ?? ''), 'statistics-anonymous'); ?>>statistics-anonymous</option>
+                  <option value="statistics" <?php selected((string) ($edit_entry['category'] ?? ''), 'statistics'); ?>>statistics</option>
+                  <option value="marketing" <?php selected((string) ($edit_entry['category'] ?? ''), 'marketing'); ?>>marketing</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="lcc-edit-duration"><?php esc_html_e('Durata', 'lcc'); ?></label></th>
+              <td><input id="lcc-edit-duration" name="duration" type="text" class="regular-text" value="<?php echo esc_attr((string) ($edit_entry['duration'] ?? '')); ?>"></td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="lcc-edit-description"><?php esc_html_e('Descrizione', 'lcc'); ?></label></th>
+              <td><textarea id="lcc-edit-description" name="description" rows="4" class="large-text"><?php echo esc_textarea((string) ($edit_entry['description'] ?? '')); ?></textarea></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php esc_html_e('First party', 'lcc'); ?></th>
+              <td><label><input type="checkbox" name="first_party" value="1" <?php checked(!empty($edit_entry['first_party'])); ?>> <?php esc_html_e('Cookie di prima parte', 'lcc'); ?></label></td>
+            </tr>
+          </table>
+          <?php submit_button(__('Salva modifiche', 'lcc')); ?>
+          <a href="<?php echo esc_url($this->get_admin_page_url()); ?>" class="button"><?php esc_html_e('Annulla', 'lcc'); ?></a>
+        </form>
+      <?php endif; ?>
+
+      <h2 style="margin-top: 30px;"><?php esc_html_e('Aggiungi cookie', 'lcc'); ?></h2>
+      <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+        <?php wp_nonce_field('lcc_add_cookie'); ?>
+        <input type="hidden" name="action" value="lcc_add_cookie">
+        <table class="form-table" role="presentation">
+          <tr>
+            <th scope="row"><label for="lcc-name"><?php esc_html_e('Nome cookie', 'lcc'); ?></label></th>
+            <td><input id="lcc-name" name="name" type="text" class="regular-text" required></td>
+          </tr>
+          <tr>
+            <th scope="row"><label for="lcc-service"><?php esc_html_e('Servizio', 'lcc'); ?></label></th>
+            <td><input id="lcc-service" name="service" type="text" class="regular-text" required></td>
+          </tr>
+          <tr>
+            <th scope="row"><label for="lcc-category"><?php esc_html_e('Categoria', 'lcc'); ?></label></th>
+            <td>
+              <select id="lcc-category" name="category">
+                <option value="functional">functional</option>
+                <option value="preferences">preferences</option>
+                <option value="statistics-anonymous">statistics-anonymous</option>
+                <option value="statistics">statistics</option>
+                <option value="marketing">marketing</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><label for="lcc-duration"><?php esc_html_e('Durata', 'lcc'); ?></label></th>
+            <td><input id="lcc-duration" name="duration" type="text" class="regular-text"></td>
+          </tr>
+          <tr>
+            <th scope="row"><label for="lcc-description"><?php esc_html_e('Descrizione', 'lcc'); ?></label></th>
+            <td><textarea id="lcc-description" name="description" rows="4" class="large-text"></textarea></td>
+          </tr>
+          <tr>
+            <th scope="row"><?php esc_html_e('First party', 'lcc'); ?></th>
+            <td><label><input type="checkbox" name="first_party" value="1" checked> <?php esc_html_e('Cookie di prima parte', 'lcc'); ?></label></td>
+          </tr>
+        </table>
+        <?php submit_button(__('Aggiungi cookie', 'lcc')); ?>
+      </form>
+    </div>
+    <?php
   }
 
   public function enqueue_assets() {
@@ -406,18 +957,32 @@ final class Logical_Cookie_Consent_WPCA {
   public function register_cookies_info() {
     if (!function_exists('wp_add_cookie_info')) return;
 
-    // Cookie “tecnici” esempio. Aggiungi i tuoi qui o via hook.
-    // Firma mostrata nell’esempio ufficiale :contentReference[oaicite:9]{index=9}
-    wp_add_cookie_info(
-      'wordpress_logged_in_*',
-      'WordPress',
-      'functional',
-      __('Sessione', 'lcc'),
-      __('Gestisce login e sessione utente.', 'lcc'),
-      true,
-      false,
-      false
-    );
+    $entries = $this->read_cookie_entries_from_registry();
+    foreach ($entries as $entry) {
+      $name = (string) ($entry['name'] ?? '');
+      $service = (string) ($entry['service'] ?? '');
+      $category = self::normalize_registry_category($entry['category'] ?? '');
+      if ($name === '' || $service === '' || $category === '') {
+        continue;
+      }
+
+      $duration = (string) ($entry['duration'] ?? '');
+      $description = (string) ($entry['description'] ?? '');
+      $first_party = array_key_exists('first_party', $entry) && $entry['first_party'] !== null
+        ? (bool) $entry['first_party']
+        : !self::is_third_party_service($service);
+
+      wp_add_cookie_info(
+        $name,
+        $service,
+        $category,
+        $duration,
+        $description,
+        $first_party,
+        false,
+        false
+      );
+    }
 
     /**
      * Hook per registrare cookie di terze parti o custom.

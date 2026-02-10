@@ -5,6 +5,27 @@
 // ===================================================
 
 /**
+ * URL helpers used by shared parent/child templates.
+ * Child theme can override them by defining the same functions first.
+ */
+if (!function_exists('ltc_home_url')) {
+    function ltc_home_url($path = '/')
+    {
+        return home_url($path);
+    }
+}
+
+if (!function_exists('ltc_upload_url')) {
+    function ltc_upload_url($path = '')
+    {
+        $uploads = wp_get_upload_dir();
+        $base = isset($uploads['baseurl']) ? (string) $uploads['baseurl'] : '';
+        $path = ltrim((string) $path, '/');
+        return $path ? trailingslashit($base) . $path : $base;
+    }
+}
+
+/**
  * Logical Theme Setup
  */
 function logical_theme_setup()
@@ -723,7 +744,6 @@ function enqueue_admin_minify_js_script()
     ));
 }
 add_action('admin_enqueue_scripts', 'enqueue_admin_minify_js_script');
-
 
 
 
