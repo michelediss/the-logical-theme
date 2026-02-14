@@ -64,8 +64,6 @@ function render_theme_settings_page()
     $snippet_disable_gutenberg = get_option('snippet_disable_gutenberg', 0);
     $snippet_hierarchical_tag = get_option('snippet_hierarchical_tag', 0);
 
-    $include_bootstrap_icons = get_option('include_bootstrap_icons', 0);
-
     ?>
     <div class="wrap">
         <h1>Theme Settings</h1>
@@ -119,21 +117,6 @@ function render_theme_settings_page()
                                 <?php
                             }
                             ?>
-                        </div>
-                    </div>
-
-                    <!-- Sottosezione "Activate Libraries" -->
-                    <h3>Activate Libraries</h3>
-                    <div class="activate-libraries-options">
-                        <div class="select-all-checkbox">
-                            <input type="checkbox" id="select_all_activate_libraries" />
-                            <label for="select_all_activate_libraries">Select All</label>
-                        </div>
-                        <div class="snippet-options-container">
-                            <label>
-                                <input type="checkbox" name="include_bootstrap_icons" value="1" <?php checked(1, $include_bootstrap_icons, true); ?> />
-                                Include Bootstrap Icons via CDN
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -301,6 +284,9 @@ function render_theme_settings_page()
                 function handleSelectAll(selectAllId, containerSelector) {
                     const selectAllCheckbox = document.getElementById(selectAllId);
                     const container = document.querySelector(containerSelector);
+                    if (!selectAllCheckbox || !container) {
+                        return;
+                    }
                     const checkboxes = container.querySelectorAll('input[type="checkbox"][name]');
                     selectAllCheckbox.addEventListener('change', function () {
                         checkboxes.forEach(checkbox => {
@@ -311,9 +297,6 @@ function render_theme_settings_page()
 
                 // No Enqueue Snippets
                 handleSelectAll('select_all_no_enqueue_snippets', '.no-enqueue-options .snippet-options-container');
-
-                // Activate Libraries
-                handleSelectAll('select_all_activate_libraries', '.activate-libraries-options .snippet-options-container');
 
                 // Altre sezioni...
                 handleSelectAll('select_all_disable', '.disable-options .snippet-options-container');
@@ -335,9 +318,6 @@ function initialize_theme_settings()
     register_setting('theme_settings_group', 'snippet_disable_gutenberg');
     register_setting('theme_settings_group', 'snippet_disable_jquery');
     register_setting('theme_settings_group', 'snippet_disable_notice');
-
-    // Registrazione delle opzioni per le librerie
-    register_setting('theme_settings_group', 'include_bootstrap_icons');
 
     // Register the new setting for selected pages
     register_setting('theme_settings_group', 'disable_editor_pages', [

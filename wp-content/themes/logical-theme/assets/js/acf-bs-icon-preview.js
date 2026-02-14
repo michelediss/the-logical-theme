@@ -1,14 +1,12 @@
-(() => {
+(function ($) {
   "use strict";
 
   const FIELD_NAME = "icon";
   const PREVIEW_CLASS = "acf-bs-icon-preview";
-  const OPTION_ICON_CLASS = "acf-bs-icon-option";
 
   const sanitizeSlug = (value) => {
     if (!value) return "";
-    let slug = String(value);
-    slug = slug.replace(/\.svg$/i, "");
+    let slug = String(value).replace(/\.svg$/i, "");
     slug = slug.toLowerCase().replace(/[^a-z0-9\-]/g, "");
     if (slug.endsWith("svg") && !slug.endsWith("-svg")) {
       slug = slug.slice(0, -3);
@@ -16,123 +14,115 @@
     return slug;
   };
 
-  let currentSelect = null;
+  const ensureInlinePreview = (selectEl) => {
+    if (!selectEl) return null;
 
-  const ensurePreview = (selectEl) => {
-    if (!selectEl || selectEl.dataset.bsIconPreviewBound === "1") return;
-
-    const inputWrap = selectEl.closest(".acf-input");
-    if (!inputWrap) return;
+    const inputWrap = selectEl.closest(".acf-input") || selectEl.parentElement;
+    if (!inputWrap) return null;
 
     let preview = inputWrap.querySelector(`.${PREVIEW_CLASS}`);
     if (!preview) {
       preview = document.createElement("span");
       preview.className = PREVIEW_CLASS;
-      preview.setAttribute("aria-hidden", "true");
       preview.style.display = "inline-flex";
       preview.style.alignItems = "center";
-      preview.style.marginLeft = "8px";
-      preview.style.fontSize = "2.1em";
-      preview.style.lineHeight = "1";
-      preview.style.minWidth = "1.8em";
-      preview.style.paddingTop = "4px";
-      inputWrap.appendChild(preview);
+      preview.style.justifyContent = "center";
+      preview.style.marginLeft = "10px";
+      preview.style.fontSize = "22px";
+      preview.style.minWidth = "28px";
+      selectEl.insertAdjacentElement("afterend", preview);
     }
 
-    const update = () => {
-      const slug = sanitizeSlug(selectEl.value);
-      preview.className = PREVIEW_CLASS + (slug ? ` bi bi-${slug}` : "");
-    };
+    return preview;
+  };
 
-    selectEl.addEventListener("change", update);
-    selectEl.addEventListener("input", update);
-    update();
+  const updateInlinePreview = (selectEl) => {
+    const preview = ensureInlinePreview(selectEl);
+    if (!preview) return;
 
-    const select2 = selectEl.nextElementSibling;
-    if (select2 && select2.classList.contains("select2")) {
-      const selection = select2.querySelector(".select2-selection");
-      if (selection) {
-        selection.addEventListener("mousedown", () => {
-          currentSelect = selectEl;
-          setTimeout(decorateSelect2Options, 0);
-        });
-      }
+    const slug = sanitizeSlug(selectEl.value || "");
+    if (!slug) {
+      preview.innerHTML = "";
+      return;
+    }
+
+    preview.innerHTML = `<i class="bi bi-${slug}" aria-hidden="true"></i>`;
+  };
+
+  const initField = (selectEl) => {
+    if (!selectEl || selectEl.dataset.bsIconPreviewBound === "1") return;
+
+    updateInlinePreview(selectEl);
+
+    selectEl.addEventListener("change", () => updateInlinePreview(selectEl));
+
+    if (window.jQuery) {
+      window.jQuery(selectEl).on("select2:select select2:clear", () => {
+        updateInlinePreview(selectEl);
+      });
     }
 
     selectEl.dataset.bsIconPreviewBound = "1";
   };
 
   const initIn = (root) => {
-    const scope = root || document;
-    const fields = scope.querySelectorAll(`.acf-field[data-name="${FIELD_NAME}"] select`);
-    fields.forEach(ensurePreview);
+    const scope = root && root.querySelector ? root : document;
+    const selects = scope.querySelectorAll(`.acf-field[data-name="${FIELD_NAME}"] select`);
+    selects.forEach(initField);
   };
 
-  if (window.acf && typeof window.acf.addAction === "function") {
-    window.acf.addAction("ready", (el) => {
-      initIn(el && el[0] ? el[0] : document);
+  // Render icon inside Select2 list and selected value.
+  const renderSelect2Option = (state) => {
+    if (!state) return "";
+
+    const id = state.id || "";
+    const text = state.text || "";
+
+    if (!id) {
+      return text;
+    }
+
+    const slug = sanitizeSlug(id);
+    if (!slug) {
+      return text;
+    }
+
+    return $(
+      `<span><i class="bi bi-${slug}" aria-hidden="true" style="margin-right:8px;"></i>${text}</span>`
+    );
+  };
+
+  if (window.acf && typeof window.acf.addFilter === "function") {
+    window.acf.addFilter("select2_args", function (args, $select) {
+      const $field = $select && $select.closest ? $select.closest(".acf-field") : null;
+      if (!$field || !$field.length || $field.data("name") !== FIELD_NAME) {
+        return args;
+      }
+
+      args.templateResult = renderSelect2Option;
+      args.templateSelection = renderSelect2Option;
+      args.escapeMarkup = function (markup) {
+        return markup;
+      };
+
+      return args;
     });
-    window.acf.addAction("append", (el) => {
-      initIn(el && el[0] ? el[0] : document);
-    });
+
+    window.acf.addAction("ready", (el) => initIn(el && el[0] ? el[0] : document));
+    window.acf.addAction("append", (el) => initIn(el && el[0] ? el[0] : document));
   } else {
     document.addEventListener("DOMContentLoaded", () => initIn(document));
   }
 
-  const decorateSelect2Options = () => {
-    if (!currentSelect) return;
-    const openContainer = document.querySelector(".select2-container--open");
-    if (!openContainer) return;
-    if (openContainer.previousElementSibling !== currentSelect) return;
-    if (!currentSelect.closest(`.acf-field[data-name="${FIELD_NAME}"]`)) return;
-
-    const map = new Map();
-    Array.from(currentSelect.options).forEach((opt) => {
-      const label = opt.textContent ? opt.textContent.trim() : "";
-      if (label) {
-        map.set(label, opt.value || "");
-      }
-    });
-
-    const results = document.querySelectorAll(".select2-results__option");
-    results.forEach((item) => {
-      if (item.querySelector(`.${OPTION_ICON_CLASS}`)) return;
-      const label = item.textContent ? item.textContent.trim() : "";
-      const value = map.get(label);
-      const slug = sanitizeSlug(value || "");
-      if (!slug) return;
-
-      const icon = document.createElement("span");
-      icon.className = `${OPTION_ICON_CLASS} bi bi-${slug}`;
-      icon.setAttribute("aria-hidden", "true");
-      icon.style.display = "inline-flex";
-      icon.style.alignItems = "center";
-      icon.style.marginRight = "8px";
-      icon.style.fontSize = "1.4em";
-      icon.style.lineHeight = "1";
-
-      item.prepend(icon);
-    });
-  };
-
-  document.addEventListener("click", () => {
-    setTimeout(decorateSelect2Options, 0);
-  });
-
-  document.addEventListener("keyup", () => {
-    setTimeout(decorateSelect2Options, 0);
-  });
-
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach((m) => {
-      m.addedNodes.forEach((node) => {
-        if (node.nodeType === 1) {
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach((node) => {
+        if (node && node.nodeType === 1) {
           initIn(node);
-          setTimeout(decorateSelect2Options, 0);
         }
       });
-    });
+    }
   });
 
   observer.observe(document.documentElement, { childList: true, subtree: true });
-})();
+})(window.jQuery || function () {});

@@ -85,6 +85,24 @@ function relocate()
 
 relocate();
 
+/**
+ * Render search form from template-parts/partials/searchform.php.
+ *
+ * This makes get_search_form() work with the theme's partial location.
+ *
+ * @param string $form Default search form HTML.
+ * @return string
+ */
+function logical_theme_get_search_form($form)
+{
+    ob_start();
+    get_template_part('template-parts/partials/searchform');
+    $custom_form = trim((string) ob_get_clean());
+
+    return $custom_form !== '' ? $custom_form : $form;
+}
+add_filter('get_search_form', 'logical_theme_get_search_form');
+
 
 // ===================================================
 // Bootstrap Navigation Walker
@@ -161,11 +179,6 @@ add_filter('nav_menu_link_attributes', 'add_custom_menu_link_classes', 10, 4);
  */
 function logical_theme_enqueue_scripts()
 {
-    // Enqueue Bootstrap Icons CSS if enabled in options
-    if (get_option('include_bootstrap_icons')) {
-        wp_enqueue_style('bootstrap-icons', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css', array(), '1.8.3');
-    }
-
     // Enqueue Swiper CSS (kept outside the Sass build due to nesting syntax)
     $swiper_css_path = get_template_directory() . '/assets/css/swiper/swiper-bundle.min.css';
     if (file_exists($swiper_css_path)) {
@@ -744,8 +757,6 @@ function enqueue_admin_minify_js_script()
     ));
 }
 add_action('admin_enqueue_scripts', 'enqueue_admin_minify_js_script');
-
-
 
 
 

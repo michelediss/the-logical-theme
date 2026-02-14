@@ -13,6 +13,74 @@ const LOGICAL_BS_ICON_FIELD_KEY = 'field_6988e0d8a5ed0';
 const LOGICAL_BS_ICON_TRANSIENT  = 'logical_bs_icons_v1';
 
 /**
+ * Resolve an asset path/uri with child-theme override and parent fallback.
+ *
+ * @return array{path:string,uri:string}
+ */
+function logical_bs_icon_asset(string $relative): array
+{
+    $relative = ltrim($relative, '/');
+
+    $child_path = trailingslashit(get_stylesheet_directory()) . $relative;
+    if (is_file($child_path)) {
+        return [
+            'path' => $child_path,
+            'uri'  => trailingslashit(get_stylesheet_directory_uri()) . $relative,
+        ];
+    }
+
+    $parent_path = trailingslashit(get_template_directory()) . $relative;
+    return [
+        'path' => $parent_path,
+        'uri'  => trailingslashit(get_template_directory_uri()) . $relative,
+    ];
+}
+
+/**
+ * Resolve a Bootstrap Icons CSS file that has matching local font files.
+ *
+ * @return array{path:string,uri:string}
+ */
+function logical_bs_icon_css_asset(): array
+{
+    $candidates = [
+        [
+            'path' => trailingslashit(get_stylesheet_directory()) . 'assets/bootstrap-icons/font/bootstrap-icons.css',
+            'uri'  => trailingslashit(get_stylesheet_directory_uri()) . 'assets/bootstrap-icons/font/bootstrap-icons.css',
+        ],
+        [
+            'path' => trailingslashit(get_stylesheet_directory()) . 'assets/bootstrap-icons/bootstrap-icons.css',
+            'uri'  => trailingslashit(get_stylesheet_directory_uri()) . 'assets/bootstrap-icons/bootstrap-icons.css',
+        ],
+        [
+            'path' => trailingslashit(get_template_directory()) . 'assets/bootstrap-icons/font/bootstrap-icons.css',
+            'uri'  => trailingslashit(get_template_directory_uri()) . 'assets/bootstrap-icons/font/bootstrap-icons.css',
+        ],
+        [
+            'path' => trailingslashit(get_template_directory()) . 'assets/bootstrap-icons/bootstrap-icons.css',
+            'uri'  => trailingslashit(get_template_directory_uri()) . 'assets/bootstrap-icons/bootstrap-icons.css',
+        ],
+    ];
+
+    foreach ($candidates as $asset) {
+        $path = $asset['path'];
+        if (!is_file($path)) {
+            continue;
+        }
+
+        $dir = dirname($path);
+        $woff2 = $dir . '/fonts/bootstrap-icons.woff2';
+        $woff = $dir . '/fonts/bootstrap-icons.woff';
+        if (is_file($woff2) && is_file($woff)) {
+            return $asset;
+        }
+    }
+
+    // Last fallback, keep existing behavior.
+    return logical_bs_icon_asset('assets/bootstrap-icons/bootstrap-icons.css');
+}
+
+/**
  * Sanitize slug to avoid injection/XSS.
  */
 function logical_bs_icon_sanitize_slug(string $slug): string
@@ -51,7 +119,8 @@ function logical_bs_icon_load_icons(): array
         return $static_cache;
     }
 
-    $json_path = get_stylesheet_directory() . '/assets/bootstrap-icons/icons.json';
+    $json_asset = logical_bs_icon_asset('assets/bootstrap-icons/icons.json');
+    $json_path  = $json_asset['path'];
     $mtime     = is_file($json_path) ? (int) filemtime($json_path) : 0;
 
     $cached = get_transient(LOGICAL_BS_ICON_TRANSIENT);
@@ -116,6 +185,9 @@ function logical_acf_populate_bs_icon_field(array $field): array
         $choices = ['' => 'Nessuna icona disponibile'];
     }
 
+    // Force Select2 UI so option previews can be decorated in admin dropdown.
+    $field['ui'] = 1;
+    $field['ajax'] = 0;
     $field['choices'] = $choices;
     return $field;
 }
@@ -127,12 +199,20 @@ add_filter('acf/load_field/key=' . LOGICAL_BS_ICON_FIELD_KEY, 'logical_acf_popul
  */
 function logical_acf_bs_icons_admin_assets(): void
 {
-    $css_path = get_stylesheet_directory() . '/assets/bootstrap-icons/bootstrap-icons.css';
-    $js_path  = get_stylesheet_directory() . '/assets/js/acf-bs-icon-preview.js';
-    $css_uri  = get_stylesheet_directory_uri() . '/assets/bootstrap-icons/bootstrap-icons.css';
-    $js_uri   = get_stylesheet_directory_uri() . '/assets/js/acf-bs-icon-preview.js';
+    $css_asset = logical_bs_icon_css_asset();
+    $js_asset  = logical_bs_icon_asset('assets/js/acf-bs-icon-preview.js');
+    $css_path  = $css_asset['path'];
+    $js_path   = $js_asset['path'];
+    $css_uri   = $css_asset['uri'];
+    $js_uri    = $js_asset['uri'];
 
     if (is_file($css_path)) {
+        if (wp_style_is('bootstrap-icons', 'enqueued')) {
+            wp_dequeue_style('bootstrap-icons');
+        }
+        if (wp_style_is('bootstrap-icons', 'registered')) {
+            wp_deregister_style('bootstrap-icons');
+        }
         wp_enqueue_style('bootstrap-icons', $css_uri, [], (string) filemtime($css_path));
     }
 
@@ -159,8 +239,9 @@ function logical_bs_icons_frontend_assets(): void
         return;
     }
 
-    $css_path = get_stylesheet_directory() . '/assets/bootstrap-icons/bootstrap-icons.css';
-    $css_uri  = get_stylesheet_directory_uri() . '/assets/bootstrap-icons/bootstrap-icons.css';
+    $css_asset = logical_bs_icon_css_asset();
+    $css_path  = $css_asset['path'];
+    $css_uri   = $css_asset['uri'];
 
     if (!is_file($css_path)) {
         return;

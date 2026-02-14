@@ -5,7 +5,7 @@ section.white {
     .pretitle {
         color: var(--secondary);
     }
-    .heading {
+    .title {
         color: var(--primary);
     }
     .divider {
@@ -31,7 +31,7 @@ section.primary-white {
     .pretitle {
         color: var(--secondary);
     }
-    .heading {
+    .title {
         color: var(--primary);
     }
     .divider {
@@ -57,7 +57,7 @@ section.secondary-white {
     .pretitle {
         color: var(--secondary);
     }
-    .heading {
+    .title {
         color: var(--primary);
     }
     .divider {
@@ -83,7 +83,7 @@ section.primary {
     .pretitle {
         color: var(--white);
     }
-    .heading {
+    .title {
         color: var(--white);
     }
     .divider {
@@ -109,7 +109,7 @@ section.secondary {
     .pretitle {
         color: var(--white);
     }
-    .heading {
+    .title {
         color: var(--white);
     }
     .divider {
@@ -130,6 +130,105 @@ section.secondary {
     }
 }
 
+section.black {
+    background-color: var(--black);
+    .pretitle {
+        color: var(--white);
+    }
+    .title {
+        color: var(--white);
+    }
+    .divider {
+        background-color: var(--white);
+    }
+    .paragraph {
+        color: var(--white);
+    }
+    .button {
+        color: var(--white);
+        background-color: transparent;
+        border-color: var(--white);
+        transition: .2s ease-in-out;
+    }
+    .button:hover {
+        color: var(--black);
+        background-color: var(--white);
+    }
+}
+
 .button {
     transition: .2s ease-in-out;
+}
+
+section.hero-mono {
+    --hero-overlay-start: rgba(0, 0, 0, 0.45);
+    --hero-overlay-end: rgba(0, 0, 0, 0.78);
+    --hero-text-color: var(--white);
+    --hero-title-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+    --hero-paragraph-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+    --hero-cta-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    --hero-cta-bg: var(--secondary);
+    --hero-cta-color: var(--white);
+    --hero-cta-border: var(--secondary);
+    --hero-cta-hover-bg: transparent;
+    --hero-cta-hover-color: var(--secondary);
+    --hero-cta-hover-border: var(--secondary);
+}
+
+section.hero-mono .hero-mono-vh {
+    height: 35vh;
+}
+
+@media (min-width: 768px) {
+    section.hero-mono .hero-mono-vh {
+        height: 45vh;
+    }
+}
+
+@media (min-width: 1024px) {
+    section.hero-mono .hero-mono-vh {
+        height: 55vh;
+    }
+}
+
+section.hero-mono .hero-mono__image {
+    object-fit: cover;
+}
+
+section.hero-mono .hero-mono__overlay {
+    background: linear-gradient(180deg, var(--hero-overlay-start), var(--hero-overlay-end));
+}
+
+section.hero-mono .hero-mono__title {
+    color: var(--hero-text-color);
+    text-shadow: var(--hero-title-shadow);
+}
+
+section.hero-mono .hero-mono__text {
+    color: var(--hero-text-color);
+    text-shadow: var(--hero-paragraph-shadow);
+}
+
+section.hero-mono .hero-mono__cta {
+    color: var(--hero-cta-color);
+    background-color: var(--hero-cta-bg);
+    border-color: var(--hero-cta-border);
+    box-shadow: var(--hero-cta-shadow);
+}
+
+section.hero-mono .hero-mono__cta:hover,
+section.hero-mono .hero-mono__cta:focus-visible {
+    color: var(--hero-cta-hover-color);
+    background-color: var(--hero-cta-hover-bg);
+    border-color: var(--hero-cta-hover-border);
+}
+
+// Split uses standard section color classes (white/primary/etc.).
+section.hero-split .hero-split__image {
+    min-height: 320px;
+    object-fit: cover;
+}
+
+section.hero-split .hero-split__image-placeholder {
+    min-height: 320px;
 }
