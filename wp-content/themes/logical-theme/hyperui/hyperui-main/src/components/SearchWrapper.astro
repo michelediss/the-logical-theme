@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content'
+
+import SearchInput from './SearchInput.astro'
+import SearchResults from './SearchResults.astro'
+
+interface Result {
+  category: string
+  emoji: string
+  slug: string
+  terms: string[]
+  title: string
+}
+
+const [application, marketing, neobrutalism, blog] = await Promise.all([
+  getCollection('application'),
+  getCollection('marketing'),
+  getCollection('neobrutalism'),
+  getCollection('blog'),
+])
+
+const allCollections = [...application, ...marketing, ...neobrutalism]
+  .map(({ data }) => data)
+  .sort((a, b) => a.title.localeCompare(b.title))
+
+const collections: Result[] = allCollections.map(({ category, emoji, slug, terms, title }) => {
+  return {
+    category,
+    emoji,
+    slug: `/components/${category}/${slug}`,
+    terms,
+    title,
+  }
+})
+
+const posts: Result[] = blog.map(({ data }) => {
+  return {
+    category: '',
+    emoji: data.emoji,
+    slug: `/blog/${data.slug}`,
+    terms: data.terms,
+    title: data.title,
+  }
+})
+---
+
+<div class="relative hidden sm:block">
+  <SearchInput />
+  <SearchResults collections={collections} posts={posts} />
+</div>

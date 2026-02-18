@@ -1,0 +1,69 @@
+---
+title: How to remove the spinners on a number inputs with Tailwind CSS
+description: This guide will show you how to eliminate the spinners that appear on number inputs using Tailwind CSS v4 and  CSS techniques.
+emoji: 🎚️
+slug: remove-number-input-spinners-with-tailwindcss
+pubDate: 2022-12-06
+updatedDate: 2025-08-08
+terms:
+  - input
+  - spinner
+  - appearance
+---
+
+import BaseAd from '../../components/BaseAd.astro'
+
+<BaseAd />
+
+If you've ever wanted to remove the spinners from a number input, you're not alone.
+
+While they can be useful, they can also be distracting or unwanted. Let's see how to remove them in Tailwind CSS.
+
+## CSS Class
+
+This solution works in any framework and uses CSS properties.
+
+```css
+.no-spinner {
+  appearance: textfield;
+}
+
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+```
+
+Add the `no-spinner` class to your number inputs to remove the spinners.
+
+## Tailwind CSS Class
+
+```css
+@layer components {
+  .no-spinner {
+    appearance: textfield;
+  }
+
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+```
+
+This integrates the `no-spinner` class into Tailwind CSS v4. It will show up in Tailwind CSS Intellisense in VS Code.
+
+## Tailwind CSS Inline
+
+```html
+<input
+  type="number"
+  class="[appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+/>
+```
+
+[Take a look at the 3 examples here](https://play.tailwindcss.com/9lCLR4jK5d?layout=preview).
+
+That's all! Which approach should you use? I recommend adding a Tailwind CSS class with `@layer`, but the choice is yours.

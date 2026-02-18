@@ -1,114 +1,114 @@
 [
-  {
-    "name": "lcc_consent",
-    "service": "Logical Cookie Consent",
-    "category": "functional",
-    "duration": "1 anno",
-    "description": "Memorizza lo stato di consenso per ogni categoria di cookie.",
-    "first_party": true
-  },
-  {
-    "name": "wordpress_[hash]",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "Sessione",
-    "description": "Mantiene la sessione autenticata nell’area wp-admin.",
-    "first_party": true
-  },
-  {
-    "name": "wordpress_sec_[hash]",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "Sessione",
-    "description": "Mantiene la sessione autenticata durante l’uso dei plugin.",
-    "first_party": true
-  },
-  {
-    "name": "wordpress_logged_in_[hash]",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "Sessione",
-    "description": "Memorizza l’utente autenticato dopo il login.",
-    "first_party": true
-  },
-  {
-    "name": "wordpress_test_cookie",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "Sessione",
-    "description": "Verifica se il browser accetta i cookie.",
-    "first_party": true
-  },
-  {
-    "name": "wp_lang",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "Sessione",
-    "description": "Salva la lingua corrente dell’interfaccia.",
-    "first_party": true
-  },
-  {
-    "name": "wp-settings-1",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "1 anno",
-    "description": "Conserva le preferenze personali della dashboard.",
-    "first_party": true
-  },
-  {
-    "name": "wp-settings-time-1",
-    "service": "WordPress",
-    "category": "functional",
-    "duration": "1 anno",
-    "description": "Registra il timestamp di aggiornamento delle impostazioni utente.",
-    "first_party": true
-  },
-  {
-    "name": "youtube_*",
-    "service": "YouTube",
-    "category": "marketing",
-    "duration": "Fino a 2 anni",
-    "description": "Memorizza preferenze di riproduzione e traccia le visualizzazioni dei video incorporati.",
-    "first_party": false
-  },
-  {
-    "name": "spotify_*",
-    "service": "Spotify",
-    "category": "marketing",
-    "duration": "Sessione / 1 anno",
-    "description": "Permette a Spotify di caricare player embed e raccogliere statistiche sull’ascolto.",
-    "first_party": false
-  },
-  {
-    "name": "x.com_*",
-    "service": "X (Twitter)",
-    "category": "marketing",
-    "duration": "Fino a 2 anni",
-    "description": "Traccia interazioni con i tweet incorporati e personalizza i contenuti pubblicitari.",
-    "first_party": false
-  },
-  {
-    "name": "facebook_*",
-    "service": "Facebook",
-    "category": "marketing",
-    "duration": "Fino a 2 anni",
-    "description": "Cookie usati da Facebook per misurare e personalizzare i contenuti degli embed.",
-    "first_party": false
-  },
-  {
-    "name": "instagram_*",
-    "service": "Instagram",
-    "category": "marketing",
-    "duration": "Sessione / 1 anno",
-    "description": "Gestisce il caricamento dei post e delle storie incorporati e raccoglie metriche.",
-    "first_party": false
-  },
-  {
-    "name": "tiktok_*",
-    "service": "TikTok",
-    "category": "marketing",
-    "duration": "Fino a 13 mesi",
-    "description": "Serve a TikTok per riprodurre i video embed e analizzare l’engagement.",
-    "first_party": false
-  }
+    {
+        "name": "lcc_consent",
+        "service": "Logical Cookie Consent",
+        "category": "functional",
+        "duration": "1 anno",
+        "description": "Memorizza lo stato di consenso per ogni categoria di cookie.",
+        "first_party": true
+    },
+    {
+        "name": "wordpress_[hash]",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "Sessione",
+        "description": "Mantiene la sessione autenticata nell’area wp-admin.",
+        "first_party": true
+    },
+    {
+        "name": "wordpress_sec_[hash]",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "Sessione",
+        "description": "Mantiene la sessione autenticata durante l’uso dei plugin.",
+        "first_party": true
+    },
+    {
+        "name": "wordpress_logged_in_[hash]",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "Sessione",
+        "description": "Memorizza l’utente autenticato dopo il login.",
+        "first_party": true
+    },
+    {
+        "name": "wordpress_test_cookie",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "Sessione",
+        "description": "Verifica se il browser accetta i cookie.",
+        "first_party": true
+    },
+    {
+        "name": "wp_lang",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "Sessione",
+        "description": "Salva la lingua corrente dell’interfaccia.",
+        "first_party": true
+    },
+    {
+        "name": "wp-settings-1",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "1 anno",
+        "description": "Conserva le preferenze personali della dashboard.",
+        "first_party": true
+    },
+    {
+        "name": "wp-settings-time-1",
+        "service": "WordPress",
+        "category": "functional",
+        "duration": "1 anno",
+        "description": "Registra il timestamp di aggiornamento delle impostazioni utente.",
+        "first_party": true
+    },
+    {
+        "name": "youtube_*",
+        "service": "YouTube",
+        "category": "marketing",
+        "duration": "Fino a 2 anni",
+        "description": "Memorizza preferenze di riproduzione e traccia le visualizzazioni dei video incorporati.",
+        "first_party": false
+    },
+    {
+        "name": "spotify_*",
+        "service": "Spotify",
+        "category": "marketing",
+        "duration": "Sessione / 1 anno",
+        "description": "Permette a Spotify di caricare player embed e raccogliere statistiche sull’ascolto.",
+        "first_party": false
+    },
+    {
+        "name": "x.com_*",
+        "service": "X (Twitter)",
+        "category": "marketing",
+        "duration": "Fino a 2 anni",
+        "description": "Traccia interazioni con i tweet incorporati e personalizza i contenuti pubblicitari.",
+        "first_party": false
+    },
+    {
+        "name": "facebook_*",
+        "service": "Facebook",
+        "category": "marketing",
+        "duration": "Fino a 2 anni",
+        "description": "Cookie usati da Facebook per misurare e personalizzare i contenuti degli embed.",
+        "first_party": false
+    },
+    {
+        "name": "instagram_*",
+        "service": "Instagram",
+        "category": "marketing",
+        "duration": "Sessione / 1 anno",
+        "description": "Gestisce il caricamento dei post e delle storie incorporati e raccoglie metriche.",
+        "first_party": false
+    },
+    {
+        "name": "tiktok_*",
+        "service": "TikTok",
+        "category": "marketing",
+        "duration": "Fino a 13 mesi",
+        "description": "Serve a TikTok per riprodurre i video embed e analizzare l’engagement.",
+        "first_party": false
+    }
 ]

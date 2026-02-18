@@ -1,0 +1,15 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+pnpm-lock.yaml
+
+# vs code
+.vscode/
+
+# css
+public/component.css

@@ -320,6 +320,7 @@ function handle_scss_compilation() {
     // Define SCSS paths
     $plugin_sass_path    = plugin_dir_path(__FILE__) . 'scss/';
     $theme_sass_path     = get_stylesheet_directory() . '/assets/scss/';
+    $theme_json_path     = get_stylesheet_directory() . '/assets/json/';
     $bootstrap_sass_path = $plugin_sass_path . 'bootstrap/scss/';
 
     // Path to main.scss file in the plugin
@@ -327,7 +328,7 @@ function handle_scss_compilation() {
 
     try {
         // Build SCSS from JSON configs (theme overrides plugin defaults)
-        $input_theme_path = $theme_sass_path . 'lds-input.json';
+        $input_theme_path = $theme_json_path . 'lds-input.json';
         $input_plugin_path = $plugin_sass_path . 'input/lds-input.json';
         $input_json = lds_read_json($input_theme_path, $input_plugin_path);
         lds_validate_input_json($input_json, file_exists($input_theme_path) ? $input_theme_path : $input_plugin_path);
@@ -601,20 +602,21 @@ add_action('wp_enqueue_scripts', 'swell_scales_enqueue_styles', 20);
 
 // Plugin activation function
 function lds_plugin_activation() {
-    $source_dir      = plugin_dir_path(__FILE__) . 'scss/input/';
-    $destination_dir = get_stylesheet_directory() . '/assets/scss/';
+    $source_file      = plugin_dir_path(__FILE__) . 'scss/input/lds-input.json';
+    $destination_dir  = get_stylesheet_directory() . '/assets/json/';
+    $destination_file = $destination_dir . 'lds-input.json';
 
-    if (!is_dir($source_dir)) {
+    if (!file_exists($source_file)) {
         return;
     }
 
-    if (!is_dir($destination_dir)) {
-        if (!mkdir($destination_dir, 0755, true)) {
-            return;
-        }
+    if (!is_dir($destination_dir) && !mkdir($destination_dir, 0755, true)) {
+        return;
     }
 
-    recursive_copy($source_dir, $destination_dir);
+    if (!file_exists($destination_file)) {
+        copy($source_file, $destination_file);
+    }
 }
 
 // Function to recursively copy directories and files without overwriting existing files

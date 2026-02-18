@@ -1,14 +1,24 @@
 <?php
-// index.php - Main template file for your WordPress theme
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-// Define the path to the page-home template
-$template_path = 'app/public/wp-content/themes/logical-theme/templates/front-page.php';
-
-// Check if the template exists, and load it if available
+$template_path = 'templates/index.php';
 if (file_exists(get_theme_file_path($template_path))) {
     include get_theme_file_path($template_path);
-} else {
-    // Fallback content if page-home.php is not found
-    echo '<p>Template page-home.php not found. Please check the path and file existence.</p>';
+    return;
 }
-?>
+
+get_header();
+
+if (have_posts()) {
+    while (have_posts()) {
+        the_post();
+        the_title('<h2>', '</h2>');
+        the_content();
+    }
+} else {
+    echo '<p>' . esc_html__('No content found.', 'wp-logical-theme') . '</p>';
+}
+
+get_footer();

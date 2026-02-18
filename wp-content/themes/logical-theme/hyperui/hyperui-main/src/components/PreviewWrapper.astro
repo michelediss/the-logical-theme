@@ -1,0 +1,48 @@
+---
+import ComponentPreview from './ComponentPreview.astro'
+import PreviewBreakpoints from './PreviewBreakpoints.astro'
+import PreviewCopy from './PreviewCopy.astro'
+import PreviewDirection from './PreviewDirection.astro'
+import PreviewRefs from './PreviewRefs.astro'
+import PreviewView from './PreviewView.astro'
+
+const breakpoints = [
+  { name: 'Mobile', emoji: '📱', width: '340px' },
+  { name: 'Small', emoji: '🐛', width: '640px' },
+  { name: 'Medium', emoji: '🦭', width: '768px' },
+  { name: 'Large', emoji: '🐴', width: '1024px' },
+  { name: 'Full', emoji: '🌕', width: '100%' },
+]
+
+interface Props {
+  category: string
+  contributors: string[]
+  dark: boolean
+  index: number
+  slug: string
+  title: string
+  wrapper: string
+  plugins?: string[]
+}
+
+const { category, contributors, dark, index, slug, title, wrapper, plugins = [] } = Astro.props
+
+const src = dark
+  ? `/components/${category}/${slug}/${index}-dark.html`
+  : `/components/${category}/${slug}/${index}.html`
+---
+
+<div class="space-y-4">
+  <div class="flex items-center gap-2">
+    <PreviewView src={src} />
+    <PreviewDirection src={src} />
+    <PreviewCopy src={src} />
+
+    <PreviewBreakpoints src={src} breakpoints={breakpoints} />
+  </div>
+
+  <ComponentPreview src={src} index={index} title={title} wrapper={wrapper} dark={dark} />
+
+  <PreviewRefs title="Contributors" url="https://github.com/" refs={contributors} />
+  <PreviewRefs title="Plugins" url="https://www.npmjs.com/package/" refs={plugins || []} />
+</div>

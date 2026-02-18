@@ -1,0 +1,24 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content'
+
+import ComponentPost from '../../../layouts/ComponentPost.astro'
+
+export async function getStaticPaths() {
+  return (await getCollection('application')).map((component) => ({
+    params: { slug: component.data.slug },
+    props: component,
+  }))
+}
+
+type Props = CollectionEntry<'application'>
+
+const collection = Astro.props
+
+const { Content, headings } = await render(collection)
+
+const heading = headings.find(({ depth }) => depth === 1)?.text || ''
+---
+
+<ComponentPost {...collection.data} heading={heading}>
+  <Content />
+</ComponentPost>

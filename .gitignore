@@ -22,6 +22,8 @@ wp-content/plugins/*
 !wp-content/plugins/logical-default-featured-image/**
 !wp-content/plugins/logical-design-system/
 !wp-content/plugins/logical-design-system/**
+!wp-content/plugins/logical-design-system-tailwind/
+!wp-content/plugins/logical-design-system-tailwind/**
 !wp-content/plugins/logical-design-system-preview/
 !wp-content/plugins/logical-design-system-preview/**
 !wp-content/plugins/logical-seo-toolbox/

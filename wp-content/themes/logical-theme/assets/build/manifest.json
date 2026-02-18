@@ -1,0 +1,19 @@
+{
+  "src/editor.js": {
+    "file": "editor.js",
+    "imports": [
+      "src/theme.js"
+    ],
+    "isEntry": true,
+    "src": "src/editor.js"
+  },
+  "src/theme.js": {
+    "file": "theme.js",
+    "isEntry": true,
+    "src": "src/theme.js"
+  },
+  "style.css": {
+    "file": "style.css",
+    "src": "style.css"
+  }
+}

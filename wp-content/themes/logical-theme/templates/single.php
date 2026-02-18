@@ -1,5 +1,17 @@
-<?php get_header(); ?>
+<?php
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-<?php get_template_part( 'template-parts/carousel', 'content' ); ?>
-
-<?php get_footer(); ?>
+get_header();
+?>
+<main>
+    <?php while (have_posts()) : the_post(); ?>
+        <article <?php post_class(); ?>>
+            <h1><?php the_title(); ?></h1>
+            <?php the_content(); ?>
+        </article>
+    <?php endwhile; ?>
+</main>
+<?php
+get_footer();

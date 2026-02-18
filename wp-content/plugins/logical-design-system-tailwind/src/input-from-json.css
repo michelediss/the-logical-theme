@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Auto-generated LDS tokens and compatibility classes. */
+@import "./generated/tokens.css";

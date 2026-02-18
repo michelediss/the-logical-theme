@@ -3,10 +3,42 @@ Theme Name: The Logical Theme
 Theme URI: wp-logical-theme
 Author: Michele Paolino
 Author URI: https://michelepaolino.me
-Description: A minimalistic WordPress theme for independent developers
-Version: 0.1.0
+Description: Minimal restart theme.
+Version: 1.0.0
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: wp-logical-theme
-Tags: PHP, Bootstrap, WordPress, Design System
 */
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+.site-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.site-header,
+.site-footer {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+}
+
+.site-footer {
+  border-bottom: 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 2rem;
+}

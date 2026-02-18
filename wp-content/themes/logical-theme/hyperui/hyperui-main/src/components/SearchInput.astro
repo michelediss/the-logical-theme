@@ -1,0 +1,76 @@
+<search-input>
+  <label for="search">
+    <input
+      id="search"
+      type="text"
+      placeholder="Search..."
+      class="h-10 w-screen max-w-xs rounded-lg border border-stone-300 bg-white pr-10 text-stone-900 placeholder-stone-500 shadow-sm focus:ring-2 focus:ring-pink-500 focus:outline-0"
+      autocomplete="off"
+    />
+
+    <span class="sr-only"> Search </span>
+  </label>
+</search-input>
+
+<script>
+  class SearchInput extends HTMLElement {
+    private inputHandler: (() => void) | null = null
+    private keydownHandler: ((keyboardEvent: KeyboardEvent) => void) | null = null
+
+    connectedCallback() {
+      const inputEl = this.querySelector('input') as HTMLInputElement | null
+
+      if (!inputEl) {
+        return
+      }
+
+      this.inputHandler = () => {
+        this.dispatchEvent(
+          new CustomEvent('input:search', {
+            bubbles: true,
+            detail: { value: inputEl.value },
+          }),
+        )
+      }
+
+      this.keydownHandler = (keyboardEvent: KeyboardEvent) => {
+        const pressedKey = keyboardEvent.key
+
+        if (pressedKey === 'Escape') {
+          inputEl.blur()
+
+          this.dispatchEvent(new CustomEvent('input:escape', { bubbles: true }))
+
+          return
+        }
+
+        if (pressedKey === 'Enter') {
+          keyboardEvent.preventDefault()
+
+          this.dispatchEvent(new CustomEvent('input:enter', { bubbles: true }))
+
+          return
+        }
+
+        return
+      }
+
+      inputEl.addEventListener('input', this.inputHandler)
+      inputEl.addEventListener('keydown', this.keydownHandler)
+    }
+
+    disconnectedCallback() {
+      const inputEl = this.querySelector('input') as HTMLInputElement | null
+
+      if (inputEl && this.inputHandler && this.keydownHandler) {
+        inputEl.removeEventListener('input', this.inputHandler)
+        inputEl.removeEventListener('keydown', this.keydownHandler)
+
+        this.inputHandler = null
+        this.keydownHandler = null
+      }
+    }
+  }
+
+  customElements.define('search-input', SearchInput)
+</script>

@@ -1,0 +1,173 @@
+---
+interface Props {
+  src: string
+  title: string
+  dark?: boolean
+  index?: number
+  wrapper?: string
+}
+
+const { src, title, dark = false, index = 1, wrapper = '' } = Astro.props
+---
+
+<component-preview data-src={src} class="block">
+  <iframe
+    data-preview="true"
+    src={src}
+    title={title}
+    class:list={[
+      wrapper,
+      dark ? 'bg-gray-900' : 'bg-white',
+      'w-full rounded-xl shadow-sm ring ring-stone-300 transition-[max-width] duration-300 data-[preview=false]:hidden data-[preview=true]:block',
+    ]}
+    style="max-width: 100%;"
+    loading={index === 1 && !dark ? 'eager' : 'lazy'}></iframe>
+
+  <div
+    data-preview="true"
+    class="prose prose-pre:m-0 prose-pre:rounded-xl prose-pre:shadow-sm max-w-none data-[preview=true]:hidden"
+  >
+    <pre data-html></pre>
+  </div>
+</component-preview>
+
+<script>
+  import { track } from '@vercel/analytics'
+
+  class ComponentPreview extends HTMLElement {
+    private contentHtml: string | null = null
+    private contentSrc: string | null = null
+
+    private iframeEl: HTMLIFrameElement | null = null
+    private previewEl: HTMLPreElement | null = null
+
+    private breakpointHandler: ((breakpointEvent: Event) => void) | null = null
+    private copyHandler: ((copyEvent: Event) => void) | null = null
+    private directionHandler: ((directionEvent: Event) => void) | null = null
+    private viewHandler: ((viewEvent: Event) => void) | null = null
+
+    connectedCallback() {
+      this.contentSrc = this.dataset.src || null
+
+      if (!this.contentSrc) {
+        return
+      }
+
+      this.iframeEl = this.querySelector('iframe') as HTMLIFrameElement | null
+      this.previewEl = this.querySelector('[data-html]') as HTMLPreElement | null
+
+      if (!this.iframeEl || !this.previewEl) {
+        return
+      }
+
+      this.setupEventListeners()
+    }
+
+    disconnectedCallback() {
+      if (
+        this.contentSrc &&
+        this.breakpointHandler &&
+        this.copyHandler &&
+        this.directionHandler &&
+        this.viewHandler
+      ) {
+        document.removeEventListener(`breakpoint:change:${this.contentSrc}`, this.breakpointHandler)
+        document.removeEventListener(`preview:copy:${this.contentSrc}`, this.copyHandler)
+        document.removeEventListener(`preview:direction:${this.contentSrc}`, this.directionHandler)
+        document.removeEventListener(`preview:view:${this.contentSrc}`, this.viewHandler)
+
+        this.breakpointHandler = null
+        this.copyHandler = null
+        this.directionHandler = null
+        this.viewHandler = null
+      }
+    }
+
+    private setupEventListeners() {
+      this.breakpointHandler = (breakpointEvent: Event) => {
+        const newWidth = (breakpointEvent as CustomEvent).detail.width
+
+        if (this.iframeEl) {
+          this.iframeEl.style.maxWidth = newWidth
+
+          track('Breakpoint', { component: this.contentSrc, width: newWidth })
+        }
+      }
+
+      this.copyHandler = () => {
+        const contentHtml = this.getContent()
+
+        try {
+          if (contentHtml) {
+            navigator.clipboard.writeText(contentHtml)
+
+            track('Copy', { component: this.contentSrc })
+          }
+        } catch {
+          // We do nothing
+        }
+      }
+
+      this.directionHandler = (directionEvent: Event) => {
+        const isLtr = (directionEvent as CustomEvent).detail.ltr
+
+        if (this.iframeEl?.contentDocument) {
+          this.iframeEl.contentDocument.documentElement.setAttribute('dir', isLtr ? 'ltr' : 'rtl')
+
+          track('Direction', { component: this.contentSrc, direction: isLtr ? 'ltr' : 'rtl' })
+        }
+      }
+
+      this.viewHandler = (viewEvent: Event) => {
+        const isPreviewing = (viewEvent as CustomEvent).detail.previewing
+
+        const previewEls = this.querySelectorAll('[data-preview]')
+
+        const contentHtml = this.getContent()
+
+        if (contentHtml && this.previewEl) {
+          this.previewEl.textContent = contentHtml
+        }
+
+        previewEls.forEach((previewEl) => {
+          previewEl.setAttribute('data-preview', isPreviewing ? 'true' : 'false')
+        })
+
+        track('View', { component: this.contentSrc, view: isPreviewing ? 'preview' : 'code' })
+      }
+
+      if (this.contentSrc) {
+        document.addEventListener(`breakpoint:change:${this.contentSrc}`, this.breakpointHandler)
+        document.addEventListener(`preview:copy:${this.contentSrc}`, this.copyHandler)
+        document.addEventListener(`preview:direction:${this.contentSrc}`, this.directionHandler)
+        document.addEventListener(`preview:view:${this.contentSrc}`, this.viewHandler)
+      }
+    }
+
+    private getContent(): string | null {
+      if (this.contentHtml) {
+        return this.contentHtml
+      }
+
+      if (this.iframeEl?.contentDocument) {
+        const docClone = this.iframeEl.contentDocument.cloneNode(true) as Document
+
+        this.contentHtml = this.sanitizeContent((docClone as Document).body.innerHTML)
+
+        return this.contentHtml
+      }
+
+      return null
+    }
+
+    private sanitizeContent(contentHtml: string): string {
+      return contentHtml
+        .split('\n')
+        .map((htmlLine) => htmlLine.replace(/^\s{4}/, ''))
+        .join('\n')
+        .trim()
+    }
+  }
+
+  customElements.define('component-preview', ComponentPreview)
+</script>

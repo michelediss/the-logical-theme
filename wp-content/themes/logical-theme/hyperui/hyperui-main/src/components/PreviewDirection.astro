@@ -1,0 +1,88 @@
+---
+interface Props {
+  src: string
+}
+
+const { src } = Astro.props
+---
+
+<preview-direction data-src={src}>
+  <button
+    type="button"
+    aria-label="Toggle direction"
+    aria-pressed="true"
+    class="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2 font-medium shadow-sm focus:ring-2 focus:ring-pink-500 focus:outline-0"
+  >
+    <span data-emoji aria-hidden="true">👉</span>
+    <span data-text>LTR</span>
+  </button>
+</preview-direction>
+
+<script>
+  class PreviewDirection extends HTMLElement {
+    private contentSrc: string | null = null
+    private isProcessing = false
+
+    private clickHandler: (() => void) | null = null
+
+    connectedCallback() {
+      this.contentSrc = this.dataset.src || null
+
+      if (!this.contentSrc) {
+        return
+      }
+
+      const buttonEl = this.querySelector('button') as HTMLButtonElement | null
+
+      if (!buttonEl) {
+        return
+      }
+
+      const buttonEmoji = buttonEl.querySelector('span[data-emoji]') as HTMLSpanElement | null
+      const buttonText = buttonEl.querySelector('span[data-text]') as HTMLSpanElement | null
+
+      if (!buttonEmoji || !buttonText) {
+        return
+      }
+
+      this.clickHandler = () => {
+        if (this.isProcessing) {
+          return
+        }
+
+        this.isProcessing = true
+
+        const isLtr = buttonEl.getAttribute('aria-pressed') === 'true'
+        const newState = !isLtr
+
+        buttonEl.setAttribute('aria-pressed', String(newState))
+
+        buttonEmoji.textContent = newState ? '👉' : '👈'
+        buttonText.textContent = newState ? 'LTR' : 'RTL'
+
+        document.dispatchEvent(
+          new CustomEvent(`preview:direction:${this.contentSrc}`, {
+            bubbles: true,
+            detail: { ltr: newState },
+          }),
+        )
+
+        this.isProcessing = false
+      }
+
+      buttonEl.addEventListener('click', this.clickHandler)
+    }
+
+    disconnectedCallback() {
+      const buttonEl = this.querySelector('button') as HTMLButtonElement | null
+
+      if (buttonEl && this.clickHandler) {
+        buttonEl.removeEventListener('click', this.clickHandler)
+
+        this.clickHandler = null
+      }
+    }
+  }
+
+  customElements.define('preview-direction', PreviewDirection)
+</script>
