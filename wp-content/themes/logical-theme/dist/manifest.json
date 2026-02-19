@@ -1,0 +1,19 @@
+{
+  "src/editor.css": {
+    "file": "assets/editor-312b4df8.css",
+    "src": "src/editor.css"
+  },
+  "editor": {
+    "css": [
+      "assets/editor-312b4df8.css"
+    ],
+    "file": "assets/editor-0c384d18.js",
+    "isEntry": true,
+    "src": "src/editor.js"
+  },
+  "theme-main": {
+    "file": "assets/theme-main-4ed993c7.js",
+    "isEntry": true,
+    "src": "src/entries/theme-main.js"
+  }
+}

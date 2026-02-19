@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Logical Design System Tailwind
  * Description: Tailwind-based replica of Logical Design System with JSON-driven tokens and compile workflow.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Plugin URI: https://github.com/michelediss/the-logical-theme
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const LDS_TW_VERSION = '0.1.0';
+const LDS_TW_VERSION = '0.1.1';
 const LDS_TW_LOCK_KEY = 'lds_tw_compile_lock';
 const LDS_TW_CRON_HOOK = 'lds_tw_nightly_compile';
 
@@ -485,6 +485,18 @@ function lds_tw_find_node_command()
     return 'node';
 }
 
+function lds_tw_find_npm_command()
+{
+    $bins = array('/opt/homebrew/bin/npm', '/usr/local/bin/npm', '/usr/bin/npm', 'npm');
+    foreach ($bins as $bin) {
+        if (is_executable($bin)) {
+            return escapeshellarg($bin);
+        }
+    }
+
+    return 'npm';
+}
+
 function lds_tw_exec_available()
 {
     if (!function_exists('exec')) {
@@ -582,6 +594,49 @@ function lds_tw_handle_compilation_ajax()
     }
 }
 add_action('wp_ajax_lds_tw_compile', 'lds_tw_handle_compilation_ajax');
+
+function lds_tw_run_theme_js_build()
+{
+    if (!lds_tw_exec_available()) {
+        return array(false, 'exec disabled');
+    }
+
+    $npm = lds_tw_find_npm_command();
+    $theme_dir = lds_tw_theme_dir();
+    $env_path = 'PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin';
+    $cmd = 'cd ' . escapeshellarg($theme_dir) . ' && ' . $env_path . ' ' . $npm . ' run build';
+
+    $lines = array();
+    $code = 1;
+    @exec($cmd . ' 2>&1', $lines, $code);
+
+    if ($code === 0) {
+        return array(true, !empty($lines) ? implode("\n", $lines) : 'Theme JS build completed.');
+    }
+
+    $message = !empty($lines) ? implode("\n", $lines) : 'Theme JS build failed';
+    lds_tw_log($message);
+    return array(false, $message);
+}
+
+function lds_tw_handle_theme_js_build_ajax()
+{
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Unauthorized.', 403);
+    }
+
+    if (!isset($_POST['security']) || !wp_verify_nonce($_POST['security'], 'lds_tw_compilation_nonce')) {
+        wp_send_json_error('Invalid nonce.', 403);
+    }
+
+    list($ok, $message) = lds_tw_run_theme_js_build();
+    if ($ok) {
+        wp_send_json_success($message);
+    }
+
+    wp_send_json_error('Theme JS build failed: ' . $message, 500);
+}
+add_action('wp_ajax_lds_tw_build_theme_js', 'lds_tw_handle_theme_js_build_ajax');
 
 function lds_tw_register_rest_routes()
 {
@@ -1013,6 +1068,13 @@ function lds_tw_add_compile_button($wp_admin_bar)
         'title' => 'Compile LDS Tailwind',
         'href' => '#',
         'meta' => array('class' => 'compile-lds-tw'),
+    ));
+
+    $wp_admin_bar->add_node(array(
+        'id' => 'build_theme_js',
+        'title' => 'Build Theme JS',
+        'href' => '#',
+        'meta' => array('class' => 'build-theme-js'),
     ));
 }
 add_action('admin_bar_menu', 'lds_tw_add_compile_button', 999);

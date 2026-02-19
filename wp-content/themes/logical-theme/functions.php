@@ -16,6 +16,10 @@ $logical_theme_custom_blocks_bootstrap = get_stylesheet_directory() . '/inc/cust
 if (file_exists($logical_theme_custom_blocks_bootstrap)) {
     require_once $logical_theme_custom_blocks_bootstrap;
 }
+$logical_theme_vite_assets_bootstrap = get_stylesheet_directory() . '/inc/vite-assets.php';
+if (file_exists($logical_theme_vite_assets_bootstrap)) {
+    require_once $logical_theme_vite_assets_bootstrap;
+}
 
 function logical_theme_setup()
 {
@@ -164,64 +168,30 @@ function logical_theme_enqueue_assets()
         (string) filemtime($style_path)
     );
 
-    $build_dir = get_stylesheet_directory() . '/assets/build';
-    $build_uri = get_stylesheet_directory_uri() . '/assets/build';
-
-    $vite_style_path = $build_dir . '/style.css';
-    $inline_color_css = logical_theme_build_color_context_css();
-    if (file_exists($vite_style_path)) {
-        wp_enqueue_style(
-            'logical-theme-vite-style',
-            $build_uri . '/style.css',
-            array('logical-theme-style'),
-            (string) filemtime($vite_style_path)
-        );
-        if ($inline_color_css !== '') {
-            wp_add_inline_style('logical-theme-vite-style', $inline_color_css);
-        }
-    } elseif ($inline_color_css !== '') {
-        wp_add_inline_style('logical-theme-style', $inline_color_css);
+    if (function_exists('logical_theme_vite_enqueue_frontend_context')) {
+        logical_theme_vite_enqueue_frontend_context();
     }
 
-    $vite_theme_js_path = $build_dir . '/theme.js';
-    if (file_exists($vite_theme_js_path)) {
-        wp_enqueue_script(
-            'logical-theme-vite-theme',
-            $build_uri . '/theme.js',
-            array(),
-            (string) filemtime($vite_theme_js_path),
-            true
-        );
-        wp_script_add_data('logical-theme-vite-theme', 'type', 'module');
+    $inline_color_css = logical_theme_build_color_context_css();
+    if ($inline_color_css !== '') {
+        $inline_target = function_exists('logical_theme_vite_get_first_enqueued_style_handle')
+            ? logical_theme_vite_get_first_enqueued_style_handle()
+            : '';
+
+        if ($inline_target !== '') {
+            wp_add_inline_style($inline_target, $inline_color_css);
+        } else {
+            wp_add_inline_style('logical-theme-style', $inline_color_css);
+        }
     }
 }
 add_action('wp_enqueue_scripts', 'logical_theme_enqueue_assets');
 
 function logical_theme_enqueue_block_editor_assets()
 {
-    $build_dir = get_stylesheet_directory() . '/assets/build';
-    $build_uri = get_stylesheet_directory_uri() . '/assets/build';
-
-    $vite_style_path = $build_dir . '/style.css';
-    $inline_color_css = logical_theme_build_color_context_css();
-    if (file_exists($vite_style_path)) {
-        wp_enqueue_style(
-            'logical-theme-block-editor-style',
-            $build_uri . '/style.css',
-            array(),
-            (string) filemtime($vite_style_path)
-        );
-        if ($inline_color_css !== '') {
-            wp_add_inline_style('logical-theme-block-editor-style', $inline_color_css);
-        }
-    }
-
-    $vite_editor_js_path = $build_dir . '/editor.js';
-    if (file_exists($vite_editor_js_path)) {
-        wp_enqueue_script(
-            'logical-theme-block-editor-script',
-            $build_uri . '/editor.js',
-            array(
+    if (function_exists('logical_theme_vite_enqueue_entry')) {
+        logical_theme_vite_enqueue_entry('editor', array(
+            'deps' => array(
                 'wp-blocks',
                 'wp-block-editor',
                 'wp-components',
@@ -230,10 +200,17 @@ function logical_theme_enqueue_block_editor_assets()
                 'wp-i18n',
                 'wp-server-side-render',
             ),
-            (string) filemtime($vite_editor_js_path),
-            true
-        );
-        wp_script_add_data('logical-theme-block-editor-script', 'type', 'module');
+        ));
+    }
+
+    $inline_color_css = logical_theme_build_color_context_css();
+    if ($inline_color_css !== '') {
+        $inline_target = function_exists('logical_theme_vite_get_first_enqueued_style_handle')
+            ? logical_theme_vite_get_first_enqueued_style_handle()
+            : '';
+        if ($inline_target !== '') {
+            wp_add_inline_style($inline_target, $inline_color_css);
+        }
     }
 }
 add_action('enqueue_block_editor_assets', 'logical_theme_enqueue_block_editor_assets');
