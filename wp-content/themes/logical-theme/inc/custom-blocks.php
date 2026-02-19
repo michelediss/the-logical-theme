@@ -7,14 +7,23 @@ if (!defined('ABSPATH')) {
 if (!function_exists('logical_theme_custom_block_types')) {
     function logical_theme_custom_block_types()
     {
-        return array('paragraph', 'layout');
+        return array('layout', 'row', 'column', 'pretitle', 'title', 'text', 'image', 'button');
     }
 }
 
 if (!function_exists('logical_theme_get_custom_block_names')) {
     function logical_theme_get_custom_block_names()
     {
-        return array('logical-theme/paragraph', 'logical-theme/layout');
+        return array(
+            'logical-theme/layout',
+            'logical-theme/row',
+            'logical-theme/column',
+            'logical-theme/pretitle',
+            'logical-theme/title',
+            'logical-theme/text',
+            'logical-theme/image',
+            'logical-theme/button',
+        );
     }
 }
 
@@ -159,6 +168,102 @@ if (!function_exists('logical_theme_render_layout_item_embed')) {
     }
 }
 
+if (!function_exists('logical_theme_render_layout_item_pretitle')) {
+    function logical_theme_render_layout_item_pretitle($item)
+    {
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $text = isset($data['text']) ? sanitize_text_field((string) $data['text']) : '';
+        if ($text === '') {
+            return '';
+        }
+
+        return sprintf('<span class="logical-layout-pretitle text-sm font-semibold uppercase logical-color-eyebrow">%s</span>', esc_html($text));
+    }
+}
+
+if (!function_exists('logical_theme_render_layout_item_title')) {
+    function logical_theme_render_layout_item_title($item)
+    {
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $text = isset($data['text']) ? sanitize_text_field((string) $data['text']) : '';
+        if ($text === '') {
+            return '';
+        }
+
+        $level = isset($data['level']) ? sanitize_key((string) $data['level']) : 'h2';
+        if (!in_array($level, array('h1', 'h2', 'h3', 'h4', 'h5', 'h6'), true)) {
+            $level = 'h2';
+        }
+
+        return sprintf('<%1$s class="logical-layout-title text-3xl font-bold logical-color-heading">%2$s</%1$s>', $level, esc_html($text));
+    }
+}
+
+if (!function_exists('logical_theme_render_layout_item_text')) {
+    function logical_theme_render_layout_item_text($item)
+    {
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $text = isset($data['text']) ? (string) $data['text'] : '';
+        if (trim($text) === '') {
+            return '';
+        }
+
+        return sprintf('<div class="logical-layout-text logical-color-body">%s</div>', wp_kses_post($text));
+    }
+}
+
+if (!function_exists('logical_theme_render_layout_item_image')) {
+    function logical_theme_render_layout_item_image($item)
+    {
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $src = isset($data['src']) ? esc_url((string) $data['src']) : '';
+        if ($src === '') {
+            return '';
+        }
+        $alt = isset($data['alt']) ? sanitize_text_field((string) $data['alt']) : '';
+
+        return sprintf('<img src="%1$s" alt="%2$s" class="logical-layout-image h-auto w-full rounded-lg object-cover" />', $src, esc_attr($alt));
+    }
+}
+
+if (!function_exists('logical_theme_render_layout_item_button')) {
+    function logical_theme_render_layout_item_button($item)
+    {
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $label = isset($data['label']) ? sanitize_text_field((string) $data['label']) : '';
+        $url = isset($data['url']) ? esc_url((string) $data['url']) : '';
+        if ($label === '' || $url === '') {
+            return '';
+        }
+
+        $variant = isset($data['variant']) ? sanitize_key((string) $data['variant']) : 'primary';
+        $variant_classes = array(
+            'primary' => 'border-primary bg-primary text-light',
+            'secondary' => 'border-secondary bg-secondary text-light',
+            'outline' => 'border-primary bg-transparent text-primary',
+            'link' => 'border-transparent bg-transparent p-0 text-primary underline underline-offset-4',
+        );
+        if (!isset($variant_classes[$variant])) {
+            $variant = 'primary';
+        }
+
+        $target = isset($data['target']) && (string) $data['target'] === '_blank' ? '_blank' : '_self';
+        $rel = $target === '_blank' ? 'noopener noreferrer' : '';
+        $rel_attr = $rel !== '' ? sprintf(' rel="%s"', esc_attr($rel)) : '';
+        $target_attr = $target === '_blank' ? ' target="_blank"' : '';
+        $class_attr = sprintf('logical-layout-button inline-flex items-center justify-center rounded-lg border px-5 py-3 text-sm font-semibold %s', $variant_classes[$variant]);
+
+        return sprintf(
+            '<a href="%1$s" class="%2$s"%3$s%4$s>%5$s</a>',
+            $url,
+            esc_attr($class_attr),
+            $target_attr,
+            $rel_attr,
+            esc_html($label)
+        );
+    }
+}
+
 if (!function_exists('logical_theme_render_layout_item')) {
     function logical_theme_render_layout_item($item, $surface_color)
     {
@@ -173,6 +278,26 @@ if (!function_exists('logical_theme_render_layout_item')) {
 
         if ($type === 'embed') {
             return logical_theme_render_layout_item_embed($item);
+        }
+
+        if ($type === 'pretitle') {
+            return logical_theme_render_layout_item_pretitle($item);
+        }
+
+        if ($type === 'title') {
+            return logical_theme_render_layout_item_title($item);
+        }
+
+        if ($type === 'text') {
+            return logical_theme_render_layout_item_text($item);
+        }
+
+        if ($type === 'image') {
+            return logical_theme_render_layout_item_image($item);
+        }
+
+        if ($type === 'button') {
+            return logical_theme_render_layout_item_button($item);
         }
 
         return '';
@@ -316,33 +441,6 @@ if (!function_exists('logical_theme_render_layout_block')) {
 if (!function_exists('logical_theme_register_custom_content_blocks')) {
     function logical_theme_register_custom_content_blocks()
     {
-        register_block_type('logical-theme/paragraph', array(
-            'api_version' => 2,
-            'render_callback' => 'logical_theme_render_paragraph_block',
-            'attributes' => array(
-                'sectionId' => array(
-                    'type' => 'string',
-                    'default' => '',
-                ),
-                'sectionType' => array(
-                    'type' => 'string',
-                    'default' => 'paragraph',
-                ),
-                'data' => array(
-                    'type' => 'object',
-                    'default' => array(),
-                ),
-                'settings' => array(
-                    'type' => 'object',
-                    'default' => array(),
-                ),
-            ),
-            'uses_context' => array('postId'),
-            'supports' => array(
-                'html' => false,
-            ),
-        ));
-
         register_block_type('logical-theme/layout', array(
             'api_version' => 2,
             'render_callback' => 'logical_theme_render_layout_block',
@@ -356,6 +454,120 @@ if (!function_exists('logical_theme_register_custom_content_blocks')) {
             'supports' => array(
                 'html' => false,
             ),
+        ));
+
+        register_block_type('logical-theme/row', array(
+            'api_version' => 2,
+            'attributes' => array(
+                'rowId' => array(
+                    'type' => 'string',
+                    'default' => '',
+                ),
+                'container' => array(
+                    'type' => 'string',
+                    'default' => 'default',
+                ),
+                'gap' => array(
+                    'type' => 'string',
+                    'default' => 'md',
+                ),
+                'alignY' => array(
+                    'type' => 'string',
+                    'default' => 'stretch',
+                ),
+                'backgroundColor' => array(
+                    'type' => 'string',
+                    'default' => '',
+                ),
+            ),
+            'supports' => array(
+                'html' => false,
+            ),
+        ));
+
+        register_block_type('logical-theme/column', array(
+            'api_version' => 2,
+            'attributes' => array(
+                'columnId' => array(
+                    'type' => 'string',
+                    'default' => '',
+                ),
+                'desktop' => array(
+                    'type' => 'number',
+                    'default' => 12,
+                ),
+                'tablet' => array(
+                    'type' => 'number',
+                    'default' => 12,
+                ),
+                'mobile' => array(
+                    'type' => 'number',
+                    'default' => 12,
+                ),
+                'alignY' => array(
+                    'type' => 'string',
+                    'default' => 'stretch',
+                ),
+            ),
+            'supports' => array(
+                'html' => false,
+            ),
+        ));
+
+        register_block_type('logical-theme/pretitle', array(
+            'api_version' => 2,
+            'ancestor' => array('logical-theme/column'),
+            'attributes' => array(
+                'text' => array('type' => 'string', 'default' => ''),
+                'itemId' => array('type' => 'string', 'default' => ''),
+            ),
+            'supports' => array('html' => false, 'inserter' => true),
+        ));
+
+        register_block_type('logical-theme/title', array(
+            'api_version' => 2,
+            'ancestor' => array('logical-theme/column'),
+            'attributes' => array(
+                'text' => array('type' => 'string', 'default' => ''),
+                'level' => array('type' => 'string', 'default' => 'h2'),
+                'itemId' => array('type' => 'string', 'default' => ''),
+            ),
+            'supports' => array('html' => false, 'inserter' => true),
+        ));
+
+        register_block_type('logical-theme/text', array(
+            'api_version' => 2,
+            'ancestor' => array('logical-theme/column'),
+            'attributes' => array(
+                'text' => array('type' => 'string', 'default' => ''),
+                'itemId' => array('type' => 'string', 'default' => ''),
+            ),
+            'supports' => array('html' => false, 'inserter' => true),
+        ));
+
+        register_block_type('logical-theme/image', array(
+            'api_version' => 2,
+            'ancestor' => array('logical-theme/column'),
+            'attributes' => array(
+                'id' => array('type' => 'number', 'default' => 0),
+                'src' => array('type' => 'string', 'default' => ''),
+                'alt' => array('type' => 'string', 'default' => ''),
+                'itemId' => array('type' => 'string', 'default' => ''),
+            ),
+            'supports' => array('html' => false, 'inserter' => true),
+        ));
+
+        register_block_type('logical-theme/button', array(
+            'api_version' => 2,
+            'ancestor' => array('logical-theme/column'),
+            'attributes' => array(
+                'label' => array('type' => 'string', 'default' => ''),
+                'url' => array('type' => 'string', 'default' => ''),
+                'variant' => array('type' => 'string', 'default' => 'primary'),
+                'target' => array('type' => 'string', 'default' => '_self'),
+                'itemId' => array('type' => 'string', 'default' => ''),
+            ),
+            'supports' => array('html' => false, 'inserter' => true),
         ));
     }
 }

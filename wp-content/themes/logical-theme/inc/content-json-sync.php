@@ -104,7 +104,7 @@ if (!function_exists('logical_theme_content_json_resolve_published_post_by_slug'
 
         $ids = get_posts(array(
             'post_type' => array('page', 'post'),
-            'post_status' => array('publish'),
+            'post_status' => array('publish', 'private', 'draft', 'pending', 'future'),
             'name' => $slug,
             'posts_per_page' => -1,
             'fields' => 'ids',
@@ -118,7 +118,39 @@ if (!function_exists('logical_theme_content_json_resolve_published_post_by_slug'
         }
 
         if (count($ids) > 1) {
-            return array('status' => 'ambiguous', 'post_id' => 0, 'message' => __('Multiple published contents share the same slug.', 'wp-logical-theme'));
+            $status_priority = array(
+                'publish' => 1,
+                'private' => 2,
+                'draft' => 3,
+                'pending' => 4,
+                'future' => 5,
+            );
+            $type_priority = array(
+                'page' => 1,
+                'post' => 2,
+            );
+
+            usort($ids, function ($a, $b) use ($status_priority, $type_priority) {
+                $post_a = get_post((int) $a);
+                $post_b = get_post((int) $b);
+                if (!($post_a instanceof WP_Post) || !($post_b instanceof WP_Post)) {
+                    return ((int) $a) <=> ((int) $b);
+                }
+
+                $sa = isset($status_priority[$post_a->post_status]) ? $status_priority[$post_a->post_status] : 99;
+                $sb = isset($status_priority[$post_b->post_status]) ? $status_priority[$post_b->post_status] : 99;
+                if ($sa !== $sb) {
+                    return $sa <=> $sb;
+                }
+
+                $ta = isset($type_priority[$post_a->post_type]) ? $type_priority[$post_a->post_type] : 99;
+                $tb = isset($type_priority[$post_b->post_type]) ? $type_priority[$post_b->post_type] : 99;
+                if ($ta !== $tb) {
+                    return $ta <=> $tb;
+                }
+
+                return ((int) $a) <=> ((int) $b);
+            });
         }
 
         return array('status' => 'found', 'post_id' => (int) $ids[0], 'message' => '');
@@ -157,6 +189,206 @@ if (!function_exists('logical_theme_content_json_build_post_content_from_section
         }
 
         return serialize_blocks($blocks);
+    }
+}
+
+if (!function_exists('logical_theme_content_json_build_block_from_layout_item')) {
+    function logical_theme_content_json_build_block_from_layout_item($item)
+    {
+        if (!is_array($item)) {
+            return null;
+        }
+
+        $type = isset($item['type']) ? sanitize_key((string) $item['type']) : '';
+        $id = isset($item['id']) ? sanitize_key((string) $item['id']) : '';
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+
+        if ($type === 'pretitle') {
+            return array(
+                'blockName' => 'logical-theme/pretitle',
+                'attrs' => array(
+                    'itemId' => $id,
+                    'text' => isset($data['text']) ? (string) $data['text'] : '',
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        if ($type === 'title') {
+            $level = isset($data['level']) ? (string) $data['level'] : 'h2';
+            if (!in_array($level, array('h1', 'h2', 'h3', 'h4', 'h5', 'h6'), true)) {
+                $level = 'h2';
+            }
+            return array(
+                'blockName' => 'logical-theme/title',
+                'attrs' => array(
+                    'itemId' => $id,
+                    'text' => isset($data['text']) ? (string) $data['text'] : '',
+                    'level' => $level,
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        if ($type === 'text') {
+            return array(
+                'blockName' => 'logical-theme/text',
+                'attrs' => array(
+                    'itemId' => $id,
+                    'text' => isset($data['text']) ? (string) $data['text'] : '',
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        if ($type === 'image') {
+            return array(
+                'blockName' => 'logical-theme/image',
+                'attrs' => array(
+                    'itemId' => $id,
+                    'id' => isset($data['id']) ? (int) $data['id'] : 0,
+                    'src' => isset($data['src']) ? (string) $data['src'] : '',
+                    'alt' => isset($data['alt']) ? (string) $data['alt'] : '',
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        if ($type === 'button') {
+            return array(
+                'blockName' => 'logical-theme/button',
+                'attrs' => array(
+                    'itemId' => $id,
+                    'label' => isset($data['label']) ? (string) $data['label'] : '',
+                    'url' => isset($data['url']) ? (string) $data['url'] : '',
+                    'variant' => isset($data['variant']) ? (string) $data['variant'] : 'primary',
+                    'target' => isset($data['target']) ? (string) $data['target'] : '_self',
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        if ($type === 'embed') {
+            return array(
+                'blockName' => 'core/embed',
+                'attrs' => array(
+                    'url' => isset($data['url']) ? (string) $data['url'] : '',
+                    'providerNameSlug' => isset($data['provider']) ? (string) $data['provider'] : '',
+                ),
+                'innerBlocks' => array(),
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists('logical_theme_content_json_build_post_content_from_layout')) {
+    function logical_theme_content_json_build_post_content_from_layout(array $layout)
+    {
+        $rows = array();
+        foreach ($layout as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $row_id = isset($row['id']) ? sanitize_key((string) $row['id']) : '';
+            $row_settings = isset($row['settings']) && is_array($row['settings']) ? $row['settings'] : array();
+            $columns = isset($row['columns']) && is_array($row['columns']) ? $row['columns'] : array();
+
+            $row_inner_blocks = array();
+            foreach ($columns as $column) {
+                if (!is_array($column)) {
+                    continue;
+                }
+
+                $col_id = isset($column['id']) ? sanitize_key((string) $column['id']) : '';
+                $col_settings = isset($column['settings']) && is_array($column['settings']) ? $column['settings'] : array();
+                $items = isset($column['items']) && is_array($column['items']) ? $column['items'] : array();
+
+                $item_blocks = array();
+                foreach ($items as $item) {
+                    $item_block = logical_theme_content_json_build_block_from_layout_item($item);
+                    if (is_array($item_block)) {
+                        $item_blocks[] = $item_block;
+                    }
+                }
+
+                $row_inner_blocks[] = array(
+                    'blockName' => 'logical-theme/column',
+                    'attrs' => array(
+                        'columnId' => $col_id,
+                        'desktop' => isset($col_settings['desktop']) ? (int) $col_settings['desktop'] : 12,
+                        'tablet' => isset($col_settings['tablet']) ? (int) $col_settings['tablet'] : 12,
+                        'mobile' => isset($col_settings['mobile']) ? (int) $col_settings['mobile'] : 12,
+                        'alignY' => isset($col_settings['alignY']) ? (string) $col_settings['alignY'] : 'stretch',
+                    ),
+                    'innerBlocks' => $item_blocks,
+                    'innerHTML' => '',
+                    'innerContent' => array(),
+                );
+            }
+
+            $rows[] = array(
+                'blockName' => 'logical-theme/row',
+                'attrs' => array(
+                    'rowId' => $row_id,
+                    'container' => isset($row_settings['container']) ? (string) $row_settings['container'] : 'default',
+                    'gap' => isset($row_settings['gap']) ? (string) $row_settings['gap'] : 'md',
+                    'alignY' => isset($row_settings['alignY']) ? (string) $row_settings['alignY'] : 'stretch',
+                    'backgroundColor' => isset($row_settings['backgroundColor']) ? (string) $row_settings['backgroundColor'] : '',
+                ),
+                'innerBlocks' => $row_inner_blocks,
+                'innerHTML' => '',
+                'innerContent' => array(),
+            );
+        }
+
+        $layout_block = array(
+            'blockName' => 'logical-theme/layout',
+            'attrs' => array(
+                'layoutVersion' => '3.0',
+            ),
+            'innerBlocks' => $rows,
+            'innerHTML' => '',
+            'innerContent' => array(),
+        );
+
+        return serialize_blocks(array($layout_block));
+    }
+}
+
+if (!function_exists('logical_theme_content_json_build_post_content_from_decoded')) {
+    function logical_theme_content_json_build_post_content_from_decoded(array $decoded)
+    {
+        $version = isset($decoded['version']) ? (string) $decoded['version'] : '';
+
+        if ($version === '3.0') {
+            $layout = isset($decoded['layout']) && is_array($decoded['layout']) ? $decoded['layout'] : array();
+            return logical_theme_content_json_build_post_content_from_layout($layout);
+        }
+
+        $sections = isset($decoded['sections']) && is_array($decoded['sections']) ? $decoded['sections'] : array();
+        return logical_theme_content_json_build_post_content_from_sections($sections);
+    }
+}
+
+if (!function_exists('logical_theme_content_json_build_layout_placeholder_content')) {
+    function logical_theme_content_json_build_layout_placeholder_content()
+    {
+        return "<!-- wp:logical-theme/layout /-->";
     }
 }
 
@@ -260,10 +492,12 @@ if (!function_exists('logical_theme_content_json_import_from_files')) {
                     continue;
                 }
 
-                $sections = isset($normalized['decoded']['sections']) && is_array($normalized['decoded']['sections'])
-                    ? $normalized['decoded']['sections']
-                    : array();
-                $next_content = logical_theme_content_json_build_post_content_from_sections($sections);
+                $decoded_version = isset($normalized['decoded']['version']) ? (string) $normalized['decoded']['version'] : '';
+                // For v3 layout we store a minimal dynamic layout block placeholder.
+                // The render callback then reads rows from meta and outputs the full layout.
+                $next_content = $decoded_version === '3.0'
+                    ? logical_theme_content_json_build_layout_placeholder_content()
+                    : logical_theme_content_json_build_post_content_from_decoded($normalized['decoded']);
 
                 $current_meta = get_post_meta($post_id, LOGICAL_THEME_CONTENT_JSON_META_KEY, true);
                 $current_content = (string) get_post_field('post_content', $post_id);

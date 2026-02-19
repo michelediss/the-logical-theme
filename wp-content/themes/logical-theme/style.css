@@ -58,3 +58,66 @@ Text Domain: wp-logical-theme
     grid-column: span var(--logical-col-desktop, 12) / span var(--logical-col-desktop, 12);
   }
 }
+
+.editor-styles-wrapper .logical-layout-row {
+  display: block;
+  grid-template-columns: none;
+  border: 1px dashed rgba(30, 32, 31, 0.25);
+  border-radius: 0.5rem;
+}
+
+.editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks {
+  width: 100%;
+}
+
+.editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--logical-row-gap, 1.25rem);
+  align-items: var(--logical-row-align, stretch);
+}
+
+.editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="logical-theme/column"] {
+  grid-column: span var(--logical-col-mobile, 12) / span var(--logical-col-mobile, 12);
+  align-self: var(--logical-col-align, stretch);
+}
+
+.editor-styles-wrapper .logical-layout-col {
+  min-height: 120px;
+  border: 1px dashed rgba(30, 32, 31, 0.15);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background: rgba(252, 252, 254, 0.5);
+}
+
+.editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout {
+  padding-bottom: 0.75rem;
+}
+
+.editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="logical-theme/column"] {
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="logical-theme/column"] {
+    grid-column: span var(--logical-col-tablet, 12) / span var(--logical-col-tablet, 12);
+  }
+}
+
+@media (min-width: 1024px) {
+  .editor-styles-wrapper .logical-layout-row > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="logical-theme/column"] {
+    grid-column: span var(--logical-col-desktop, 12) / span var(--logical-col-desktop, 12);
+  }
+}
+
+.logical-layout-pretitle,
+.logical-layout-title,
+.logical-layout-text,
+.logical-layout-image,
+.logical-layout-button {
+  margin-top: 0.5rem;
+}
+
+.logical-layout-button {
+  text-decoration: none;
+}

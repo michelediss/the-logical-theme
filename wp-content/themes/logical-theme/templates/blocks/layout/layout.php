@@ -71,18 +71,8 @@ if (!isset($rows) || !is_array($rows) || count($rows) === 0) {
               <?php
               $items = isset($column['items']) && is_array($column['items']) ? $column['items'] : array();
               foreach ($items as $item) {
-                  if (!is_array($item) || !isset($item['type'])) {
-                      continue;
-                  }
-
-                  $item_type = sanitize_key((string) $item['type']);
-                  if ($item_type === 'paragraph' && function_exists('logical_theme_render_layout_item_paragraph')) {
-                      echo logical_theme_render_layout_item_paragraph($item, $row_surface);
-                      continue;
-                  }
-
-                  if ($item_type === 'embed' && function_exists('logical_theme_render_layout_item_embed')) {
-                      echo logical_theme_render_layout_item_embed($item);
+                  if (function_exists('logical_theme_render_layout_item')) {
+                      echo logical_theme_render_layout_item($item, $row_surface);
                   }
               }
               ?>

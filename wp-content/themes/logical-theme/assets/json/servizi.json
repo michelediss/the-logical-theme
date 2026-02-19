@@ -1,0 +1,379 @@
+{
+    "version": "3.0",
+    "layout": [
+        {
+            "id": "row_srv_hero",
+            "type": "row",
+            "settings": {
+                "container": "wide",
+                "gap": "lg",
+                "alignY": "center",
+                "backgroundColor": "light"
+            },
+            "columns": [
+                {
+                    "id": "col_srv_hero_text",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 7,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "center"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_hero_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "Servizi"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_hero_title",
+                            "type": "title",
+                            "data": {
+                                "text": "Soluzioni digitali modulari per crescere",
+                                "level": "h1"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_hero_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Strategia, design e sviluppo WordPress in un unico processo, con blocchi riutilizzabili e contenuti governati da JSON."
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_hero_btn",
+                            "type": "button",
+                            "data": {
+                                "label": "Parla con noi",
+                                "url": "/contatti",
+                                "variant": "primary",
+                                "target": "_self",
+                                "rel": ""
+                            },
+                            "settings": []
+                        }
+                    ]
+                },
+                {
+                    "id": "col_srv_hero_img",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 5,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_hero_img",
+                            "type": "image",
+                            "data": {
+                                "id": 0,
+                                "src": "https://picsum.photos/960/720?random=101",
+                                "alt": "Team al lavoro su un progetto digitale"
+                            },
+                            "settings": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "row_srv_grid",
+            "type": "row",
+            "settings": {
+                "container": "default",
+                "gap": "md",
+                "alignY": "stretch",
+                "backgroundColor": ""
+            },
+            "columns": [
+                {
+                    "id": "col_srv_strategy",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 4,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_strategy_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "01"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_strategy_title",
+                            "type": "title",
+                            "data": {
+                                "text": "Strategia",
+                                "level": "h3"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_strategy_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Analisi, posizionamento e roadmap editoriale orientata agli obiettivi."
+                            },
+                            "settings": []
+                        }
+                    ]
+                },
+                {
+                    "id": "col_srv_design",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 4,
+                        "tablet": 6,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_design_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "02"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_design_title",
+                            "type": "title",
+                            "data": {
+                                "text": "UX / UI",
+                                "level": "h3"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_design_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Interfacce chiare, accessibili e coerenti con un design system scalabile."
+                            },
+                            "settings": []
+                        }
+                    ]
+                },
+                {
+                    "id": "col_srv_dev",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 4,
+                        "tablet": 6,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_dev_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "03"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_dev_title",
+                            "type": "title",
+                            "data": {
+                                "text": "Sviluppo",
+                                "level": "h3"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_dev_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Implementazione custom Gutenberg + post meta JSON con flusso di sync bidirezionale."
+                            },
+                            "settings": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "row_srv_showcase",
+            "type": "row",
+            "settings": {
+                "container": "wide",
+                "gap": "lg",
+                "alignY": "center",
+                "backgroundColor": "secondary"
+            },
+            "columns": [
+                {
+                    "id": "col_srv_showcase_media",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 8,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_showcase_media",
+                            "type": "image",
+                            "data": {
+                                "id": 0,
+                                "src": "https://picsum.photos/1280/760?random=102",
+                                "alt": "Preview di dashboard progetto"
+                            },
+                            "settings": []
+                        }
+                    ]
+                },
+                {
+                    "id": "col_srv_showcase_copy",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 4,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "center"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_showcase_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "Case Study"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_showcase_title",
+                            "type": "title",
+                            "data": {
+                                "text": "Lancio completo in 6 settimane",
+                                "level": "h2"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_showcase_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Processo snello, blocchi componibili e governance contenuti senza duplicazioni."
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_showcase_btn",
+                            "type": "button",
+                            "data": {
+                                "label": "Scopri il progetto",
+                                "url": "/case-study",
+                                "variant": "outline",
+                                "target": "_self",
+                                "rel": ""
+                            },
+                            "settings": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "row_srv_cta",
+            "type": "row",
+            "settings": {
+                "container": "default",
+                "gap": "md",
+                "alignY": "center",
+                "backgroundColor": "primary"
+            },
+            "columns": [
+                {
+                    "id": "col_srv_cta_text",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 8,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "center"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_cta_pre",
+                            "type": "pretitle",
+                            "data": {
+                                "text": "Inizia oggi"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_cta_title",
+                            "type": "title",
+                            "data": {
+                                "text": "Costruiamo insieme la tua pagina servizi",
+                                "level": "h2"
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_cta_text",
+                            "type": "text",
+                            "data": {
+                                "text": "Ti consegniamo una struttura pronta per essere gestita in autonomia dal tuo team."
+                            },
+                            "settings": []
+                        }
+                    ]
+                },
+                {
+                    "id": "col_srv_cta_actions",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 4,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "center"
+                    },
+                    "items": [
+                        {
+                            "id": "item_srv_cta_btn_1",
+                            "type": "button",
+                            "data": {
+                                "label": "Prenota call",
+                                "url": "/contatti",
+                                "variant": "secondary",
+                                "target": "_self",
+                                "rel": ""
+                            },
+                            "settings": []
+                        },
+                        {
+                            "id": "item_srv_cta_btn_2",
+                            "type": "button",
+                            "data": {
+                                "label": "Scarica PDF",
+                                "url": "/brochure.pdf",
+                                "variant": "link",
+                                "target": "_blank",
+                                "rel": "noopener noreferrer"
+                            },
+                            "settings": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

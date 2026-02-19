@@ -8,6 +8,10 @@ $logical_theme_content_json_bootstrap = get_stylesheet_directory() . '/inc/conte
 if (file_exists($logical_theme_content_json_bootstrap)) {
     require_once $logical_theme_content_json_bootstrap;
 }
+$logical_theme_content_json_sync_bootstrap = get_stylesheet_directory() . '/inc/content-json-sync.php';
+if (file_exists($logical_theme_content_json_sync_bootstrap)) {
+    require_once $logical_theme_content_json_sync_bootstrap;
+}
 $logical_theme_custom_blocks_bootstrap = get_stylesheet_directory() . '/inc/custom-blocks.php';
 if (file_exists($logical_theme_custom_blocks_bootstrap)) {
     require_once $logical_theme_custom_blocks_bootstrap;

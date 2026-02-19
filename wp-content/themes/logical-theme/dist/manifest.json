@@ -1,18 +1,18 @@
 {
   "editor": {
-    "file": "assets/editor-f936a6d1.js",
+    "file": "assets/editor-e85e6366.js",
     "isEntry": true,
     "src": "src/editor.js"
   },
   "src/entries/theme-main.css": {
-    "file": "assets/theme-main-fd65fd79.css",
+    "file": "assets/theme-main-3f282099.css",
     "src": "src/entries/theme-main.css"
   },
   "theme-main": {
     "css": [
-      "assets/theme-main-fd65fd79.css"
+      "assets/theme-main-3f282099.css"
     ],
-    "file": "assets/theme-main-a70388aa.js",
+    "file": "assets/theme-main-15a22e75.js",
     "isEntry": true,
     "src": "src/entries/theme-main.js"
   }

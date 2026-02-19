@@ -90,7 +90,7 @@ if (!function_exists('logical_theme_content_json_allowed_section_types')) {
 if (!function_exists('logical_theme_content_json_allowed_layout_item_types')) {
     function logical_theme_content_json_allowed_layout_item_types()
     {
-        return array('paragraph', 'embed');
+        return array('paragraph', 'embed', 'pretitle', 'title', 'text', 'image', 'button');
     }
 }
 
@@ -364,18 +364,88 @@ if (!function_exists('logical_theme_content_json_sanitize_layout_item')) {
             );
         }
 
-        $embed_data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
-        $url = isset($embed_data['url']) ? esc_url_raw((string) $embed_data['url']) : '';
-        $provider = isset($embed_data['provider']) ? sanitize_key((string) $embed_data['provider']) : '';
+        $data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $settings = isset($item['settings']) && is_array($item['settings']) ? $item['settings'] : array();
+
+        if ($type === 'embed') {
+            return array(
+                'id' => $id,
+                'type' => 'embed',
+                'data' => array(
+                    'url' => isset($data['url']) ? esc_url_raw((string) $data['url']) : '',
+                    'provider' => isset($data['provider']) ? sanitize_key((string) $data['provider']) : '',
+                ),
+                'settings' => array(),
+            );
+        }
+
+        if ($type === 'pretitle') {
+            return array(
+                'id' => $id,
+                'type' => 'pretitle',
+                'data' => array(
+                    'text' => isset($data['text']) ? sanitize_text_field((string) $data['text']) : '',
+                ),
+                'settings' => array(),
+            );
+        }
+
+        if ($type === 'title') {
+            return array(
+                'id' => $id,
+                'type' => 'title',
+                'data' => array(
+                    'text' => isset($data['text']) ? sanitize_text_field((string) $data['text']) : '',
+                    'level' => in_array(isset($data['level']) ? (string) $data['level'] : 'h2', array('h1', 'h2', 'h3', 'h4', 'h5', 'h6'), true)
+                        ? (string) $data['level']
+                        : 'h2',
+                ),
+                'settings' => array(),
+            );
+        }
+
+        if ($type === 'text') {
+            return array(
+                'id' => $id,
+                'type' => 'text',
+                'data' => array(
+                    'text' => isset($data['text']) ? wp_kses_post((string) $data['text']) : '',
+                ),
+                'settings' => array(),
+            );
+        }
+
+        if ($type === 'image') {
+            return array(
+                'id' => $id,
+                'type' => 'image',
+                'data' => array(
+                    'id' => isset($data['id']) ? (int) $data['id'] : 0,
+                    'src' => isset($data['src']) ? esc_url_raw((string) $data['src']) : '',
+                    'alt' => isset($data['alt']) ? sanitize_text_field((string) $data['alt']) : '',
+                ),
+                'settings' => array(),
+            );
+        }
+
+        $variant = isset($data['variant']) ? sanitize_key((string) $data['variant']) : 'primary';
+        if (!in_array($variant, array('primary', 'secondary', 'outline', 'link'), true)) {
+            $variant = 'primary';
+        }
+        $target = isset($data['target']) ? trim((string) $data['target']) : '_self';
+        $target = $target === '_blank' ? '_blank' : '_self';
 
         return array(
             'id' => $id,
-            'type' => 'embed',
+            'type' => 'button',
             'data' => array(
-                'url' => $url,
-                'provider' => $provider,
+                'label' => isset($data['label']) ? sanitize_text_field((string) $data['label']) : '',
+                'url' => isset($data['url']) ? esc_url_raw((string) $data['url']) : '',
+                'variant' => $variant,
+                'target' => $target,
+                'rel' => $target === '_blank' ? 'noopener noreferrer' : '',
             ),
-            'settings' => array(),
+            'settings' => $settings,
         );
     }
 }
@@ -712,3 +782,55 @@ if (!function_exists('logical_theme_export_content_json_on_save')) {
 }
 add_action('save_post_page', 'logical_theme_export_content_json_on_save', 10, 2);
 add_action('save_post_post', 'logical_theme_export_content_json_on_save', 10, 2);
+
+if (!function_exists('logical_theme_fallback_content_json_meta_from_file')) {
+    function logical_theme_fallback_content_json_meta_from_file($value, $object_id, $meta_key, $single, $meta_type)
+    {
+        if ($meta_type !== 'post' || $meta_key !== LOGICAL_THEME_CONTENT_JSON_META_KEY) {
+            return $value;
+        }
+
+        $post_id = (int) $object_id;
+        if ($post_id <= 0) {
+            return $value;
+        }
+
+        global $wpdb;
+        $existing = $wpdb->get_var($wpdb->prepare(
+            "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s LIMIT 1",
+            $post_id,
+            LOGICAL_THEME_CONTENT_JSON_META_KEY
+        ));
+        if (is_string($existing) && trim($existing) !== '') {
+            return $value;
+        }
+
+        $post = get_post($post_id);
+        if (!($post instanceof WP_Post)) {
+            return $value;
+        }
+
+        $slug = sanitize_title((string) $post->post_name);
+        if ($slug === '') {
+            return $value;
+        }
+
+        $source_file = trailingslashit(logical_theme_content_json_get_assets_json_dir()) . $slug . '.json';
+        if (!file_exists($source_file)) {
+            return $value;
+        }
+
+        $raw_json = file_get_contents($source_file);
+        if (!is_string($raw_json) || trim($raw_json) === '') {
+            return $value;
+        }
+
+        $normalized = logical_theme_normalize_content_json($raw_json);
+        if (is_wp_error($normalized) || !isset($normalized['encoded']) || !is_string($normalized['encoded'])) {
+            return $value;
+        }
+
+        return $single ? $normalized['encoded'] : array($normalized['encoded']);
+    }
+}
+add_filter('get_post_metadata', 'logical_theme_fallback_content_json_meta_from_file', 10, 5);

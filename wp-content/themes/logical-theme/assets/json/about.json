@@ -1,59 +1,41 @@
 {
-    "version": "2.0",
-    "sections": [
+    "version": "3.0",
+    "layout": [
         {
-            "id": "sec_about_hero_a",
-            "type": "paragraph",
-            "data": {
-                "pretitle": "About",
-                "title": "Chi siamo",
-                "text": "Siamo un team focalizzato su strategia, design e sviluppo digitale.",
-                "image": {
-                    "id": 0,
-                    "src": "",
-                    "alt": ""
-                }
-            },
+            "id": "row_mltftd75_n4jt3o",
+            "type": "row",
             "settings": {
-                "variant": "1",
-                "backgroundColor": "white"
-            }
-        },
-        {
-            "id": "sec_about_story_b",
-            "type": "paragraph",
-            "data": {
-                "pretitle": "Metodo",
-                "title": "Come lavoriamo",
-                "text": "Partiamo dai contenuti, definiamo la struttura dati e poi iteriamo su UI e performance.",
-                "image": {
-                    "id": 0,
-                    "src": "",
-                    "alt": ""
-                }
+                "container": "default",
+                "gap": "md",
+                "alignY": "stretch",
+                "backgroundColor": ""
             },
-            "settings": {
-                "variant": "2",
-                "backgroundColor": "light"
-            }
-        },
-        {
-            "id": "sec_about_values_c",
-            "type": "paragraph",
-            "data": {
-                "pretitle": "Valori",
-                "title": "Qualità e chiarezza",
-                "text": "Progettiamo flussi semplici, mantenibili e misurabili nel tempo.",
-                "image": {
-                    "id": 0,
-                    "src": "",
-                    "alt": ""
+            "columns": [
+                {
+                    "id": "col_mltftd70_ogcbuj",
+                    "type": "column",
+                    "settings": {
+                        "desktop": 12,
+                        "tablet": 12,
+                        "mobile": 12,
+                        "alignY": "stretch"
+                    },
+                    "items": [
+                        {
+                            "id": "item_mltg580u_232qzj",
+                            "type": "button",
+                            "data": {
+                                "label": "ciao",
+                                "url": "#",
+                                "variant": "secondary",
+                                "target": "_blank",
+                                "rel": "noopener noreferrer"
+                            },
+                            "settings": []
+                        }
+                    ]
                 }
-            },
-            "settings": {
-                "variant": "1",
-                "backgroundColor": "secondary"
-            }
+            ]
         }
     ]
 }

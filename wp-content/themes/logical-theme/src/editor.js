@@ -1,34 +1,47 @@
-const paragraphSpec = {
-  name: 'paragraph',
-  title: 'Paragrafo',
-  defaultVariant: '1',
-  variants: [
-    { value: '1', label: 'Checkerboard A (testo a sinistra)' },
-    { value: '2', label: 'Checkerboard B (testo a destra)' }
-  ],
-  fields: [
-    { key: 'pretitle', label: 'Pretitle', input: 'text', sanitize: 'text', default: '' },
-    { key: 'title', label: 'Title', input: 'text', sanitize: 'text', default: '' },
-    { key: 'text', label: 'Text', input: 'textarea', sanitize: 'html', default: '' }
-  ]
-};
-
-const { registerBlockType } = wp.blocks;
-const { InspectorControls, useBlockProps, MediaUpload, MediaUploadCheck } = wp.blockEditor;
+const { registerBlockType, createBlock } = wp.blocks;
+const { InspectorControls, useBlockProps, MediaUpload, MediaUploadCheck, InnerBlocks } = wp.blockEditor;
 const { PanelBody, TextControl, TextareaControl, Button, SelectControl } = wp.components;
-const { createElement, useEffect, Fragment } = wp.element;
+const { createElement, useEffect } = wp.element;
 const { __ } = wp.i18n;
 const { subscribe, select, dispatch } = wp.data;
-const ServerSideRender = wp.serverSideRender;
 
 const META_KEY = '_logical_content_json';
-const VERSION_2 = '2.0';
 const VERSION_3 = '3.0';
-const PARAGRAPH_BLOCK_NAME = 'logical-theme/paragraph';
 const LAYOUT_BLOCK_NAME = 'logical-theme/layout';
+const ROW_BLOCK_NAME = 'logical-theme/row';
+const COLUMN_BLOCK_NAME = 'logical-theme/column';
+const PRETITLE_BLOCK_NAME = 'logical-theme/pretitle';
+const TITLE_BLOCK_NAME = 'logical-theme/title';
+const TEXT_BLOCK_NAME = 'logical-theme/text';
+const IMAGE_BLOCK_NAME = 'logical-theme/image';
+const BUTTON_BLOCK_NAME = 'logical-theme/button';
+
+const MINI_LAYOUT_BLOCKS = [
+  PRETITLE_BLOCK_NAME,
+  TITLE_BLOCK_NAME,
+  TEXT_BLOCK_NAME,
+  IMAGE_BLOCK_NAME,
+  BUTTON_BLOCK_NAME,
+];
+const hydratedPostIds = new Set();
+const fallbackTriedPostIds = new Set();
 
 function generateId(prefix) {
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getStableBlockId(block, attributeKey, prefix) {
+  const attrId = toStr(block?.attributes?.[attributeKey]);
+  if (attrId) {
+    return attrId;
+  }
+
+  const clientId = toStr(block?.clientId);
+  if (clientId) {
+    return `${prefix}_${clientId}`;
+  }
+
+  return generateId(prefix);
 }
 
 function toStr(value) {
@@ -37,7 +50,9 @@ function toStr(value) {
 
 function clampSpan(value) {
   const n = Number.parseInt(value, 10);
-  if (Number.isNaN(n)) return 12;
+  if (Number.isNaN(n)) {
+    return 12;
+  }
   return Math.max(1, Math.min(12, n));
 }
 
@@ -52,10 +67,6 @@ function parseMetaJson(rawValue) {
       return null;
     }
 
-    if (parsed.version === VERSION_2 && Array.isArray(parsed.sections)) {
-      return parsed;
-    }
-
     if (parsed.version === VERSION_3 && Array.isArray(parsed.layout)) {
       return parsed;
     }
@@ -64,18 +75,6 @@ function parseMetaJson(rawValue) {
   }
 
   return null;
-}
-
-function setData(attributes, setAttributes, data) {
-  setAttributes({
-    data: { ...(attributes.data || {}), ...data }
-  });
-}
-
-function setSettings(attributes, setAttributes, settings) {
-  setAttributes({
-    settings: { ...(attributes.settings || {}), ...settings }
-  });
 }
 
 function getThemePaletteOptions() {
@@ -104,497 +103,761 @@ function getThemePaletteOptions() {
   ];
 }
 
-function getParagraphControls(attributes, setAttributes) {
-  const data = attributes.data || {};
-  const settings = attributes.settings || {};
-  const fields = Array.isArray(paragraphSpec?.fields) ? paragraphSpec.fields : [];
-  const variants = Array.isArray(paragraphSpec?.variants) ? paragraphSpec.variants : [];
-  const defaultVariant = typeof paragraphSpec?.defaultVariant === 'string' && paragraphSpec.defaultVariant !== ''
-    ? paragraphSpec.defaultVariant
-    : '1';
-  const controls = [];
-
-  const variantOptions = variants
-    .map((variant) => {
-      if (variant && typeof variant === 'object') {
-        const value = typeof variant.value === 'string' ? variant.value : '';
-        const label = typeof variant.label === 'string' && variant.label !== '' ? variant.label : value;
-        return value ? { value, label } : null;
-      }
-      if (typeof variant === 'string' && variant !== '') {
-        return { value: variant, label: variant };
-      }
-      return null;
-    })
-    .filter(Boolean);
-
-  if (variantOptions.length > 0) {
-    controls.push(createElement(SelectControl, {
-      key: 'paragraph-variant',
-      label: __('Variant', 'wp-logical-theme'),
-      value: toStr(settings.variant || defaultVariant),
-      options: variantOptions,
-      onChange: (value) => setSettings(attributes, setAttributes, { variant: value })
-    }));
-  }
-
-  controls.push(createElement(SelectControl, {
-    key: 'paragraph-surface-color',
-    label: __('Section background', 'wp-logical-theme'),
-    value: toStr(settings.backgroundColor),
-    options: getThemePaletteOptions(),
-    onChange: (value) => setSettings(attributes, setAttributes, { backgroundColor: value })
-  }));
-
-  fields.forEach((field) => {
-    if (!field || typeof field !== 'object' || typeof field.key !== 'string') {
-      return;
-    }
-
-    const fieldKey = field.key;
-    const fieldLabel = typeof field.label === 'string' && field.label !== '' ? field.label : fieldKey;
-    const inputType = field.input === 'textarea' ? 'textarea' : 'text';
-    const currentValue = toStr(data[fieldKey] ?? field.default ?? '');
-
-    if (inputType === 'textarea') {
-      controls.push(createElement(TextareaControl, {
-        key: fieldKey,
-        label: __(fieldLabel, 'wp-logical-theme'),
-        value: currentValue,
-        onChange: (value) => setData(attributes, setAttributes, { [fieldKey]: value })
-      }));
-      return;
-    }
-
-    controls.push(createElement(TextControl, {
-      key: fieldKey,
-      label: __(fieldLabel, 'wp-logical-theme'),
-      value: currentValue,
-      onChange: (value) => setData(attributes, setAttributes, { [fieldKey]: value })
-    }));
-  });
-
-  const image = data.image && typeof data.image === 'object' ? data.image : {};
-  controls.push(createElement(MediaUploadCheck, { key: 'paragraph-image-check' },
-    createElement(MediaUpload, {
-      onSelect: (media) => {
-        const nextImage = {
-          id: media?.id || 0,
-          src: media?.url || '',
-          alt: media?.alt || media?.title || ''
-        };
-        setData(attributes, setAttributes, { image: nextImage });
-      },
-      allowedTypes: ['image'],
-      value: image.id || 0,
-      render: ({ open }) => createElement(
-        Button,
-        { variant: 'secondary', onClick: open },
-        image?.src ? __('Change image', 'wp-logical-theme') : __('Select image', 'wp-logical-theme')
-      )
-    })
-  ));
-
-  if (image?.src) {
-    controls.push(createElement(TextControl, {
-      key: 'paragraph-image-alt',
-      label: __('Image Alt', 'wp-logical-theme'),
-      value: toStr(image.alt),
-      onChange: (value) => setData(attributes, setAttributes, { image: { ...image, alt: value } })
-    }));
-
-    controls.push(createElement(Button, {
-      key: 'paragraph-image-remove',
-      variant: 'secondary',
-      isDestructive: true,
-      onClick: () => setData(attributes, setAttributes, { image: { id: 0, src: '', alt: '' } })
-    }, __('Remove image', 'wp-logical-theme')));
-  }
-
-  return controls;
-}
-
-function normalizeLayout(layout) {
-  const rows = Array.isArray(layout) ? layout : [];
-  return rows.map((row) => {
-    const rowSettings = row?.settings && typeof row.settings === 'object' ? row.settings : {};
-    const columns = Array.isArray(row?.columns) ? row.columns : [];
-
-    return {
-      id: toStr(row?.id) || generateId('row'),
-      type: 'row',
-      settings: {
-        container: ['default', 'wide', 'full'].includes(rowSettings.container) ? rowSettings.container : 'default',
-        gap: ['none', 'sm', 'md', 'lg'].includes(rowSettings.gap) ? rowSettings.gap : 'md',
-        alignY: ['start', 'center', 'end', 'stretch'].includes(rowSettings.alignY) ? rowSettings.alignY : 'stretch',
-        backgroundColor: toStr(rowSettings.backgroundColor)
-      },
-      columns: columns.map((column) => {
-        const colSettings = column?.settings && typeof column.settings === 'object' ? column.settings : {};
-        const items = Array.isArray(column?.items) ? column.items : [];
-
-        return {
-          id: toStr(column?.id) || generateId('col'),
-          type: 'column',
-          settings: {
-            desktop: clampSpan(colSettings.desktop),
-            tablet: clampSpan(colSettings.tablet),
-            mobile: clampSpan(colSettings.mobile),
-            alignY: ['start', 'center', 'end', 'stretch'].includes(colSettings.alignY) ? colSettings.alignY : 'stretch'
-          },
-          items: items.map((item) => {
-            const type = ['paragraph', 'embed'].includes(toStr(item?.type)) ? toStr(item.type) : 'paragraph';
-            if (type === 'embed') {
-              return {
-                id: toStr(item?.id) || generateId('item'),
-                type: 'embed',
-                data: {
-                  url: toStr(item?.data?.url),
-                  provider: toStr(item?.data?.provider)
-                },
-                settings: {}
-              };
-            }
-
-            return {
-              id: toStr(item?.id) || generateId('item'),
-              type: 'paragraph',
-              data: {
-                pretitle: toStr(item?.data?.pretitle),
-                title: toStr(item?.data?.title),
-                text: toStr(item?.data?.text),
-                image: item?.data?.image && typeof item.data.image === 'object' ? item.data.image : { id: 0, src: '', alt: '' }
-              },
-              settings: {
-                variant: toStr(item?.settings?.variant) || '1',
-                backgroundColor: toStr(item?.settings?.backgroundColor)
-              }
-            };
-          })
-        };
-      })
-    };
-  });
-}
-
-function ensureDefaultLayout(layout) {
-  const normalized = normalizeLayout(layout);
-  if (normalized.length > 0) {
-    return normalized;
-  }
-
-  return [{
-    id: generateId('row'),
-    type: 'row',
-    settings: {
-      container: 'default',
-      gap: 'md',
-      alignY: 'stretch',
-      backgroundColor: ''
+function registerMiniLayoutBlocks() {
+  registerBlockType(PRETITLE_BLOCK_NAME, {
+    apiVersion: 2,
+    title: __('Pretitle', 'wp-logical-theme'),
+    icon: 'editor-kitchensink',
+    category: 'widgets',
+    ancestor: [COLUMN_BLOCK_NAME],
+    attributes: {
+      itemId: { type: 'string', default: '' },
+      text: { type: 'string', default: '' }
     },
-    columns: [{
-      id: generateId('col'),
-      type: 'column',
-      settings: {
-        desktop: 12,
-        tablet: 12,
-        mobile: 12,
-        alignY: 'stretch'
-      },
-      items: []
-    }]
-  }];
+    supports: { html: false, reusable: false, inserter: true },
+    edit: function PretitleEdit({ attributes, setAttributes }) {
+      useEffect(() => {
+        if (!attributes.itemId) {
+          setAttributes({ itemId: generateId('item') });
+        }
+      }, [attributes.itemId, setAttributes]);
+      const blockProps = useBlockProps({ className: 'logical-layout-mini-pretitle' });
+      return createElement(
+        'div',
+        blockProps,
+        createElement(
+          InspectorControls,
+          null,
+          createElement(
+            PanelBody,
+            { title: __('Pretitle Settings', 'wp-logical-theme'), initialOpen: true },
+            createElement(TextControl, {
+              label: __('Pretitle', 'wp-logical-theme'),
+              value: toStr(attributes.text),
+              onChange: (value) => setAttributes({ text: value })
+            })
+          )
+        ),
+        createElement('span', { className: 'text-sm font-semibold uppercase logical-color-eyebrow' }, toStr(attributes.text) || __('Pretitle', 'wp-logical-theme'))
+      );
+    },
+    save: function PretitleSave({ attributes }) {
+      return createElement('span', { className: 'logical-layout-pretitle text-sm font-semibold uppercase logical-color-eyebrow' }, toStr(attributes.text));
+    }
+  });
+
+  registerBlockType(TITLE_BLOCK_NAME, {
+    apiVersion: 2,
+    title: __('Title', 'wp-logical-theme'),
+    icon: 'heading',
+    category: 'widgets',
+    ancestor: [COLUMN_BLOCK_NAME],
+    attributes: {
+      itemId: { type: 'string', default: '' },
+      text: { type: 'string', default: '' },
+      level: { type: 'string', default: 'h2' }
+    },
+    supports: { html: false, reusable: false, inserter: true },
+    edit: function TitleEdit({ attributes, setAttributes }) {
+      useEffect(() => {
+        if (!attributes.itemId) {
+          setAttributes({ itemId: generateId('item') });
+        }
+      }, [attributes.itemId, setAttributes]);
+      const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(toStr(attributes.level)) ? toStr(attributes.level) : 'h2';
+      const blockProps = useBlockProps({ className: 'logical-layout-mini-title' });
+      return createElement(
+        'div',
+        blockProps,
+        createElement(
+          InspectorControls,
+          null,
+          createElement(
+            PanelBody,
+            { title: __('Title Settings', 'wp-logical-theme'), initialOpen: true },
+            createElement(SelectControl, {
+              label: __('Level', 'wp-logical-theme'),
+              value: level,
+              options: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].map((value) => ({ value, label: value.toUpperCase() })),
+              onChange: (value) => setAttributes({ level: value })
+            }),
+            createElement(TextControl, {
+              label: __('Title', 'wp-logical-theme'),
+              value: toStr(attributes.text),
+              onChange: (value) => setAttributes({ text: value })
+            })
+          )
+        ),
+        createElement(level, { className: 'text-3xl font-bold logical-color-heading' }, toStr(attributes.text) || __('Title', 'wp-logical-theme'))
+      );
+    },
+    save: function TitleSave({ attributes }) {
+      const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(toStr(attributes.level)) ? toStr(attributes.level) : 'h2';
+      return createElement(level, { className: 'logical-layout-title text-3xl font-bold logical-color-heading' }, toStr(attributes.text));
+    }
+  });
+
+  registerBlockType(TEXT_BLOCK_NAME, {
+    apiVersion: 2,
+    title: __('Text', 'wp-logical-theme'),
+    icon: 'text',
+    category: 'widgets',
+    ancestor: [COLUMN_BLOCK_NAME],
+    attributes: {
+      itemId: { type: 'string', default: '' },
+      text: { type: 'string', default: '' }
+    },
+    supports: { html: false, reusable: false, inserter: true },
+    edit: function TextEdit({ attributes, setAttributes }) {
+      useEffect(() => {
+        if (!attributes.itemId) {
+          setAttributes({ itemId: generateId('item') });
+        }
+      }, [attributes.itemId, setAttributes]);
+      const blockProps = useBlockProps({ className: 'logical-layout-mini-text' });
+      return createElement(
+        'div',
+        blockProps,
+        createElement(
+          InspectorControls,
+          null,
+          createElement(
+            PanelBody,
+            { title: __('Text Settings', 'wp-logical-theme'), initialOpen: true },
+            createElement(TextareaControl, {
+              label: __('Text', 'wp-logical-theme'),
+              value: toStr(attributes.text),
+              onChange: (value) => setAttributes({ text: value })
+            })
+          )
+        ),
+        createElement('div', { className: 'logical-layout-text logical-color-body' }, toStr(attributes.text) || __('Text', 'wp-logical-theme'))
+      );
+    },
+    save: function TextSave({ attributes }) {
+      return createElement('div', { className: 'logical-layout-text logical-color-body' }, toStr(attributes.text));
+    }
+  });
+
+  registerBlockType(IMAGE_BLOCK_NAME, {
+    apiVersion: 2,
+    title: __('Image', 'wp-logical-theme'),
+    icon: 'format-image',
+    category: 'widgets',
+    ancestor: [COLUMN_BLOCK_NAME],
+    attributes: {
+      itemId: { type: 'string', default: '' },
+      id: { type: 'number', default: 0 },
+      src: { type: 'string', default: '' },
+      alt: { type: 'string', default: '' }
+    },
+    supports: { html: false, reusable: false, inserter: true },
+    edit: function ImageEdit({ attributes, setAttributes }) {
+      useEffect(() => {
+        if (!attributes.itemId) {
+          setAttributes({ itemId: generateId('item') });
+        }
+      }, [attributes.itemId, setAttributes]);
+      const blockProps = useBlockProps({ className: 'logical-layout-mini-image' });
+      return createElement(
+        'div',
+        blockProps,
+        createElement(
+          InspectorControls,
+          null,
+          createElement(
+            PanelBody,
+            { title: __('Image Settings', 'wp-logical-theme'), initialOpen: true },
+            createElement(MediaUploadCheck, null,
+              createElement(MediaUpload, {
+                onSelect: (media) => setAttributes({
+                  id: media?.id || 0,
+                  src: media?.url || '',
+                  alt: media?.alt || media?.title || ''
+                }),
+                allowedTypes: ['image'],
+                value: attributes.id || 0,
+                render: ({ open }) => createElement(Button, { variant: 'secondary', onClick: open }, attributes.src ? __('Change image', 'wp-logical-theme') : __('Select image', 'wp-logical-theme'))
+              })
+            ),
+            attributes.src
+              ? createElement(TextControl, {
+                label: __('Image alt', 'wp-logical-theme'),
+                value: toStr(attributes.alt),
+                onChange: (value) => setAttributes({ alt: value })
+              })
+              : null
+          )
+        ),
+        attributes.src
+          ? createElement('img', { src: attributes.src, alt: toStr(attributes.alt), className: 'h-auto w-full rounded-lg object-cover' })
+          : createElement('div', { className: 'logical-layout-text logical-color-muted' }, __('No image selected', 'wp-logical-theme'))
+      );
+    },
+    save: function ImageSave({ attributes }) {
+      if (!toStr(attributes.src)) {
+        return null;
+      }
+      return createElement('img', { src: toStr(attributes.src), alt: toStr(attributes.alt), className: 'logical-layout-image h-auto w-full rounded-lg object-cover' });
+    }
+  });
+
+  registerBlockType(BUTTON_BLOCK_NAME, {
+    apiVersion: 2,
+    title: __('Button', 'wp-logical-theme'),
+    icon: 'button',
+    category: 'widgets',
+    ancestor: [COLUMN_BLOCK_NAME],
+    attributes: {
+      itemId: { type: 'string', default: '' },
+      label: { type: 'string', default: '' },
+      url: { type: 'string', default: '' },
+      variant: { type: 'string', default: 'primary' },
+      target: { type: 'string', default: '_self' }
+    },
+    supports: { html: false, reusable: false, inserter: true },
+    edit: function ButtonEdit({ attributes, setAttributes }) {
+      useEffect(() => {
+        if (!attributes.itemId) {
+          setAttributes({ itemId: generateId('item') });
+        }
+      }, [attributes.itemId, setAttributes]);
+      const variant = ['primary', 'secondary', 'outline', 'link'].includes(toStr(attributes.variant)) ? toStr(attributes.variant) : 'primary';
+      const target = toStr(attributes.target) === '_blank' ? '_blank' : '_self';
+      const blockProps = useBlockProps({ className: 'logical-layout-mini-button' });
+
+      return createElement(
+        'div',
+        blockProps,
+        createElement(
+          InspectorControls,
+          null,
+          createElement(
+            PanelBody,
+            { title: __('Button Settings', 'wp-logical-theme'), initialOpen: true },
+            createElement(TextControl, {
+              label: __('Button label', 'wp-logical-theme'),
+              value: toStr(attributes.label),
+              onChange: (value) => setAttributes({ label: value })
+            }),
+            createElement(TextControl, {
+              label: __('Button URL', 'wp-logical-theme'),
+              value: toStr(attributes.url),
+              onChange: (value) => setAttributes({ url: value })
+            }),
+            createElement(SelectControl, {
+              label: __('Variant', 'wp-logical-theme'),
+              value: variant,
+              options: [
+                { value: 'primary', label: __('Primary', 'wp-logical-theme') },
+                { value: 'secondary', label: __('Secondary', 'wp-logical-theme') },
+                { value: 'outline', label: __('Outline', 'wp-logical-theme') },
+                { value: 'link', label: __('Link', 'wp-logical-theme') }
+              ],
+              onChange: (value) => setAttributes({ variant: value })
+            }),
+            createElement(SelectControl, {
+              label: __('Target', 'wp-logical-theme'),
+              value: target,
+              options: [
+                { value: '_self', label: __('Same tab', 'wp-logical-theme') },
+                { value: '_blank', label: __('New tab', 'wp-logical-theme') }
+              ],
+              onChange: (value) => setAttributes({ target: value === '_blank' ? '_blank' : '_self' })
+            })
+          )
+        ),
+        createElement('span', { className: 'logical-layout-button inline-flex items-center justify-center rounded-lg border px-5 py-3 text-sm font-semibold' }, toStr(attributes.label) || __('Button', 'wp-logical-theme'))
+      );
+    },
+    save: function ButtonSave({ attributes }) {
+      const label = toStr(attributes.label);
+      const url = toStr(attributes.url);
+      if (!label || !url) {
+        return null;
+      }
+
+      const variant = ['primary', 'secondary', 'outline', 'link'].includes(toStr(attributes.variant)) ? toStr(attributes.variant) : 'primary';
+      const classMap = {
+        primary: 'border-primary bg-primary text-light',
+        secondary: 'border-secondary bg-secondary text-light',
+        outline: 'border-primary bg-transparent text-primary',
+        link: 'border-transparent bg-transparent p-0 text-primary underline underline-offset-4'
+      };
+      const target = toStr(attributes.target) === '_blank' ? '_blank' : '_self';
+
+      return createElement('a', {
+        href: url,
+        target: target === '_blank' ? '_blank' : undefined,
+        rel: target === '_blank' ? 'noopener noreferrer' : undefined,
+        className: `logical-layout-button inline-flex items-center justify-center rounded-lg border px-5 py-3 text-sm font-semibold ${classMap[variant]}`
+      }, label);
+    }
+  });
 }
 
-function withLayoutUpdate(layout, setAttributes, mutator) {
-  const nextLayout = normalizeLayout(layout);
-  mutator(nextLayout);
-  setAttributes({ layout: normalizeLayout(nextLayout) });
-}
+function mapLayoutItemFromBlock(block) {
+  if (!block || typeof block !== 'object' || typeof block.name !== 'string') {
+    return null;
+  }
 
-function createDefaultItem(type) {
-  if (type === 'embed') {
+  if (block.name === 'core/embed') {
     return {
-      id: generateId('item'),
+      id: getStableBlockId(block, '', 'embed'),
       type: 'embed',
-      data: { url: '', provider: '' },
+      data: {
+        url: toStr(block.attributes?.url),
+        provider: toStr(block.attributes?.providerNameSlug)
+      },
       settings: {}
     };
   }
 
-  return {
-    id: generateId('item'),
-    type: 'paragraph',
-    data: { pretitle: '', title: '', text: '', image: { id: 0, src: '', alt: '' } },
-    settings: { variant: '1', backgroundColor: '' }
-  };
+  if (block.name === PRETITLE_BLOCK_NAME) {
+    return {
+      id: getStableBlockId(block, 'itemId', 'item'),
+      type: 'pretitle',
+      data: { text: toStr(block.attributes?.text) },
+      settings: {}
+    };
+  }
+
+  if (block.name === TITLE_BLOCK_NAME) {
+    const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(toStr(block.attributes?.level)) ? toStr(block.attributes.level) : 'h2';
+    return {
+      id: getStableBlockId(block, 'itemId', 'item'),
+      type: 'title',
+      data: { text: toStr(block.attributes?.text), level },
+      settings: {}
+    };
+  }
+
+  if (block.name === TEXT_BLOCK_NAME) {
+    return {
+      id: getStableBlockId(block, 'itemId', 'item'),
+      type: 'text',
+      data: { text: toStr(block.attributes?.text) },
+      settings: {}
+    };
+  }
+
+  if (block.name === IMAGE_BLOCK_NAME) {
+    return {
+      id: getStableBlockId(block, 'itemId', 'item'),
+      type: 'image',
+      data: {
+        id: Number.parseInt(block.attributes?.id || 0, 10) || 0,
+        src: toStr(block.attributes?.src),
+        alt: toStr(block.attributes?.alt)
+      },
+      settings: {}
+    };
+  }
+
+  if (block.name === BUTTON_BLOCK_NAME) {
+    const variant = ['primary', 'secondary', 'outline', 'link'].includes(toStr(block.attributes?.variant)) ? toStr(block.attributes.variant) : 'primary';
+    const target = toStr(block.attributes?.target) === '_blank' ? '_blank' : '_self';
+    return {
+      id: getStableBlockId(block, 'itemId', 'item'),
+      type: 'button',
+      data: {
+        label: toStr(block.attributes?.label),
+        url: toStr(block.attributes?.url),
+        variant,
+        target,
+        rel: target === '_blank' ? 'noopener noreferrer' : ''
+      },
+      settings: {}
+    };
+  }
+
+  return null;
 }
 
-function getLayoutControls(layout, setAttributes) {
-  const controls = [];
-  const paletteOptions = getThemePaletteOptions();
+function mapLayoutFromBlocks(blocks) {
+  const layoutBlock = Array.isArray(blocks) ? blocks.find((block) => block?.name === LAYOUT_BLOCK_NAME) : null;
+  if (!layoutBlock || !Array.isArray(layoutBlock.innerBlocks)) {
+    return [];
+  }
 
-  controls.push(createElement(Button, {
-    key: 'layout-add-row',
-    variant: 'primary',
-    onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-      rows.push(ensureDefaultLayout([])[0]);
-    })
-  }, __('Add row', 'wp-logical-theme')));
-
-  layout.forEach((row, rowIndex) => {
-    const rowControls = [];
-    rowControls.push(createElement(SelectControl, {
-      key: `row-${row.id}-container`,
-      label: __('Container', 'wp-logical-theme'),
-      value: row.settings.container,
-      options: [
-        { value: 'default', label: __('Default', 'wp-logical-theme') },
-        { value: 'wide', label: __('Wide', 'wp-logical-theme') },
-        { value: 'full', label: __('Full', 'wp-logical-theme') }
-      ],
-      onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-        rows[rowIndex].settings.container = value;
-      })
-    }));
-
-    rowControls.push(createElement(SelectControl, {
-      key: `row-${row.id}-gap`,
-      label: __('Gap', 'wp-logical-theme'),
-      value: row.settings.gap,
-      options: [
-        { value: 'none', label: __('None', 'wp-logical-theme') },
-        { value: 'sm', label: __('Small', 'wp-logical-theme') },
-        { value: 'md', label: __('Medium', 'wp-logical-theme') },
-        { value: 'lg', label: __('Large', 'wp-logical-theme') }
-      ],
-      onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-        rows[rowIndex].settings.gap = value;
-      })
-    }));
-
-    rowControls.push(createElement(SelectControl, {
-      key: `row-${row.id}-align`,
-      label: __('Vertical align', 'wp-logical-theme'),
-      value: row.settings.alignY,
-      options: [
-        { value: 'stretch', label: __('Stretch', 'wp-logical-theme') },
-        { value: 'start', label: __('Top', 'wp-logical-theme') },
-        { value: 'center', label: __('Center', 'wp-logical-theme') },
-        { value: 'end', label: __('Bottom', 'wp-logical-theme') }
-      ],
-      onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-        rows[rowIndex].settings.alignY = value;
-      })
-    }));
-
-    rowControls.push(createElement(SelectControl, {
-      key: `row-${row.id}-bg`,
-      label: __('Background', 'wp-logical-theme'),
-      value: row.settings.backgroundColor,
-      options: paletteOptions,
-      onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-        rows[rowIndex].settings.backgroundColor = value;
-      })
-    }));
-
-    rowControls.push(createElement(Button, {
-      key: `row-${row.id}-add-column`,
-      variant: 'secondary',
-      onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-        if (rows[rowIndex].columns.length >= 6) return;
-        rows[rowIndex].columns.push({
-          id: generateId('col'),
-          type: 'column',
-          settings: { desktop: 12, tablet: 12, mobile: 12, alignY: 'stretch' },
-          items: []
-        });
-      })
-    }, __('Add column', 'wp-logical-theme')));
-
-    if (layout.length > 1) {
-      rowControls.push(createElement(Button, {
-        key: `row-${row.id}-remove`,
-        variant: 'secondary',
-        isDestructive: true,
-        onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows.splice(rowIndex, 1);
-        })
-      }, __('Remove row', 'wp-logical-theme')));
-    }
-
-    row.columns.forEach((column, columnIndex) => {
-      rowControls.push(createElement('hr', { key: `row-${row.id}-col-${column.id}-separator` }));
-      rowControls.push(createElement('strong', { key: `row-${row.id}-col-${column.id}-title` }, `${__('Column', 'wp-logical-theme')} ${columnIndex + 1}`));
-
-      rowControls.push(createElement(SelectControl, {
-        key: `row-${row.id}-col-${column.id}-desktop`,
-        label: __('Desktop span', 'wp-logical-theme'),
-        value: String(column.settings.desktop),
-        options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
-        onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows[rowIndex].columns[columnIndex].settings.desktop = clampSpan(value);
-        })
-      }));
-
-      rowControls.push(createElement(SelectControl, {
-        key: `row-${row.id}-col-${column.id}-tablet`,
-        label: __('Tablet span', 'wp-logical-theme'),
-        value: String(column.settings.tablet),
-        options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
-        onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows[rowIndex].columns[columnIndex].settings.tablet = clampSpan(value);
-        })
-      }));
-
-      rowControls.push(createElement(SelectControl, {
-        key: `row-${row.id}-col-${column.id}-mobile`,
-        label: __('Mobile span', 'wp-logical-theme'),
-        value: String(column.settings.mobile),
-        options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
-        onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows[rowIndex].columns[columnIndex].settings.mobile = clampSpan(value);
-        })
-      }));
-
-      rowControls.push(createElement(Button, {
-        key: `row-${row.id}-col-${column.id}-add-paragraph`,
-        variant: 'secondary',
-        onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows[rowIndex].columns[columnIndex].items.push(createDefaultItem('paragraph'));
-        })
-      }, __('Add paragraph item', 'wp-logical-theme')));
-
-      rowControls.push(createElement(Button, {
-        key: `row-${row.id}-col-${column.id}-add-embed`,
-        variant: 'secondary',
-        onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-          rows[rowIndex].columns[columnIndex].items.push(createDefaultItem('embed'));
-        })
-      }, __('Add embed item', 'wp-logical-theme')));
-
-      if (row.columns.length > 1) {
-        rowControls.push(createElement(Button, {
-          key: `row-${row.id}-col-${column.id}-remove`,
-          variant: 'secondary',
-          isDestructive: true,
-          onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-            rows[rowIndex].columns.splice(columnIndex, 1);
+  return layoutBlock.innerBlocks
+    .filter((row) => row?.name === ROW_BLOCK_NAME)
+    .map((row) => {
+      const rowAttrs = row.attributes && typeof row.attributes === 'object' ? row.attributes : {};
+      return {
+        id: getStableBlockId(row, 'rowId', 'row'),
+        type: 'row',
+        settings: {
+          container: ['default', 'wide', 'full'].includes(toStr(rowAttrs.container)) ? toStr(rowAttrs.container) : 'default',
+          gap: ['none', 'sm', 'md', 'lg'].includes(toStr(rowAttrs.gap)) ? toStr(rowAttrs.gap) : 'md',
+          alignY: ['start', 'center', 'end', 'stretch'].includes(toStr(rowAttrs.alignY)) ? toStr(rowAttrs.alignY) : 'stretch',
+          backgroundColor: toStr(rowAttrs.backgroundColor)
+        },
+        columns: (Array.isArray(row.innerBlocks) ? row.innerBlocks : [])
+          .filter((column) => column?.name === COLUMN_BLOCK_NAME)
+          .map((column) => {
+            const colAttrs = column.attributes && typeof column.attributes === 'object' ? column.attributes : {};
+            return {
+              id: getStableBlockId(column, 'columnId', 'col'),
+              type: 'column',
+              settings: {
+                desktop: clampSpan(colAttrs.desktop),
+                tablet: clampSpan(colAttrs.tablet),
+                mobile: clampSpan(colAttrs.mobile),
+                alignY: ['start', 'center', 'end', 'stretch'].includes(toStr(colAttrs.alignY)) ? toStr(colAttrs.alignY) : 'stretch'
+              },
+              items: (Array.isArray(column.innerBlocks) ? column.innerBlocks : [])
+                .map((itemBlock) => mapLayoutItemFromBlock(itemBlock))
+                .filter(Boolean)
+            };
           })
-        }, __('Remove column', 'wp-logical-theme')));
-      }
-
-      column.items.forEach((item, itemIndex) => {
-        rowControls.push(createElement('div', { key: `row-${row.id}-col-${column.id}-item-${item.id}-title` }, `${__('Item', 'wp-logical-theme')} ${itemIndex + 1} (${item.type})`));
-
-        rowControls.push(createElement(SelectControl, {
-          key: `row-${row.id}-col-${column.id}-item-${item.id}-type`,
-          label: __('Item type', 'wp-logical-theme'),
-          value: item.type,
-          options: [
-            { value: 'paragraph', label: __('Paragraph', 'wp-logical-theme') },
-            { value: 'embed', label: __('Embed', 'wp-logical-theme') }
-          ],
-          onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-            rows[rowIndex].columns[columnIndex].items[itemIndex] = createDefaultItem(value);
-          })
-        }));
-
-        if (item.type === 'paragraph') {
-          rowControls.push(createElement(TextControl, {
-            key: `row-${row.id}-col-${column.id}-item-${item.id}-title`,
-            label: __('Title', 'wp-logical-theme'),
-            value: toStr(item.data.title),
-            onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-              rows[rowIndex].columns[columnIndex].items[itemIndex].data.title = value;
-            })
-          }));
-
-          rowControls.push(createElement(TextareaControl, {
-            key: `row-${row.id}-col-${column.id}-item-${item.id}-text`,
-            label: __('Text', 'wp-logical-theme'),
-            value: toStr(item.data.text),
-            onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-              rows[rowIndex].columns[columnIndex].items[itemIndex].data.text = value;
-            })
-          }));
-        }
-
-        if (item.type === 'embed') {
-          rowControls.push(createElement(TextControl, {
-            key: `row-${row.id}-col-${column.id}-item-${item.id}-url`,
-            label: __('Embed URL', 'wp-logical-theme'),
-            value: toStr(item.data.url),
-            onChange: (value) => withLayoutUpdate(layout, setAttributes, (rows) => {
-              rows[rowIndex].columns[columnIndex].items[itemIndex].data.url = value;
-            })
-          }));
-        }
-
-        rowControls.push(createElement(Button, {
-          key: `row-${row.id}-col-${column.id}-item-${item.id}-remove`,
-          variant: 'secondary',
-          isDestructive: true,
-          onClick: () => withLayoutUpdate(layout, setAttributes, (rows) => {
-            rows[rowIndex].columns[columnIndex].items.splice(itemIndex, 1);
-          })
-        }, __('Remove item', 'wp-logical-theme')));
-      });
+      };
     });
+}
 
-    controls.push(createElement(PanelBody, {
-      key: `row-${row.id}`,
-      title: `${__('Row', 'wp-logical-theme')} ${rowIndex + 1}`,
-      initialOpen: false
-    }, ...rowControls));
+function countLayoutItems(layout) {
+  const rows = Array.isArray(layout) ? layout : [];
+  let total = 0;
+
+  rows.forEach((row) => {
+    const columns = Array.isArray(row?.columns) ? row.columns : [];
+    columns.forEach((column) => {
+      const items = Array.isArray(column?.items) ? column.items : [];
+      total += items.length;
+    });
   });
 
-  return controls;
+  return total;
 }
 
-registerBlockType(PARAGRAPH_BLOCK_NAME, {
+function createItemBlockFromLayoutItem(item) {
+  if (!item || typeof item !== 'object') {
+    return null;
+  }
+
+  const type = toStr(item.type);
+  const id = toStr(item.id);
+  const data = item.data && typeof item.data === 'object' ? item.data : {};
+
+  if (type === 'pretitle') {
+    return createBlock(PRETITLE_BLOCK_NAME, {
+      itemId: id,
+      text: toStr(data.text)
+    });
+  }
+
+  if (type === 'title') {
+    const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(toStr(data.level)) ? toStr(data.level) : 'h2';
+    return createBlock(TITLE_BLOCK_NAME, {
+      itemId: id,
+      text: toStr(data.text),
+      level
+    });
+  }
+
+  if (type === 'text') {
+    return createBlock(TEXT_BLOCK_NAME, {
+      itemId: id,
+      text: toStr(data.text)
+    });
+  }
+
+  if (type === 'image') {
+    return createBlock(IMAGE_BLOCK_NAME, {
+      itemId: id,
+      id: Number.parseInt(data.id || 0, 10) || 0,
+      src: toStr(data.src),
+      alt: toStr(data.alt)
+    });
+  }
+
+  if (type === 'button') {
+    return createBlock(BUTTON_BLOCK_NAME, {
+      itemId: id,
+      label: toStr(data.label),
+      url: toStr(data.url),
+      variant: ['primary', 'secondary', 'outline', 'link'].includes(toStr(data.variant)) ? toStr(data.variant) : 'primary',
+      target: toStr(data.target) === '_blank' ? '_blank' : '_self'
+    });
+  }
+
+  if (type === 'embed') {
+    return createBlock('core/embed', {
+      url: toStr(data.url),
+      providerNameSlug: toStr(data.provider)
+    });
+  }
+
+  return null;
+}
+
+function createLayoutBlocksFromMetaLayout(layout) {
+  const rowBlocks = createRowBlocksFromMetaLayout(layout);
+  return [createBlock(LAYOUT_BLOCK_NAME, { layoutVersion: VERSION_3 }, rowBlocks)];
+}
+
+function createRowBlocksFromMetaLayout(layout) {
+  const rows = Array.isArray(layout) ? layout : [];
+  return rows.map((row) => {
+    if (!row || typeof row !== 'object') {
+      return null;
+    }
+
+    const rowSettings = row.settings && typeof row.settings === 'object' ? row.settings : {};
+    const rowAttrs = {
+      rowId: toStr(row.id),
+      container: ['default', 'wide', 'full'].includes(toStr(rowSettings.container)) ? toStr(rowSettings.container) : 'default',
+      gap: ['none', 'sm', 'md', 'lg'].includes(toStr(rowSettings.gap)) ? toStr(rowSettings.gap) : 'md',
+      alignY: ['start', 'center', 'end', 'stretch'].includes(toStr(rowSettings.alignY)) ? toStr(rowSettings.alignY) : 'stretch',
+      backgroundColor: toStr(rowSettings.backgroundColor)
+    };
+
+    const columns = Array.isArray(row.columns) ? row.columns : [];
+    const columnBlocks = columns.map((column) => {
+      if (!column || typeof column !== 'object') {
+        return null;
+      }
+
+      const columnSettings = column.settings && typeof column.settings === 'object' ? column.settings : {};
+      const columnAttrs = {
+        columnId: toStr(column.id),
+        desktop: clampSpan(columnSettings.desktop),
+        tablet: clampSpan(columnSettings.tablet),
+        mobile: clampSpan(columnSettings.mobile),
+        alignY: ['start', 'center', 'end', 'stretch'].includes(toStr(columnSettings.alignY)) ? toStr(columnSettings.alignY) : 'stretch'
+      };
+
+      const itemBlocks = (Array.isArray(column.items) ? column.items : [])
+        .map((item) => createItemBlockFromLayoutItem(item))
+        .filter(Boolean);
+
+      return createBlock(COLUMN_BLOCK_NAME, columnAttrs, itemBlocks);
+    }).filter(Boolean);
+
+    return createBlock(ROW_BLOCK_NAME, rowAttrs, columnBlocks);
+  }).filter(Boolean);
+}
+
+registerBlockType(COLUMN_BLOCK_NAME, {
   apiVersion: 2,
-  title: __(paragraphSpec?.title || 'Paragrafo', 'wp-logical-theme'),
-  icon: 'layout',
+  title: __('Column', 'wp-logical-theme'),
+  icon: 'columns',
   category: 'widgets',
+  parent: [ROW_BLOCK_NAME],
   attributes: {
-    sectionId: { type: 'string', default: '' },
-    sectionType: { type: 'string', default: 'paragraph' },
-    data: { type: 'object', default: {} },
-    settings: { type: 'object', default: {} }
+    columnId: { type: 'string', default: '' },
+    desktop: { type: 'number', default: 12 },
+    tablet: { type: 'number', default: 12 },
+    mobile: { type: 'number', default: 12 },
+    alignY: { type: 'string', default: 'stretch' }
   },
-  supports: { html: false },
-  edit: function Edit({ attributes, setAttributes }) {
-    const blockProps = useBlockProps({ className: 'wp-block-logical-theme-paragraph' });
-
+  supports: {
+    html: false,
+    reusable: false
+  },
+  edit: function ColumnEdit({ attributes, setAttributes, clientId }) {
     useEffect(() => {
-      if (!attributes.sectionId) {
-        setAttributes({ sectionId: generateId('sec') });
+      if (!attributes.columnId) {
+        setAttributes({ columnId: generateId('col') });
       }
-    }, [attributes.sectionId, setAttributes]);
+    }, [attributes.columnId, setAttributes]);
 
-    useEffect(() => {
-      if (attributes.sectionType !== 'paragraph') {
-        setAttributes({ sectionType: 'paragraph' });
+    const blockProps = useBlockProps({
+      className: 'logical-layout-col',
+      style: {
+        '--logical-col-mobile': clampSpan(attributes.mobile),
+        '--logical-col-tablet': clampSpan(attributes.tablet),
+        '--logical-col-desktop': clampSpan(attributes.desktop),
+        '--logical-col-align': ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch'
       }
-    }, [attributes.sectionType, setAttributes]);
-
-    const controls = getParagraphControls(attributes, setAttributes);
+    });
+    const blockEditorDispatch = dispatch('core/block-editor');
+    const addMiniBlock = (name) => {
+      if (!blockEditorDispatch || typeof blockEditorDispatch.insertBlocks !== 'function') {
+        return;
+      }
+      blockEditorDispatch.insertBlocks(createBlock(name), undefined, clientId);
+    };
 
     return createElement(
       'div',
       blockProps,
-      createElement(InspectorControls, null, createElement(PanelBody, { title: __('Content', 'wp-logical-theme'), initialOpen: true }, ...controls)),
-      createElement('strong', null, __(paragraphSpec?.title || 'Paragrafo', 'wp-logical-theme')),
-      createElement(ServerSideRender, {
-        key: `${PARAGRAPH_BLOCK_NAME}:${attributes.sectionId || 'new'}:${JSON.stringify(attributes.data || {})}:${JSON.stringify(attributes.settings || {})}`,
-        block: PARAGRAPH_BLOCK_NAME,
-        attributes
+      createElement(
+        'div',
+        { className: 'logical-layout-mini-toolbar flex gap-2' },
+        createElement(Button, { variant: 'secondary', onClick: () => addMiniBlock(PRETITLE_BLOCK_NAME) }, __('Add Pretitle', 'wp-logical-theme')),
+        createElement(Button, { variant: 'secondary', onClick: () => addMiniBlock(TITLE_BLOCK_NAME) }, __('Add Title', 'wp-logical-theme')),
+        createElement(Button, { variant: 'secondary', onClick: () => addMiniBlock(TEXT_BLOCK_NAME) }, __('Add Text', 'wp-logical-theme')),
+        createElement(Button, { variant: 'secondary', onClick: () => addMiniBlock(IMAGE_BLOCK_NAME) }, __('Add Image', 'wp-logical-theme')),
+        createElement(Button, { variant: 'secondary', onClick: () => addMiniBlock(BUTTON_BLOCK_NAME) }, __('Add Button', 'wp-logical-theme'))
+      ),
+      createElement(
+        InspectorControls,
+        null,
+        createElement(
+          PanelBody,
+          { title: __('Column Settings', 'wp-logical-theme'), initialOpen: true },
+          createElement(SelectControl, {
+            label: __('Desktop span', 'wp-logical-theme'),
+            value: String(clampSpan(attributes.desktop)),
+            options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
+            onChange: (value) => setAttributes({ desktop: clampSpan(value) })
+          }),
+          createElement(SelectControl, {
+            label: __('Tablet span', 'wp-logical-theme'),
+            value: String(clampSpan(attributes.tablet)),
+            options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
+            onChange: (value) => setAttributes({ tablet: clampSpan(value) })
+          }),
+          createElement(SelectControl, {
+            label: __('Mobile span', 'wp-logical-theme'),
+            value: String(clampSpan(attributes.mobile)),
+            options: Array.from({ length: 12 }).map((_, i) => ({ value: String(i + 1), label: String(i + 1) })),
+            onChange: (value) => setAttributes({ mobile: clampSpan(value) })
+          }),
+          createElement(SelectControl, {
+            label: __('Vertical align', 'wp-logical-theme'),
+            value: ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch',
+            options: [
+              { value: 'stretch', label: __('Stretch', 'wp-logical-theme') },
+              { value: 'start', label: __('Top', 'wp-logical-theme') },
+              { value: 'center', label: __('Center', 'wp-logical-theme') },
+              { value: 'end', label: __('Bottom', 'wp-logical-theme') }
+            ],
+            onChange: (value) => setAttributes({ alignY: value })
+          })
+        )
+      ),
+      createElement(InnerBlocks, {
+        allowedBlocks: ['core/embed', ...MINI_LAYOUT_BLOCKS],
+        orientation: 'vertical',
+        renderAppender: InnerBlocks.ButtonBlockAppender
       })
     );
   },
-  save: function Save() {
-    return null;
+  save: function ColumnSave({ attributes }) {
+    const blockProps = useBlockProps.save({
+      className: 'logical-layout-col',
+      style: {
+        '--logical-col-mobile': clampSpan(attributes.mobile),
+        '--logical-col-tablet': clampSpan(attributes.tablet),
+        '--logical-col-desktop': clampSpan(attributes.desktop),
+        '--logical-col-align': ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch'
+      }
+    });
+
+    return createElement('div', blockProps, createElement(InnerBlocks.Content));
+  }
+});
+
+registerMiniLayoutBlocks();
+
+registerBlockType(ROW_BLOCK_NAME, {
+  apiVersion: 2,
+  title: __('Row', 'wp-logical-theme'),
+  icon: 'menu-alt3',
+  category: 'widgets',
+  parent: [LAYOUT_BLOCK_NAME],
+  attributes: {
+    rowId: { type: 'string', default: '' },
+    container: { type: 'string', default: 'default' },
+    gap: { type: 'string', default: 'md' },
+    alignY: { type: 'string', default: 'stretch' },
+    backgroundColor: { type: 'string', default: '' }
+  },
+  supports: {
+    html: false,
+    reusable: false
+  },
+  edit: function RowEdit({ attributes, setAttributes }) {
+    useEffect(() => {
+      if (!attributes.rowId) {
+        setAttributes({ rowId: generateId('row') });
+      }
+    }, [attributes.rowId, setAttributes]);
+
+    const gapMap = { none: '0', sm: '0.75rem', md: '1.25rem', lg: '2rem' };
+    const blockProps = useBlockProps({
+      className: 'logical-layout-row logical-theme-color-surface',
+      style: {
+        '--logical-row-gap': gapMap[toStr(attributes.gap)] || gapMap.md,
+        '--logical-row-align': ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch'
+      },
+      'data-surface-color': toStr(attributes.backgroundColor)
+    });
+
+    return createElement(
+      'div',
+      blockProps,
+      createElement(
+        InspectorControls,
+        null,
+        createElement(
+          PanelBody,
+          { title: __('Row Settings', 'wp-logical-theme'), initialOpen: true },
+          createElement(SelectControl, {
+            label: __('Container', 'wp-logical-theme'),
+            value: ['default', 'wide', 'full'].includes(toStr(attributes.container)) ? toStr(attributes.container) : 'default',
+            options: [
+              { value: 'default', label: __('Default', 'wp-logical-theme') },
+              { value: 'wide', label: __('Wide', 'wp-logical-theme') },
+              { value: 'full', label: __('Full', 'wp-logical-theme') }
+            ],
+            onChange: (value) => setAttributes({ container: value })
+          }),
+          createElement(SelectControl, {
+            label: __('Gap', 'wp-logical-theme'),
+            value: ['none', 'sm', 'md', 'lg'].includes(toStr(attributes.gap)) ? toStr(attributes.gap) : 'md',
+            options: [
+              { value: 'none', label: __('None', 'wp-logical-theme') },
+              { value: 'sm', label: __('Small', 'wp-logical-theme') },
+              { value: 'md', label: __('Medium', 'wp-logical-theme') },
+              { value: 'lg', label: __('Large', 'wp-logical-theme') }
+            ],
+            onChange: (value) => setAttributes({ gap: value })
+          }),
+          createElement(SelectControl, {
+            label: __('Vertical align', 'wp-logical-theme'),
+            value: ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch',
+            options: [
+              { value: 'stretch', label: __('Stretch', 'wp-logical-theme') },
+              { value: 'start', label: __('Top', 'wp-logical-theme') },
+              { value: 'center', label: __('Center', 'wp-logical-theme') },
+              { value: 'end', label: __('Bottom', 'wp-logical-theme') }
+            ],
+            onChange: (value) => setAttributes({ alignY: value })
+          }),
+          createElement(SelectControl, {
+            label: __('Background', 'wp-logical-theme'),
+            value: toStr(attributes.backgroundColor),
+            options: getThemePaletteOptions(),
+            onChange: (value) => setAttributes({ backgroundColor: value })
+          })
+        )
+      ),
+      createElement(InnerBlocks, {
+        allowedBlocks: [COLUMN_BLOCK_NAME],
+        orientation: 'horizontal',
+        template: [[COLUMN_BLOCK_NAME]],
+        renderAppender: InnerBlocks.ButtonBlockAppender
+      })
+    );
+  },
+  save: function RowSave({ attributes }) {
+    const gapMap = { none: '0', sm: '0.75rem', md: '1.25rem', lg: '2rem' };
+    const blockProps = useBlockProps.save({
+      className: 'logical-layout-row logical-theme-color-surface',
+      style: {
+        '--logical-row-gap': gapMap[toStr(attributes.gap)] || gapMap.md,
+        '--logical-row-align': ['start', 'center', 'end', 'stretch'].includes(toStr(attributes.alignY)) ? toStr(attributes.alignY) : 'stretch'
+      },
+      'data-surface-color': toStr(attributes.backgroundColor)
+    });
+
+    const containerClass = ['default', 'wide', 'full'].includes(toStr(attributes.container)) ? toStr(attributes.container) : 'default';
+    const containerWrapper = containerClass === 'full' ? 'logical-layout-container-full' : (containerClass === 'wide' ? 'container logical-layout-container-wide' : 'container');
+
+    return createElement('div', { className: containerWrapper }, createElement('div', blockProps, createElement(InnerBlocks.Content)));
   }
 });
 
@@ -604,40 +867,96 @@ registerBlockType(LAYOUT_BLOCK_NAME, {
   icon: 'screenoptions',
   category: 'widgets',
   attributes: {
-    layout: {
-      type: 'array',
-      default: []
-    }
+    layoutVersion: { type: 'string', default: VERSION_3 }
   },
   supports: {
     html: false
   },
-  edit: function LayoutEdit({ attributes, setAttributes }) {
-    const blockProps = useBlockProps({ className: 'wp-block-logical-theme-layout' });
+  edit: function LayoutEdit({ clientId }) {
+    const blockProps = useBlockProps({ className: 'logical-layout-block' });
+    const editorSelect = select('core/editor');
+    const meta = (editorSelect?.getEditedPostAttribute('meta')) || {};
+    const parsedMeta = parseMetaJson(meta[META_KEY]);
+    const slug = toStr(editorSelect?.getEditedPostAttribute('slug'));
+    const postId = Number.parseInt(editorSelect?.getCurrentPostId?.(), 10) || 0;
+    const hasMetaLayout = !!(parsedMeta && parsedMeta.version === VERSION_3 && Array.isArray(parsedMeta.layout) && parsedMeta.layout.length > 0);
 
     useEffect(() => {
-      if (!Array.isArray(attributes.layout) || attributes.layout.length === 0) {
-        setAttributes({ layout: ensureDefaultLayout([]) });
+      if (!clientId || postId <= 0) {
+        return;
       }
-    }, [attributes.layout, setAttributes]);
+      const postKey = String(postId);
+      if (hydratedPostIds.has(postKey)) {
+        return;
+      }
 
-    const layout = ensureDefaultLayout(attributes.layout || []);
-    const controls = getLayoutControls(layout, setAttributes);
+      const blockEditorSelect = select('core/block-editor');
+      const blockEditorDispatch = dispatch('core/block-editor');
+      const editorDispatch = dispatch('core/editor');
+      const editorStore = select('core/editor');
+      if (!blockEditorSelect || !blockEditorDispatch || !editorStore) {
+        return;
+      }
+
+      const blocks = blockEditorSelect.getBlocks();
+      const mappedLayout = mapLayoutFromBlocks(blocks);
+      const mappedItemsCount = countLayoutItems(mappedLayout);
+
+      if (parsedMeta && parsedMeta.version === VERSION_3 && Array.isArray(parsedMeta.layout) && countLayoutItems(parsedMeta.layout) > 0) {
+        if (mappedItemsCount === 0 && typeof blockEditorDispatch.replaceInnerBlocks === 'function') {
+          blockEditorDispatch.replaceInnerBlocks(clientId, createRowBlocksFromMetaLayout(parsedMeta.layout), false);
+        }
+        hydratedPostIds.add(postKey);
+        return;
+      }
+
+      if (fallbackTriedPostIds.has(postKey) || !slug) {
+        return;
+      }
+
+      fallbackTriedPostIds.add(postKey);
+      fetch(`/wp-content/themes/logical-theme/assets/json/${slug}.json`, { credentials: 'same-origin' })
+        .then((response) => {
+          if (!response || !response.ok) {
+            return null;
+          }
+          return response.json();
+        })
+        .then((json) => {
+          if (!json || json.version !== VERSION_3 || !Array.isArray(json.layout) || countLayoutItems(json.layout) === 0) {
+            return;
+          }
+
+          const latestBlocks = blockEditorSelect.getBlocks();
+          const latestLayout = mapLayoutFromBlocks(latestBlocks);
+          if (countLayoutItems(latestLayout) === 0 && typeof blockEditorDispatch.replaceInnerBlocks === 'function') {
+            blockEditorDispatch.replaceInnerBlocks(clientId, createRowBlocksFromMetaLayout(json.layout), false);
+          }
+
+          const latestMeta = (editorStore.getEditedPostAttribute('meta')) || {};
+          if (editorDispatch && typeof editorDispatch.editPost === 'function') {
+            editorDispatch.editPost({
+              meta: {
+                ...latestMeta,
+                [META_KEY]: JSON.stringify({
+                  version: VERSION_3,
+                  layout: json.layout
+                })
+              }
+            });
+          }
+          hydratedPostIds.add(postKey);
+        })
+        .catch(() => {});
+    }, [clientId, postId, slug, meta[META_KEY]]);
 
     return createElement(
-      'div',
+      'section',
       blockProps,
-      createElement(InspectorControls, null,
-        createElement(PanelBody, {
-          title: __('Layout Builder', 'wp-logical-theme'),
-          initialOpen: true
-        }, ...controls)
-      ),
-      createElement('strong', null, __('Layout', 'wp-logical-theme')),
-      createElement(ServerSideRender, {
-        key: `${LAYOUT_BLOCK_NAME}:${JSON.stringify(layout)}`,
-        block: LAYOUT_BLOCK_NAME,
-        attributes: { layout }
+      createElement(InnerBlocks, {
+        allowedBlocks: [ROW_BLOCK_NAME],
+        template: hasMetaLayout ? undefined : [[ROW_BLOCK_NAME, {}, [[COLUMN_BLOCK_NAME]]]],
+        renderAppender: InnerBlocks.ButtonBlockAppender
       })
     );
   },
@@ -658,34 +977,26 @@ subscribe(() => {
   if (!blockEditorSelect) return;
 
   const blocks = blockEditorSelect.getBlocks();
-  const layoutBlocks = blocks.filter((block) => block.name === LAYOUT_BLOCK_NAME);
-
-  let payload;
-  if (layoutBlocks.length > 0) {
-    payload = {
-      version: VERSION_3,
-      layout: normalizeLayout(layoutBlocks[0].attributes.layout || [])
-    };
-  } else {
-    const paragraphBlocks = blocks.filter((block) => block.name === PARAGRAPH_BLOCK_NAME);
-    payload = {
-      version: VERSION_2,
-      sections: paragraphBlocks.map((block) => ({
-        id: block.attributes.sectionId || generateId('sec'),
-        type: 'paragraph',
-        data: block.attributes.data || {},
-        settings: block.attributes.settings || {}
-      }))
-    };
-  }
-
   const meta = editorSelect.getEditedPostAttribute('meta') || {};
-  const parsed = parseMetaJson(meta[META_KEY]);
-  if (parsed && JSON.stringify(parsed) === JSON.stringify(payload)) {
+  const parsedMeta = parseMetaJson(meta[META_KEY]);
+  const mappedLayout = mapLayoutFromBlocks(blocks);
+  const mappedItemsCount = countLayoutItems(mappedLayout);
+  const metaLayout = parsedMeta && parsedMeta.version === VERSION_3 && Array.isArray(parsedMeta.layout) ? parsedMeta.layout : [];
+  const metaItemsCount = countLayoutItems(metaLayout);
+  if (metaItemsCount > 0 && mappedItemsCount === 0) {
+    // Do not overwrite existing meta with an empty layout before hydration completes.
+    return;
+  }
+  const payload = {
+    version: VERSION_3,
+    layout: mappedLayout
+  };
+
+  const serialized = JSON.stringify(payload);
+  if (meta[META_KEY] === serialized) {
     return;
   }
 
-  const serialized = JSON.stringify(payload);
   if (serialized === lastSerialized) return;
 
   const editorDispatch = dispatch('core/editor');
