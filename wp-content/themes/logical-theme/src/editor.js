@@ -50,6 +50,32 @@ function setSettings(attributes, setAttributes, settings) {
   });
 }
 
+function getThemePaletteOptions() {
+  const blockEditorStore = select('core/block-editor');
+  const settings = blockEditorStore?.getSettings ? blockEditorStore.getSettings() : null;
+  const colors = Array.isArray(settings?.colors) ? settings.colors : [];
+  const options = colors
+    .map((color) => {
+      if (!color || typeof color !== 'object') {
+        return null;
+      }
+
+      const slug = toStr(color.slug);
+      if (!slug) {
+        return null;
+      }
+
+      const label = toStr(color.name) || slug;
+      return { value: slug, label };
+    })
+    .filter(Boolean);
+
+  return [
+    { value: '', label: __('Default', 'wp-logical-theme') },
+    ...options
+  ];
+}
+
 function getParagraphControls(attributes, setAttributes) {
   const data = attributes.data || {};
   const settings = attributes.settings || {};
@@ -83,6 +109,14 @@ function getParagraphControls(attributes, setAttributes) {
       onChange: (value) => setSettings(attributes, setAttributes, { variant: value })
     }));
   }
+
+  controls.push(createElement(SelectControl, {
+    key: 'paragraph-surface-color',
+    label: __('Section background', 'wp-logical-theme'),
+    value: toStr(settings.backgroundColor),
+    options: getThemePaletteOptions(),
+    onChange: (value) => setSettings(attributes, setAttributes, { backgroundColor: value })
+  }));
 
   fields.forEach((field) => {
     if (!field || typeof field !== 'object' || typeof field.key !== 'string') {

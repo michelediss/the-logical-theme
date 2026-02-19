@@ -1,0 +1,38 @@
+{
+  "default": {
+    "body": "black",
+    "heading": "primary",
+    "eyebrow": "primary",
+    "muted": "secondary"
+  },
+  "white": {
+    "body": "black",
+    "heading": "primary",
+    "eyebrow": "primary",
+    "muted": "secondary"
+  },
+  "light": {
+    "body": "black",
+    "heading": "primary",
+    "eyebrow": "primary",
+    "muted": "secondary"
+  },
+  "black": {
+    "body": "white",
+    "heading": "white",
+    "eyebrow": "secondary",
+    "muted": "light"
+  },
+  "primary": {
+    "body": "white",
+    "heading": "white",
+    "eyebrow": "secondary",
+    "muted": "light"
+  },
+  "secondary": {
+    "body": "white",
+    "heading": "white",
+    "eyebrow": "primary",
+    "muted": "light"
+  }
+}

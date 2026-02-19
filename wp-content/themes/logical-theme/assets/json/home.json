@@ -15,7 +15,8 @@
                 }
             },
             "settings": {
-                "variant": "1"
+                "variant": "1",
+                "backgroundColor": ""
             }
         }
     ]

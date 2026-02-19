@@ -56,6 +56,100 @@ function logical_theme_relocate_templates()
 }
 logical_theme_relocate_templates();
 
+if (!function_exists('logical_theme_build_color_context_css')) {
+    function logical_theme_build_color_context_css()
+    {
+        static $cache = null;
+        if (is_string($cache)) {
+            return $cache;
+        }
+
+        $palette_slugs = function_exists('logical_theme_get_theme_palette_slugs')
+            ? logical_theme_get_theme_palette_slugs()
+            : array();
+        if (empty($palette_slugs)) {
+            $cache = '';
+            return $cache;
+        }
+
+        $map = function_exists('logical_theme_get_color_context_map')
+            ? logical_theme_get_color_context_map()
+            : array();
+        $default_map = isset($map['default']) && is_array($map['default']) ? $map['default'] : array();
+
+        $roles = array('body', 'heading', 'eyebrow', 'muted');
+        $fallback_by_role = array(
+            'body' => 'black',
+            'heading' => 'primary',
+            'eyebrow' => 'primary',
+            'muted' => 'secondary',
+        );
+
+        $css_lines = array(
+            '.logical-theme-color-surface{background-color:var(--logical-surface-bg,transparent);}',
+            '.logical-theme-color-surface :where(p,li){color:var(--logical-color-body,currentColor);}',
+            '.logical-theme-color-surface :where(h1,h2,h3,h4,h5,h6){color:var(--logical-color-heading,var(--logical-color-body,currentColor));}',
+            '.logical-theme-color-surface .logical-color-body{color:var(--logical-color-body,currentColor);}',
+            '.logical-theme-color-surface .logical-color-heading{color:var(--logical-color-heading,var(--logical-color-body,currentColor));}',
+            '.logical-theme-color-surface .logical-color-eyebrow{color:var(--logical-color-eyebrow,var(--logical-color-heading,currentColor));}',
+            '.logical-theme-color-surface .logical-color-muted{color:var(--logical-color-muted,var(--logical-color-body,currentColor));}',
+            '.logical-theme-color-surface .logical-color-border{border-color:var(--logical-color-muted,currentColor);}',
+        );
+
+        $default_surface = in_array('white', $palette_slugs, true) ? 'white' : $palette_slugs[0];
+        $css_lines[] = sprintf(
+            '.logical-theme-color-surface{--logical-surface-bg:var(--wp--preset--color--%1$s);}',
+            $default_surface
+        );
+
+        foreach ($roles as $role) {
+            $role_slug = isset($default_map[$role]) ? sanitize_key((string) $default_map[$role]) : '';
+            if ($role_slug === '' || !in_array($role_slug, $palette_slugs, true)) {
+                $fallback_role_slug = isset($fallback_by_role[$role]) ? $fallback_by_role[$role] : '';
+                $role_slug = in_array($fallback_role_slug, $palette_slugs, true) ? $fallback_role_slug : $default_surface;
+            }
+
+            $css_lines[] = sprintf(
+                '.logical-theme-color-surface{--logical-color-%1$s:var(--wp--preset--color--%2$s);}',
+                $role,
+                $role_slug
+            );
+        }
+
+        foreach ($palette_slugs as $surface_slug) {
+            $surface_map = isset($map[$surface_slug]) && is_array($map[$surface_slug]) ? $map[$surface_slug] : $default_map;
+            $declarations = array(
+                sprintf('--logical-surface-bg:var(--wp--preset--color--%s);', $surface_slug),
+            );
+
+            foreach ($roles as $role) {
+                $role_slug = isset($surface_map[$role]) ? sanitize_key((string) $surface_map[$role]) : '';
+                if ($role_slug === '' || !in_array($role_slug, $palette_slugs, true)) {
+                    $fallback_role_slug = isset($default_map[$role]) ? sanitize_key((string) $default_map[$role]) : '';
+                    if ($fallback_role_slug === '' || !in_array($fallback_role_slug, $palette_slugs, true)) {
+                        $fallback_role_slug = isset($fallback_by_role[$role]) ? $fallback_by_role[$role] : $default_surface;
+                    }
+                    if (!in_array($fallback_role_slug, $palette_slugs, true)) {
+                        $fallback_role_slug = $default_surface;
+                    }
+                    $role_slug = $fallback_role_slug;
+                }
+
+                $declarations[] = sprintf('--logical-color-%1$s:var(--wp--preset--color--%2$s);', $role, $role_slug);
+            }
+
+            $css_lines[] = sprintf(
+                '.logical-theme-color-surface[data-surface-color="%1$s"]{%2$s}',
+                $surface_slug,
+                implode('', $declarations)
+            );
+        }
+
+        $cache = implode("\n", $css_lines);
+        return $cache;
+    }
+}
+
 function logical_theme_enqueue_assets()
 {
     $style_path = get_stylesheet_directory() . '/style.css';
@@ -70,6 +164,7 @@ function logical_theme_enqueue_assets()
     $build_uri = get_stylesheet_directory_uri() . '/assets/build';
 
     $vite_style_path = $build_dir . '/style.css';
+    $inline_color_css = logical_theme_build_color_context_css();
     if (file_exists($vite_style_path)) {
         wp_enqueue_style(
             'logical-theme-vite-style',
@@ -77,6 +172,11 @@ function logical_theme_enqueue_assets()
             array('logical-theme-style'),
             (string) filemtime($vite_style_path)
         );
+        if ($inline_color_css !== '') {
+            wp_add_inline_style('logical-theme-vite-style', $inline_color_css);
+        }
+    } elseif ($inline_color_css !== '') {
+        wp_add_inline_style('logical-theme-style', $inline_color_css);
     }
 
     $vite_theme_js_path = $build_dir . '/theme.js';
@@ -99,6 +199,7 @@ function logical_theme_enqueue_block_editor_assets()
     $build_uri = get_stylesheet_directory_uri() . '/assets/build';
 
     $vite_style_path = $build_dir . '/style.css';
+    $inline_color_css = logical_theme_build_color_context_css();
     if (file_exists($vite_style_path)) {
         wp_enqueue_style(
             'logical-theme-block-editor-style',
@@ -106,6 +207,9 @@ function logical_theme_enqueue_block_editor_assets()
             array(),
             (string) filemtime($vite_style_path)
         );
+        if ($inline_color_css !== '') {
+            wp_add_inline_style('logical-theme-block-editor-style', $inline_color_css);
+        }
     }
 
     $vite_editor_js_path = $build_dir . '/editor.js';

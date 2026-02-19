@@ -69,7 +69,7 @@ if (!function_exists('logical_theme_find_content_json_section')) {
 }
 
 if (!function_exists('logical_theme_custom_render_paragraph')) {
-    function logical_theme_custom_render_paragraph($data, $settings = array())
+    function logical_theme_custom_render_paragraph($data, $settings = array(), $surface_color = '')
     {
         $pretitle = isset($data['pretitle']) ? (string) $data['pretitle'] : '';
         $title = isset($data['title']) ? (string) $data['title'] : '';
@@ -89,6 +89,22 @@ if (!function_exists('logical_theme_custom_render_paragraph')) {
         if ($variant === '') {
             $variant = $default_variant;
         }
+
+        if (function_exists('logical_theme_sanitize_surface_color_slug')) {
+            $surface_color = logical_theme_sanitize_surface_color_slug($surface_color);
+        } else {
+            $surface_color = sanitize_key((string) $surface_color);
+        }
+
+        $section_classes = array('w-full', 'py-12', 'wp-block-logical-theme-paragraph', 'logical-theme-color-surface');
+        if ($surface_color !== '') {
+            $section_classes[] = 'has-surface-color';
+            $section_classes[] = 'has-' . sanitize_html_class($surface_color) . '-background-color';
+        }
+        $surface_class_attr = implode(' ', $section_classes);
+        $surface_data_attr = $surface_color !== ''
+            ? sprintf(' data-surface-color="%s"', esc_attr($surface_color))
+            : '';
 
         $template_file = trailingslashit(get_stylesheet_directory()) . 'templates/blocks/paragraph/variants/' . sanitize_file_name($variant) . '.php';
         if (!file_exists($template_file)) {
@@ -134,16 +150,17 @@ if (!function_exists('logical_theme_render_custom_content_block')) {
             }
         }
 
-        $html = logical_theme_custom_render_paragraph($resolved_data, $resolved_settings);
+        $surface_color = '';
+        if (function_exists('logical_theme_sanitize_surface_color_slug')) {
+            $surface_color = logical_theme_sanitize_surface_color_slug(isset($resolved_settings['backgroundColor']) ? $resolved_settings['backgroundColor'] : '');
+        }
+
+        $html = logical_theme_custom_render_paragraph($resolved_data, $resolved_settings, $surface_color);
         if ($html === '') {
             return '';
         }
 
-        return sprintf(
-            '<div class="wp-block-logical-theme-paragraph" data-section-id="%s" data-section-type="paragraph">%s</div>',
-            esc_attr($section_id),
-            $html
-        );
+        return $html;
     }
 }
 
