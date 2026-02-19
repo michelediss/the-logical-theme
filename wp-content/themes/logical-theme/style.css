@@ -9,3 +9,52 @@ License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: wp-logical-theme
 */
+.logical-layout-block {
+  width: 100%;
+}
+
+.logical-layout-container-wide {
+  max-width: 1440px;
+}
+
+.logical-layout-container-full {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.logical-layout-row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--logical-row-gap, 1.25rem);
+  align-items: var(--logical-row-align, stretch);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.logical-layout-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-self: var(--logical-col-align, stretch);
+  grid-column: span var(--logical-col-mobile, 12) / span var(--logical-col-mobile, 12);
+}
+
+.logical-layout-embed iframe,
+.logical-layout-embed video {
+  width: 100%;
+  border: 0;
+  min-height: 260px;
+}
+
+@media (min-width: 768px) {
+  .logical-layout-col {
+    grid-column: span var(--logical-col-tablet, 12) / span var(--logical-col-tablet, 12);
+  }
+}
+
+@media (min-width: 1024px) {
+  .logical-layout-col {
+    grid-column: span var(--logical-col-desktop, 12) / span var(--logical-col-desktop, 12);
+  }
+}

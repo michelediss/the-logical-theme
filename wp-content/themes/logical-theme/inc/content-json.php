@@ -87,6 +87,13 @@ if (!function_exists('logical_theme_content_json_allowed_section_types')) {
     }
 }
 
+if (!function_exists('logical_theme_content_json_allowed_layout_item_types')) {
+    function logical_theme_content_json_allowed_layout_item_types()
+    {
+        return array('paragraph', 'embed');
+    }
+}
+
 if (!function_exists('logical_theme_get_theme_palette_entries')) {
     function logical_theme_get_theme_palette_entries()
     {
@@ -322,6 +329,172 @@ if (!function_exists('logical_theme_content_json_sanitize_section')) {
     }
 }
 
+if (!function_exists('logical_theme_content_json_sanitize_layout_item')) {
+    function logical_theme_content_json_sanitize_layout_item($item, $row_index, $column_index, $item_index)
+    {
+        if (!is_array($item)) {
+            return new WP_Error(
+                'logical_theme_invalid_layout_item',
+                sprintf(__('Row %1$d / column %2$d / item %3$d must be an object.', 'wp-logical-theme'), $row_index, $column_index, $item_index)
+            );
+        }
+
+        $id = isset($item['id']) ? sanitize_key((string) $item['id']) : '';
+        if ($id === '') {
+            return new WP_Error(
+                'logical_theme_invalid_layout_item_id',
+                sprintf(__('Row %1$d / column %2$d / item %3$d is missing a valid id.', 'wp-logical-theme'), $row_index, $column_index, $item_index)
+            );
+        }
+
+        $type = isset($item['type']) ? sanitize_key((string) $item['type']) : '';
+        if (!in_array($type, logical_theme_content_json_allowed_layout_item_types(), true)) {
+            return new WP_Error(
+                'logical_theme_invalid_layout_item_type',
+                sprintf(__('Row %1$d / column %2$d / item %3$d has unsupported type.', 'wp-logical-theme'), $row_index, $column_index, $item_index)
+            );
+        }
+
+        if ($type === 'paragraph') {
+            return array(
+                'id' => $id,
+                'type' => 'paragraph',
+                'data' => logical_theme_content_json_sanitize_paragraph_data(isset($item['data']) ? $item['data'] : array()),
+                'settings' => logical_theme_content_json_sanitize_paragraph_settings(isset($item['settings']) ? $item['settings'] : array()),
+            );
+        }
+
+        $embed_data = isset($item['data']) && is_array($item['data']) ? $item['data'] : array();
+        $url = isset($embed_data['url']) ? esc_url_raw((string) $embed_data['url']) : '';
+        $provider = isset($embed_data['provider']) ? sanitize_key((string) $embed_data['provider']) : '';
+
+        return array(
+            'id' => $id,
+            'type' => 'embed',
+            'data' => array(
+                'url' => $url,
+                'provider' => $provider,
+            ),
+            'settings' => array(),
+        );
+    }
+}
+
+if (!function_exists('logical_theme_content_json_sanitize_layout_column')) {
+    function logical_theme_content_json_sanitize_layout_column($column, $row_index, $column_index)
+    {
+        if (!is_array($column)) {
+            return new WP_Error(
+                'logical_theme_invalid_layout_column',
+                sprintf(__('Row %1$d / column %2$d must be an object.', 'wp-logical-theme'), $row_index, $column_index)
+            );
+        }
+
+        $id = isset($column['id']) ? sanitize_key((string) $column['id']) : '';
+        if ($id === '') {
+            return new WP_Error(
+                'logical_theme_invalid_layout_column_id',
+                sprintf(__('Row %1$d / column %2$d is missing a valid id.', 'wp-logical-theme'), $row_index, $column_index)
+            );
+        }
+
+        $settings = isset($column['settings']) && is_array($column['settings']) ? $column['settings'] : array();
+        $desktop = isset($settings['desktop']) ? (int) $settings['desktop'] : 12;
+        $tablet = isset($settings['tablet']) ? (int) $settings['tablet'] : 12;
+        $mobile = isset($settings['mobile']) ? (int) $settings['mobile'] : 12;
+        $desktop = max(1, min(12, $desktop));
+        $tablet = max(1, min(12, $tablet));
+        $mobile = max(1, min(12, $mobile));
+        $align_y = isset($settings['alignY']) ? sanitize_key((string) $settings['alignY']) : 'stretch';
+        if (!in_array($align_y, array('start', 'center', 'end', 'stretch'), true)) {
+            $align_y = 'stretch';
+        }
+
+        $items_input = isset($column['items']) && is_array($column['items']) ? $column['items'] : array();
+        $items = array();
+        foreach ($items_input as $item_offset => $item) {
+            $item_row = logical_theme_content_json_sanitize_layout_item($item, $row_index, $column_index, (int) $item_offset + 1);
+            if (is_wp_error($item_row)) {
+                return $item_row;
+            }
+            $items[] = $item_row;
+        }
+
+        return array(
+            'id' => $id,
+            'type' => 'column',
+            'settings' => array(
+                'desktop' => $desktop,
+                'tablet' => $tablet,
+                'mobile' => $mobile,
+                'alignY' => $align_y,
+            ),
+            'items' => $items,
+        );
+    }
+}
+
+if (!function_exists('logical_theme_content_json_sanitize_layout_row')) {
+    function logical_theme_content_json_sanitize_layout_row($row, $row_index)
+    {
+        if (!is_array($row)) {
+            return new WP_Error('logical_theme_invalid_layout_row', sprintf(__('Row %d must be an object.', 'wp-logical-theme'), $row_index));
+        }
+
+        $id = isset($row['id']) ? sanitize_key((string) $row['id']) : '';
+        if ($id === '') {
+            return new WP_Error('logical_theme_invalid_layout_row_id', sprintf(__('Row %d is missing a valid id.', 'wp-logical-theme'), $row_index));
+        }
+
+        $settings = isset($row['settings']) && is_array($row['settings']) ? $row['settings'] : array();
+        $container = isset($settings['container']) ? sanitize_key((string) $settings['container']) : 'default';
+        if (!in_array($container, array('default', 'wide', 'full'), true)) {
+            $container = 'default';
+        }
+        $gap = isset($settings['gap']) ? sanitize_key((string) $settings['gap']) : 'md';
+        if (!in_array($gap, array('none', 'sm', 'md', 'lg'), true)) {
+            $gap = 'md';
+        }
+        $align_y = isset($settings['alignY']) ? sanitize_key((string) $settings['alignY']) : 'stretch';
+        if (!in_array($align_y, array('start', 'center', 'end', 'stretch'), true)) {
+            $align_y = 'stretch';
+        }
+        $background_color = isset($settings['backgroundColor']) ? logical_theme_sanitize_surface_color_slug($settings['backgroundColor']) : '';
+
+        $columns_input = isset($row['columns']) && is_array($row['columns']) ? $row['columns'] : array();
+        if (count($columns_input) < 1 || count($columns_input) > 6) {
+            return new WP_Error('logical_theme_invalid_layout_columns_count', sprintf(__('Row %d must contain between 1 and 6 columns.', 'wp-logical-theme'), $row_index));
+        }
+
+        $columns = array();
+        $desktop_sum = 0;
+        foreach ($columns_input as $column_offset => $column) {
+            $column_row = logical_theme_content_json_sanitize_layout_column($column, $row_index, (int) $column_offset + 1);
+            if (is_wp_error($column_row)) {
+                return $column_row;
+            }
+            $desktop_sum += (int) $column_row['settings']['desktop'];
+            $columns[] = $column_row;
+        }
+
+        if ($desktop_sum > 12) {
+            return new WP_Error('logical_theme_invalid_layout_columns_sum', sprintf(__('Row %d has desktop columns sum above 12.', 'wp-logical-theme'), $row_index));
+        }
+
+        return array(
+            'id' => $id,
+            'type' => 'row',
+            'settings' => array(
+                'container' => $container,
+                'gap' => $gap,
+                'alignY' => $align_y,
+                'backgroundColor' => $background_color,
+            ),
+            'columns' => $columns,
+        );
+    }
+}
+
 if (!function_exists('logical_theme_normalize_content_json')) {
     function logical_theme_normalize_content_json($raw)
     {
@@ -339,27 +512,50 @@ if (!function_exists('logical_theme_normalize_content_json')) {
             return new WP_Error('logical_theme_invalid_content_json', __('Content JSON is not valid JSON.', 'wp-logical-theme'));
         }
 
-        if (!isset($decoded['version']) || (string) $decoded['version'] !== '2.0') {
-            return new WP_Error('logical_theme_invalid_content_json_version', __('Content JSON version must be 2.0.', 'wp-logical-theme'));
+        if (!isset($decoded['version'])) {
+            return new WP_Error('logical_theme_invalid_content_json_version', __('Content JSON version is required.', 'wp-logical-theme'));
         }
 
-        if (!array_key_exists('sections', $decoded) || !is_array($decoded['sections'])) {
-            return new WP_Error('logical_theme_invalid_content_json_sections', __('Content JSON sections must be an array.', 'wp-logical-theme'));
-        }
-
-        $sections = array();
-        foreach ($decoded['sections'] as $index => $section) {
-            $sanitized_section = logical_theme_content_json_sanitize_section($section, (int) $index + 1);
-            if (is_wp_error($sanitized_section)) {
-                return $sanitized_section;
+        $version = (string) $decoded['version'];
+        if ($version === '2.0') {
+            if (!array_key_exists('sections', $decoded) || !is_array($decoded['sections'])) {
+                return new WP_Error('logical_theme_invalid_content_json_sections', __('Content JSON sections must be an array.', 'wp-logical-theme'));
             }
-            $sections[] = $sanitized_section;
-        }
 
-        $normalized = array(
-            'version' => '2.0',
-            'sections' => $sections,
-        );
+            $sections = array();
+            foreach ($decoded['sections'] as $index => $section) {
+                $sanitized_section = logical_theme_content_json_sanitize_section($section, (int) $index + 1);
+                if (is_wp_error($sanitized_section)) {
+                    return $sanitized_section;
+                }
+                $sections[] = $sanitized_section;
+            }
+
+            $normalized = array(
+                'version' => '2.0',
+                'sections' => $sections,
+            );
+        } elseif ($version === '3.0') {
+            if (!array_key_exists('layout', $decoded) || !is_array($decoded['layout'])) {
+                return new WP_Error('logical_theme_invalid_content_json_layout', __('Content JSON layout must be an array for version 3.0.', 'wp-logical-theme'));
+            }
+
+            $layout = array();
+            foreach ($decoded['layout'] as $index => $row) {
+                $sanitized_row = logical_theme_content_json_sanitize_layout_row($row, (int) $index + 1);
+                if (is_wp_error($sanitized_row)) {
+                    return $sanitized_row;
+                }
+                $layout[] = $sanitized_row;
+            }
+
+            $normalized = array(
+                'version' => '3.0',
+                'layout' => $layout,
+            );
+        } else {
+            return new WP_Error('logical_theme_invalid_content_json_version', __('Content JSON version must be 2.0 or 3.0.', 'wp-logical-theme'));
+        }
 
         $encoded = wp_json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if (!is_string($encoded) || $encoded === '') {

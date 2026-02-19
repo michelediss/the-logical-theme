@@ -1,9 +1,6 @@
 {
   "editor": {
-    "file": "assets/editor-a18e79b0.js",
-    "imports": [
-      "theme-main"
-    ],
+    "file": "assets/editor-f936a6d1.js",
     "isEntry": true,
     "src": "src/editor.js"
   },
