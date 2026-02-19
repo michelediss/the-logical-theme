@@ -159,13 +159,13 @@ export default {
     "extend": {
       "fontSize": {
         "xs": [
-          "0.694rem",
+          "0.592rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "sm": [
-          "0.833rem",
+          "0.769rem",
           {
             "lineHeight": "1.2"
           }
@@ -177,61 +177,61 @@ export default {
           }
         ],
         "lg": [
-          "1.2rem",
+          "1.3rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "xl": [
-          "1.44rem",
+          "1.69rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "2xl": [
-          "1.728rem",
+          "2.197rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "3xl": [
-          "2.074rem",
+          "2.856rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "4xl": [
-          "2.488rem",
+          "3.713rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "5xl": [
-          "2.986rem",
+          "4.827rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "6xl": [
-          "3.583rem",
+          "6.275rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "7xl": [
-          "4.3rem",
+          "8.157rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "8xl": [
-          "5.16rem",
+          "10.604rem",
           {
             "lineHeight": "1.2"
           }
         ],
         "9xl": [
-          "6.192rem",
+          "13.786rem",
           {
             "lineHeight": "1.2"
           }

@@ -1059,11 +1059,20 @@ function lds_tw_enqueue_block_editor_assets()
         return;
     }
 
+    $runtime_preview_path = lds_tw_plugin_dir() . 'admin/theme-preview-runtime.js';
+    wp_enqueue_script(
+        'lds-tw-theme-preview-runtime',
+        lds_tw_plugin_url() . 'admin/theme-preview-runtime.js',
+        array(),
+        file_exists($runtime_preview_path) ? (string) filemtime($runtime_preview_path) : LDS_TW_VERSION,
+        true
+    );
+
     $editor_ui_path = lds_tw_plugin_dir() . 'admin/theme-tokens-editor.js';
     wp_enqueue_script(
         'lds-tw-theme-tokens-editor',
         lds_tw_plugin_url() . 'admin/theme-tokens-editor.js',
-        array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-data'),
+        array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-data', 'lds-tw-theme-preview-runtime'),
         file_exists($editor_ui_path) ? (string) filemtime($editor_ui_path) : LDS_TW_VERSION,
         true
     );

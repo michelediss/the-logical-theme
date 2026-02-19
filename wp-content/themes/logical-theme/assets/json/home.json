@@ -1,47 +1,22 @@
 {
-    "version": "1.1",
+    "version": "2.0",
     "sections": [
         {
-            "id": "sec_mls5h8cv_j6q16k",
-            "type": "hyperui",
-            "collection": "marketing",
-            "slug": "headers",
-            "variant": "2",
-            "content": [],
-            "settings": []
-        },
-        {
-            "id": "sec_mls564uy_s9ccg5",
-            "type": "hyperui",
-            "collection": "marketing",
-            "slug": "ctas",
-            "variant": "2",
-            "content": {
-                "structured": {
-                    "headline": "Ciaoooo",
-                    "subheadline": "rrrrrr",
-                    "primaryCtaLabel": "pppp",
-                    "primaryCtaHref": "hhhh"
-                },
-                "selectorText": {
-                    "h1,h2,h3": "Ciaoooo",
-                    "p": "rrrrrr",
-                    "a": "pppp"
-                },
-                "selectorAttr": {
-                    "a|href": "hhhh"
+            "id": "sec_mlt28lq0_mov96t",
+            "type": "paragraph",
+            "data": {
+                "pretitle": "Ciao",
+                "title": "Super",
+                "text": "Lorem",
+                "image": {
+                    "id": 0,
+                    "src": "",
+                    "alt": ""
                 }
             },
-            "settings": []
-        },
-        {
-            "id": "sec_mls5p10g_n76nnn",
-            "type": "hyperui",
-            "collection": "marketing",
-            "slug": "buttons",
-            "variant": "1",
-            "content": [],
-            "settings": []
+            "settings": {
+                "variant": "1"
+            }
         }
     ]
 }

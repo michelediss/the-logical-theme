@@ -13,6 +13,7 @@
     return;
   }
 
+  const runtimePreview = window.LDSTwRuntimePreview || null;
   apiFetch.use(apiFetch.createNonceMiddleware(window.ldsTwTokensEditor.nonce));
 
   const endpoint = '/lds-tw/v1';
@@ -24,23 +25,48 @@
     return '#000000';
   }
 
-  function applyPreview(palette) {
-    const roots = [document.documentElement];
-    const iframe = document.querySelector('iframe[name="editor-canvas"], iframe.edit-post-visual-editor__iframe');
-    if (iframe && iframe.contentDocument && iframe.contentDocument.documentElement) {
-      roots.push(iframe.contentDocument.documentElement);
-    }
+  function mapToRows(map) {
+    return Object.entries(map || {}).map(([key, value]) => ({ key, value: String(value ?? '') }));
+  }
 
-    roots.forEach((root) => {
-      (palette || []).forEach((entry) => {
-        const slug = String(entry.slug || '').trim();
-        const color = normalizeColor(entry.color);
-        if (!slug) return;
-        const rgb = color.replace('#', '').match(/.{2}/g).map((c) => parseInt(c, 16)).join(' ');
-        root.style.setProperty(`--color-${slug}`, color);
-        root.style.setProperty(`--color-${slug}-rgb`, rgb);
-      });
+  function rowsToMap(rows) {
+    const out = {};
+    (rows || []).forEach((row) => {
+      const key = String(row && row.key ? row.key : '').trim();
+      const value = String(row && row.value ? row.value : '').trim();
+      if (!key) return;
+      out[key] = value;
     });
+    return out;
+  }
+
+  function normalizeState(rawState) {
+    const state = rawState || {};
+    return {
+      ...state,
+      palette: Array.isArray(state.palette) ? state.palette : [],
+      fontPairings: Array.isArray(state.fontPairings) ? state.fontPairings : [],
+      breakpointRows: mapToRows(state.breakpoints || {}),
+      containerRows: mapToRows(state.containerMaxWidths || {})
+    };
+  }
+
+  function deriveStateForPreview(state) {
+    return {
+      palette: state.palette || [],
+      fontPairing: state.fontPairing || '',
+      fontPairings: state.fontPairings || [],
+      breakpoints: rowsToMap(state.breakpointRows || []),
+      containerMaxWidths: rowsToMap(state.containerRows || []),
+      baseSettings: state.baseSettings || {}
+    };
+  }
+
+  function applyPreview(state) {
+    if (!runtimePreview || typeof runtimePreview.applyPreviewToEditorAndCanvas !== 'function') {
+      return;
+    }
+    runtimePreview.applyPreviewToEditorAndCanvas(deriveStateForPreview(state));
   }
 
   function TokenSidebar() {
@@ -49,13 +75,23 @@
     const [state, setState] = useState(null);
     const [error, setError] = useState('');
 
+    const setAndPreview = (updater) => {
+      setState((prev) => {
+        const next = typeof updater === 'function' ? updater(prev) : updater;
+        if (next) {
+          applyPreview(next);
+        }
+        return next;
+      });
+    };
+
     const fetchState = async () => {
       setError('');
       try {
         const response = await apiFetch({ path: endpoint + '/tokens' });
-        const next = response.state || null;
+        const next = normalizeState(response.state || null);
         setState(next);
-        applyPreview((next && next.palette) || []);
+        applyPreview(next);
       } catch (err) {
         setError(err.message || 'Request failed');
       } finally {
@@ -65,20 +101,42 @@
 
     useEffect(() => {
       fetchState();
+      return function cleanup() {
+        if (runtimePreview && typeof runtimePreview.clearPreviewCss === 'function') {
+          runtimePreview.clearPreviewCss();
+        }
+      };
     }, []);
 
     const updatePalette = (index, key, value) => {
-      setState((prev) => {
+      setAndPreview((prev) => {
         if (!prev) return prev;
         const palette = [...(prev.palette || [])];
         palette[index] = { ...palette[index], [key]: value };
-        applyPreview(palette);
         return { ...prev, palette };
       });
     };
 
     const updateBase = (key, value) => {
-      setState((prev) => prev ? { ...prev, baseSettings: { ...(prev.baseSettings || {}), [key]: Number(value) } } : prev);
+      setAndPreview((prev) => prev ? { ...prev, baseSettings: { ...(prev.baseSettings || {}), [key]: Number(value) } } : prev);
+    };
+
+    const updateBreakpointRow = (index, key, value) => {
+      setAndPreview((prev) => {
+        if (!prev) return prev;
+        const rows = [...(prev.breakpointRows || [])];
+        rows[index] = { ...rows[index], [key]: value };
+        return { ...prev, breakpointRows: rows };
+      });
+    };
+
+    const updateContainerRow = (index, key, value) => {
+      setAndPreview((prev) => {
+        if (!prev) return prev;
+        const rows = [...(prev.containerRows || [])];
+        rows[index] = { ...rows[index], [key]: value };
+        return { ...prev, containerRows: rows };
+      });
     };
 
     const save = async () => {
@@ -88,15 +146,15 @@
       try {
         const payload = {
           palette: state.palette || [],
-          breakpoints: state.breakpoints || {},
-          containerMaxWidths: state.containerMaxWidths || {},
+          breakpoints: rowsToMap(state.breakpointRows || []),
+          containerMaxWidths: rowsToMap(state.containerRows || []),
           baseSettings: state.baseSettings || {},
           fontPairing: state.fontPairing || ''
         };
         const response = await apiFetch({ path: endpoint + '/tokens', method: 'POST', data: payload });
-        const next = response.state || state;
+        const next = normalizeState(response.state || state);
         setState(next);
-        applyPreview((next && next.palette) || []);
+        applyPreview(next);
         window.alert('Saved.');
       } catch (err) {
         setError(err.message || 'Save failed');
@@ -131,7 +189,7 @@
         )),
         el(Button, {
           variant: 'secondary',
-          onClick: () => setState((prev) => ({ ...prev, palette: [...(prev.palette || []), { slug: '', color: '#000000' }] }))
+          onClick: () => setAndPreview((prev) => ({ ...prev, palette: [...(prev.palette || []), { slug: '', color: '#000000' }] }))
         }, 'Add color')
       ),
       el(PanelBody, { title: 'Typography', initialOpen: false },
@@ -139,7 +197,7 @@
           label: 'Font pairing',
           value: state.fontPairing || '',
           options: (state.fontPairings || []).map((pair) => ({ label: pair.label, value: pair.id })),
-          onChange: (value) => setState((prev) => ({ ...prev, fontPairing: value }))
+          onChange: (value) => setAndPreview((prev) => ({ ...prev, fontPairing: value }))
         }),
         el(TextControl, {
           label: 'baseSize',
@@ -165,6 +223,60 @@
           value: String((state.baseSettings && state.baseSettings.incrementFactor) || 1.01),
           onChange: (v) => updateBase('incrementFactor', v)
         })
+      ),
+      el(PanelBody, { title: 'Breakpoints', initialOpen: false },
+        ...(state.breakpointRows || []).map((row, index) => el('div', { key: `bp-${index}`, style: { marginBottom: '8px', borderBottom: '1px solid #eee', paddingBottom: '8px' } },
+          el(TextControl, {
+            label: 'Key',
+            value: row.key || '',
+            onChange: (value) => updateBreakpointRow(index, 'key', value)
+          }),
+          el(TextControl, {
+            label: 'Value',
+            value: row.value || '',
+            onChange: (value) => updateBreakpointRow(index, 'value', value)
+          }),
+          el(Button, {
+            variant: 'secondary',
+            isDestructive: true,
+            onClick: () => setAndPreview((prev) => {
+              const rows = [...(prev.breakpointRows || [])];
+              rows.splice(index, 1);
+              return { ...prev, breakpointRows: rows };
+            })
+          }, 'Remove')
+        )),
+        el(Button, {
+          variant: 'secondary',
+          onClick: () => setAndPreview((prev) => ({ ...prev, breakpointRows: [...(prev.breakpointRows || []), { key: '', value: '' }] }))
+        }, 'Add breakpoint')
+      ),
+      el(PanelBody, { title: 'Container Max Widths', initialOpen: false },
+        ...(state.containerRows || []).map((row, index) => el('div', { key: `ct-${index}`, style: { marginBottom: '8px', borderBottom: '1px solid #eee', paddingBottom: '8px' } },
+          el(TextControl, {
+            label: 'Key',
+            value: row.key || '',
+            onChange: (value) => updateContainerRow(index, 'key', value)
+          }),
+          el(TextControl, {
+            label: 'Value',
+            value: row.value || '',
+            onChange: (value) => updateContainerRow(index, 'value', value)
+          }),
+          el(Button, {
+            variant: 'secondary',
+            isDestructive: true,
+            onClick: () => setAndPreview((prev) => {
+              const rows = [...(prev.containerRows || [])];
+              rows.splice(index, 1);
+              return { ...prev, containerRows: rows };
+            })
+          }, 'Remove')
+        )),
+        el(Button, {
+          variant: 'secondary',
+          onClick: () => setAndPreview((prev) => ({ ...prev, containerRows: [...(prev.containerRows || []), { key: '', value: '' }] }))
+        }, 'Add container')
       ),
       el('div', { style: { marginTop: '12px' } },
         el(Button, { variant: 'primary', isBusy: saving, onClick: save }, 'Save')

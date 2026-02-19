@@ -66,6 +66,29 @@ function createPairingImport(families) {
   return [`font-pairing-list/_${names.join('_+_')}`];
 }
 
+function createFontClassMap(families) {
+  const names = families
+    .map((entry) => firstFontName(entry?.fontFamily) || String(entry?.name ?? '').trim())
+    .filter(Boolean)
+    .slice(0, 2);
+
+  const primary = names[0] || null;
+  const secondary = names[1] || names[0] || null;
+  const classes = {};
+
+  if (primary) {
+    classes['.paragraph'] = { 'font-family': `'${primary}', ui-sans-serif, system-ui, sans-serif` };
+    classes['.font-primary'] = { 'font-family': `'${primary}', ui-sans-serif, system-ui, sans-serif` };
+  }
+
+  if (secondary) {
+    classes['.heading'] = { 'font-family': `'${secondary}', ui-sans-serif, system-ui, sans-serif` };
+    classes['.font-secondary'] = { 'font-family': `'${secondary}', ui-sans-serif, system-ui, sans-serif` };
+  }
+
+  return classes;
+}
+
 function readThemeJson(themePath) {
   if (!fs.existsSync(themePath)) {
     throw new Error(`theme.json not found: ${themePath}`);
@@ -155,6 +178,7 @@ function themeToLds(themeJson) {
     : [];
 
   const fontImports = createPairingImport(fontFamilies);
+  const fontClasses = createFontClassMap(fontFamilies);
 
   const defaultBaseSettings = {
     baseSize: 16,
@@ -176,7 +200,7 @@ function themeToLds(themeJson) {
     containerMaxWidths: finalContainers,
     font: {
       imports: fontImports,
-      classes: {},
+      classes: fontClasses,
     },
   };
 }

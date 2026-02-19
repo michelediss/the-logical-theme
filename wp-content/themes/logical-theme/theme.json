@@ -83,13 +83,13 @@
             "fontFamilies": [
                 {
                     "slug": "primary",
-                    "name": "Raleway",
-                    "fontFamily": "Raleway, ui-sans-serif, system-ui, sans-serif"
+                    "name": "Mulish",
+                    "fontFamily": "Mulish, ui-sans-serif, system-ui, sans-serif"
                 },
                 {
-                    "slug": "vollkorn",
-                    "name": "Vollkorn",
-                    "fontFamily": "Vollkorn, ui-sans-serif, system-ui, sans-serif"
+                    "slug": "merriweather",
+                    "name": "Merriweather",
+                    "fontFamily": "Merriweather, ui-sans-serif, system-ui, sans-serif"
                 }
             ]
         },
@@ -117,8 +117,8 @@
                     "5xl": "2560px"
                 },
                 "baseSettings": {
-                    "baseSize": 16,
-                    "r": 1.2,
+                    "baseSize": 32,
+                    "r": 1.3,
                     "incrementFactor": 1.01
                 }
             }
