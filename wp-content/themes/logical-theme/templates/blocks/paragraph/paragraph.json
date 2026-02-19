@@ -1,0 +1,32 @@
+{
+  "name": "paragraph",
+  "title": "Paragrafo",
+  "defaultVariant": "1",
+  "variants": [
+    { "value": "1", "label": "Checkerboard A (testo a sinistra)" },
+    { "value": "2", "label": "Checkerboard B (testo a destra)" }
+  ],
+  "fields": [
+    {
+      "key": "pretitle",
+      "label": "Pretitle",
+      "input": "text",
+      "sanitize": "text",
+      "default": ""
+    },
+    {
+      "key": "title",
+      "label": "Title",
+      "input": "text",
+      "sanitize": "text",
+      "default": ""
+    },
+    {
+      "key": "text",
+      "label": "Text",
+      "input": "textarea",
+      "sanitize": "html",
+      "default": ""
+    }
+  ]
+}

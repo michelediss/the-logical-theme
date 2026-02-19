@@ -38,12 +38,7 @@ function lds_tw_theme_url()
 
 function lds_tw_theme_config_path()
 {
-    return lds_tw_theme_dir() . '/assets/json/lds-input.json';
-}
-
-function lds_tw_plugin_config_path()
-{
-    return lds_tw_plugin_dir() . 'config/lds-input.json';
+    return lds_tw_theme_dir() . '/theme.json';
 }
 
 function lds_tw_theme_output_css_path()
@@ -68,44 +63,6 @@ function lds_tw_log($message)
     @file_put_contents($dir . '/build.log', $line, FILE_APPEND);
 }
 
-function lds_tw_read_json($theme_path, $plugin_path)
-{
-    $path = file_exists($theme_path) ? $theme_path : $plugin_path;
-    if (!file_exists($path)) {
-        throw new RuntimeException('JSON config not found: ' . $path);
-    }
-
-    $raw = file_get_contents($path);
-    $data = json_decode((string) $raw, true);
-    if (!is_array($data)) {
-        throw new RuntimeException('Invalid JSON in ' . $path . ': ' . json_last_error_msg());
-    }
-
-    return array($data, $path);
-}
-
-function lds_tw_validate_input_json($data, $path)
-{
-    if (!is_array($data)) {
-        throw new RuntimeException('Invalid JSON structure in ' . $path . ': root must be an object.');
-    }
-
-    $keys = array('baseSettings', 'baseColors', 'palette', 'colorVariations', 'breakpoints', 'containerMaxWidths', 'font');
-    foreach ($keys as $key) {
-        if (isset($data[$key]) && !is_array($data[$key])) {
-            throw new RuntimeException('Invalid ' . $key . ' in ' . $path . ': must be an object.');
-        }
-    }
-
-    if (isset($data['font']['imports']) && !is_array($data['font']['imports'])) {
-        throw new RuntimeException('Invalid font.imports in ' . $path . ': must be an array.');
-    }
-
-    if (isset($data['font']['classes']) && !is_array($data['font']['classes'])) {
-        throw new RuntimeException('Invalid font.classes in ' . $path . ': must be an object.');
-    }
-}
-
 function lds_tw_color_normalize_hex($hex)
 {
     $hex = strtolower(trim((string) $hex));
@@ -120,74 +77,6 @@ function lds_tw_color_normalize_hex($hex)
     }
 
     return '#' . $hex;
-}
-
-function lds_tw_color_hex_to_rgb($hex)
-{
-    $hex = lds_tw_color_normalize_hex($hex);
-    if ($hex === null) {
-        return null;
-    }
-
-    return array(
-        hexdec(substr($hex, 1, 2)),
-        hexdec(substr($hex, 3, 2)),
-        hexdec(substr($hex, 5, 2)),
-    );
-}
-
-function lds_tw_color_rgb_to_hex($r, $g, $b)
-{
-    $r = max(0, min(255, (int) round($r)));
-    $g = max(0, min(255, (int) round($g)));
-    $b = max(0, min(255, (int) round($b)));
-
-    return sprintf('#%02x%02x%02x', $r, $g, $b);
-}
-
-function lds_tw_mix_colors($color_a, $color_b, $percent_a)
-{
-    $rgb_a = lds_tw_color_hex_to_rgb($color_a);
-    $rgb_b = lds_tw_color_hex_to_rgb($color_b);
-
-    if ($rgb_a === null || $rgb_b === null) {
-        return $color_b;
-    }
-
-    $w = max(0, min(100, (float) $percent_a)) / 100;
-
-    return lds_tw_color_rgb_to_hex(
-        ($rgb_a[0] * $w) + ($rgb_b[0] * (1 - $w)),
-        ($rgb_a[1] * $w) + ($rgb_b[1] * (1 - $w)),
-        ($rgb_a[2] * $w) + ($rgb_b[2] * (1 - $w))
-    );
-}
-
-function lds_tw_generate_tailwind_shades($base_color, $variation)
-{
-    $white = isset($variation['white']) ? (float) $variation['white'] : null;
-    $light = isset($variation['light']) ? (float) $variation['light'] : null;
-    $dark = isset($variation['dark']) ? (float) $variation['dark'] : null;
-    $black = isset($variation['black']) ? (float) $variation['black'] : null;
-
-    $white = $white === null ? 90.0 : $white;
-    $light = $light === null ? 60.0 : $light;
-    $dark = $dark === null ? 60.0 : $dark;
-    $black = $black === null ? 90.0 : $black;
-
-    return array(
-        '50' => lds_tw_mix_colors('#ffffff', $base_color, $white),
-        '100' => lds_tw_mix_colors('#ffffff', $base_color, $white * 0.8),
-        '200' => lds_tw_mix_colors('#ffffff', $base_color, $light * 0.8),
-        '300' => lds_tw_mix_colors('#ffffff', $base_color, $light),
-        '400' => lds_tw_mix_colors('#ffffff', $base_color, $light * 0.5),
-        '500' => $base_color,
-        '600' => lds_tw_mix_colors('#000000', $base_color, $dark * 0.5),
-        '700' => lds_tw_mix_colors('#000000', $base_color, $dark),
-        '800' => lds_tw_mix_colors('#000000', $base_color, $black * 0.8),
-        '900' => lds_tw_mix_colors('#000000', $base_color, $black),
-        '950' => lds_tw_mix_colors('#000000', $base_color, min(98, $black + 8)),
-    );
 }
 
 function lds_tw_generate_typography_scale($ratio)
@@ -278,7 +167,6 @@ function lds_tw_generate_tokens_css($data)
         );
     }
 
-    $variations = isset($data['colorVariations']) && is_array($data['colorVariations']) ? $data['colorVariations'] : array();
     $breakpoints = isset($data['breakpoints']) && is_array($data['breakpoints']) ? $data['breakpoints'] : array(
         'null' => 0,
         'sm' => '576px',
@@ -308,21 +196,17 @@ function lds_tw_generate_tokens_css($data)
         $css[] = '  --lds-border-radius: 0;';
     }
 
-    $palette_shades = array();
+    $palette_colors = array();
     foreach ($palette as $name => $color) {
         $normalized = lds_tw_color_normalize_hex($color);
         if ($normalized === null) {
             continue;
         }
-        $variation = isset($variations[$name]) && is_array($variations[$name]) ? $variations[$name] : array();
-        $palette_shades[$name] = lds_tw_generate_tailwind_shades($normalized, $variation);
+        $palette_colors[$name] = $normalized;
     }
 
-    foreach ($palette_shades as $name => $shades) {
-        foreach ($shades as $shade => $value) {
-            $css[] = '  --' . $name . '-' . $shade . ': ' . $value . ';';
-        }
-        $css[] = '  --' . $name . ': ' . $shades['500'] . ';';
+    foreach ($palette_colors as $name => $value) {
+        $css[] = '  --' . $name . ': ' . $value . ';';
     }
 
     $typo_scale = lds_tw_generate_typography_scale($ratio);
@@ -364,7 +248,7 @@ function lds_tw_generate_tokens_css($data)
     return implode("\n", $css) . "\n";
 }
 
-function lds_tw_build_palette_shades($data)
+function lds_tw_build_palette_colors($data)
 {
     $base_colors = isset($data['baseColors']) && is_array($data['baseColors']) ? $data['baseColors'] : array();
     $black = lds_tw_color_normalize_hex(isset($base_colors['black']) ? $base_colors['black'] : '#1e201f');
@@ -382,19 +266,17 @@ function lds_tw_build_palette_shades($data)
         );
     }
 
-    $variations = isset($data['colorVariations']) && is_array($data['colorVariations']) ? $data['colorVariations'] : array();
-    $palette_shades = array();
+    $palette_colors = array();
 
     foreach ($palette as $name => $color) {
         $normalized = lds_tw_color_normalize_hex($color);
         if ($normalized === null) {
             continue;
         }
-        $variation = isset($variations[$name]) && is_array($variations[$name]) ? $variations[$name] : array();
-        $palette_shades[(string) $name] = lds_tw_generate_tailwind_shades($normalized, $variation);
+        $palette_colors[(string) $name] = $normalized;
     }
 
-    return $palette_shades;
+    return $palette_colors;
 }
 
 function lds_tw_generate_runtime_tailwind_config($data)
@@ -419,7 +301,7 @@ function lds_tw_generate_runtime_tailwind_config($data)
         }
     }
 
-    $colors = lds_tw_build_palette_shades($data);
+    $colors = lds_tw_build_palette_colors($data);
     $font_scale = lds_tw_generate_typography_scale($ratio);
     $font_sizes = array();
     foreach ($font_scale as $k => $v) {
@@ -432,22 +314,18 @@ function lds_tw_generate_runtime_tailwind_config($data)
         $safe_names[] = preg_quote((string) $name, '/');
     }
     $color_pattern = empty($safe_names) ? 'primary|secondary' : implode('|', $safe_names);
-    $shade_pattern = '50|100|200|300|400|500|600|700|800|900|950';
     $utility_pattern = 'bg|text|decoration|border|outline|shadow|inset-shadow|ring|inset-ring|accent|caret|fill|stroke';
 
     $variants = array_keys($screens);
     $inset_safelist = array();
-    $shades = array('50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950');
     foreach ($color_names as $name) {
-        foreach ($shades as $shade) {
-            $base_inset_shadow = 'inset-shadow-' . $name . '-' . $shade;
-            $base_inset_ring = 'inset-ring-' . $name . '-' . $shade;
-            $inset_safelist[] = $base_inset_shadow;
-            $inset_safelist[] = $base_inset_ring;
-            foreach ($variants as $variant) {
-                $inset_safelist[] = $variant . ':' . $base_inset_shadow;
-                $inset_safelist[] = $variant . ':' . $base_inset_ring;
-            }
+        $base_inset_shadow = 'inset-shadow-' . $name;
+        $base_inset_ring = 'inset-ring-' . $name;
+        $inset_safelist[] = $base_inset_shadow;
+        $inset_safelist[] = $base_inset_ring;
+        foreach ($variants as $variant) {
+            $inset_safelist[] = $variant . ':' . $base_inset_shadow;
+            $inset_safelist[] = $variant . ':' . $base_inset_ring;
         }
     }
     $inset_safelist = array_values(array_unique($inset_safelist));
@@ -478,7 +356,7 @@ export default {
   ],
   safelist: [
     {
-      pattern: new RegExp('^({$utility_pattern})-({$color_pattern})(-({$shade_pattern}))?$'),
+      pattern: new RegExp('^({$utility_pattern})-({$color_pattern})$'),
       variants: {$variants_json}
     },
     {
@@ -628,11 +506,10 @@ function lds_tw_run_node_build()
     $plugin_dir = escapeshellarg(lds_tw_plugin_dir());
     $theme_dir = escapeshellarg(lds_tw_theme_dir());
     $theme_config = escapeshellarg(lds_tw_theme_config_path());
-    $plugin_config = escapeshellarg(lds_tw_plugin_config_path());
     $theme_css = escapeshellarg(lds_tw_theme_output_css_path());
     $theme_css_min = escapeshellarg(lds_tw_theme_output_min_css_path());
     $env_path = 'PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin';
-    $cmd = $env_path . ' ' . $node . ' ' . $script . ' ' . $plugin_dir . ' ' . $theme_dir . ' ' . $theme_config . ' ' . $plugin_config . ' ' . $theme_css . ' ' . $theme_css_min;
+    $cmd = $env_path . ' ' . $node . ' ' . $script . ' ' . $plugin_dir . ' ' . $theme_dir . ' ' . $theme_config . ' ' . $theme_css . ' ' . $theme_css_min;
 
     $lines = array();
     $code = 1;
@@ -706,6 +583,425 @@ function lds_tw_handle_compilation_ajax()
 }
 add_action('wp_ajax_lds_tw_compile', 'lds_tw_handle_compilation_ajax');
 
+function lds_tw_register_rest_routes()
+{
+    register_rest_route('lds-tw/v1', '/tokens', array(
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+            'callback' => function () {
+                try {
+                    $theme_json = lds_tw_read_theme_json();
+                    $state = lds_tw_theme_json_to_ui_state($theme_json);
+                    return rest_ensure_response(array(
+                        'state' => $state,
+                    ));
+                } catch (Throwable $e) {
+                    return new WP_Error('lds_tw_tokens_read_failed', $e->getMessage(), array('status' => 500));
+                }
+            },
+        ),
+        array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+            'callback' => function (WP_REST_Request $request) {
+                try {
+                    $payload = $request->get_json_params();
+                    $theme_json = lds_tw_read_theme_json();
+                    $next = lds_tw_apply_ui_state_to_theme_json($theme_json, $payload);
+                    lds_tw_write_theme_json($next);
+
+                    return rest_ensure_response(array(
+                        'ok' => true,
+                        'state' => lds_tw_theme_json_to_ui_state($next),
+                    ));
+                } catch (Throwable $e) {
+                    lds_tw_log('Save via REST error: ' . $e->getMessage());
+                    return new WP_Error('lds_tw_tokens_save_failed', $e->getMessage(), array('status' => 400));
+                }
+            },
+        ),
+    ));
+}
+add_action('rest_api_init', 'lds_tw_register_rest_routes');
+
+function lds_tw_default_theme_json()
+{
+    return array(
+        '$schema' => 'https://schemas.wp.org/trunk/theme.json',
+        'version' => 3,
+        'settings' => array(
+            'color' => array(
+                'palette' => array(),
+                'defaultPalette' => false,
+            ),
+            'layout' => array(
+                'contentSize' => '1140px',
+                'wideSize' => '1440px',
+            ),
+            'typography' => array(),
+            'custom' => array(
+                'lds' => array(
+                    'breakpoints' => array(
+                        'null' => 0,
+                        'sm' => '576px',
+                        'md' => '768px',
+                        'lg' => '1024px',
+                        'xl' => '1280px',
+                        '2xl' => '1600px',
+                        '3xl' => '1920px',
+                        '4xl' => '2560px',
+                        '5xl' => '3840px',
+                    ),
+                    'containerMaxWidths' => array(
+                        'sm' => '540px',
+                        'md' => '720px',
+                        'lg' => '960px',
+                        'xl' => '1140px',
+                        '2xl' => '1440px',
+                        '3xl' => '1680px',
+                        '4xl' => '1920px',
+                        '5xl' => '2560px',
+                    ),
+                    'baseSettings' => array(
+                        'baseSize' => 16,
+                        'r' => 1.2,
+                        'incrementFactor' => 1.01,
+                    ),
+                ),
+            ),
+        ),
+        'styles' => array(
+            'typography' => array(
+                'fontSize' => '16px',
+            ),
+        ),
+    );
+}
+
+function lds_tw_read_theme_json()
+{
+    $path = lds_tw_theme_config_path();
+    if (!file_exists($path)) {
+        return lds_tw_default_theme_json();
+    }
+
+    $raw = file_get_contents($path);
+    $data = json_decode((string) $raw, true);
+    if (!is_array($data)) {
+        throw new RuntimeException('Invalid theme.json: ' . json_last_error_msg());
+    }
+
+    return $data;
+}
+
+function lds_tw_font_pairing_dir()
+{
+    return WP_PLUGIN_DIR . '/logical-design-system/scss/font-pairing-list';
+}
+
+function lds_tw_font_name_from_token($token)
+{
+    $raw = trim(str_replace('_', ' ', (string) $token));
+    return preg_replace('/\s+/', ' ', $raw);
+}
+
+function lds_tw_font_slug($name, $fallback = 'secondary')
+{
+    $slug = sanitize_title($name);
+    return $slug !== '' ? $slug : $fallback;
+}
+
+function lds_tw_get_font_pairings()
+{
+    $dir = lds_tw_font_pairing_dir();
+    if (!is_dir($dir)) {
+        return array();
+    }
+
+    $files = glob($dir . '/*.scss');
+    if (!is_array($files)) {
+        return array();
+    }
+
+    $pairings = array();
+    foreach ($files as $file) {
+        $base = basename($file);
+        if (!preg_match('/^_(.+)_\+_(.+)\.scss$/', $base, $matches)) {
+            continue;
+        }
+
+        $first = lds_tw_font_name_from_token($matches[1]);
+        $second = lds_tw_font_name_from_token($matches[2]);
+        $id = $base;
+        $pairings[] = array(
+            'id' => $id,
+            'label' => $first . ' + ' . $second,
+            'first' => $first,
+            'second' => $second,
+            'import' => 'font-pairing-list/' . substr($base, 0, -5),
+        );
+    }
+
+    usort($pairings, function ($a, $b) {
+        return strcmp($a['label'], $b['label']);
+    });
+
+    return $pairings;
+}
+
+function lds_tw_detect_selected_pairing($theme_json, $pairings)
+{
+    $families = isset($theme_json['settings']['typography']['fontFamilies']) && is_array($theme_json['settings']['typography']['fontFamilies'])
+        ? $theme_json['settings']['typography']['fontFamilies']
+        : array();
+
+    if (count($families) < 2) {
+        return isset($pairings[0]['id']) ? $pairings[0]['id'] : '';
+    }
+
+    $first = isset($families[0]['name']) ? (string) $families[0]['name'] : '';
+    $second = isset($families[1]['name']) ? (string) $families[1]['name'] : '';
+    $needle = '_' . str_replace(' ', '_', $first) . '_+_' . str_replace(' ', '_', $second) . '.scss';
+
+    foreach ($pairings as $pairing) {
+        if ($pairing['id'] === $needle) {
+            return $pairing['id'];
+        }
+    }
+
+    return isset($pairings[0]['id']) ? $pairings[0]['id'] : '';
+}
+
+function lds_tw_theme_json_to_ui_state($theme_json)
+{
+    $palette_entries = isset($theme_json['settings']['color']['palette']) && is_array($theme_json['settings']['color']['palette'])
+        ? $theme_json['settings']['color']['palette']
+        : array();
+
+    $palette = array();
+    foreach ($palette_entries as $entry) {
+        if (!is_array($entry)) {
+            continue;
+        }
+        $slug = isset($entry['slug']) ? sanitize_title($entry['slug']) : '';
+        $color = isset($entry['color']) ? lds_tw_color_normalize_hex($entry['color']) : null;
+        if ($slug === '' || $color === null) {
+            continue;
+        }
+        $palette[] = array('slug' => $slug, 'color' => $color);
+    }
+
+    if (empty($palette)) {
+        $palette = array(
+            array('slug' => 'black', 'color' => '#1e201f'),
+            array('slug' => 'white', 'color' => '#fcfcfe'),
+            array('slug' => 'primary', 'color' => '#f05252'),
+            array('slug' => 'secondary', 'color' => '#c27803'),
+        );
+    }
+
+    $breakpoints = isset($theme_json['settings']['custom']['lds']['breakpoints']) && is_array($theme_json['settings']['custom']['lds']['breakpoints'])
+        ? $theme_json['settings']['custom']['lds']['breakpoints']
+        : array();
+    $containers = isset($theme_json['settings']['custom']['lds']['containerMaxWidths']) && is_array($theme_json['settings']['custom']['lds']['containerMaxWidths'])
+        ? $theme_json['settings']['custom']['lds']['containerMaxWidths']
+        : array();
+    $base_settings = isset($theme_json['settings']['custom']['lds']['baseSettings']) && is_array($theme_json['settings']['custom']['lds']['baseSettings'])
+        ? $theme_json['settings']['custom']['lds']['baseSettings']
+        : array();
+
+    $pairings = lds_tw_get_font_pairings();
+    $selected_pairing = lds_tw_detect_selected_pairing($theme_json, $pairings);
+    $content_size = isset($containers['xl']) ? (string) $containers['xl'] : '1140px';
+    $wide_size = isset($containers['2xl']) ? (string) $containers['2xl'] : $content_size;
+
+    return array(
+        'palette' => array_values($palette),
+        'breakpoints' => $breakpoints,
+        'containerMaxWidths' => $containers,
+        'layout' => array(
+            'contentSize' => $content_size,
+            'wideSize' => $wide_size,
+        ),
+        'baseSettings' => array(
+            'baseSize' => isset($base_settings['baseSize']) ? (float) $base_settings['baseSize'] : 16.0,
+            'r' => isset($base_settings['r']) ? (float) $base_settings['r'] : 1.2,
+            'incrementFactor' => isset($base_settings['incrementFactor']) ? (float) $base_settings['incrementFactor'] : 1.01,
+        ),
+        'fontPairing' => $selected_pairing,
+        'fontPairings' => $pairings,
+    );
+}
+
+function lds_tw_apply_ui_state_to_theme_json($theme_json, $state)
+{
+    if (!is_array($state)) {
+        throw new RuntimeException('Invalid payload.');
+    }
+
+    $palette_rows = isset($state['palette']) && is_array($state['palette']) ? $state['palette'] : array();
+    $palette = array();
+    $seen = array();
+    foreach ($palette_rows as $row) {
+        if (!is_array($row)) {
+            continue;
+        }
+        $slug = isset($row['slug']) ? sanitize_title((string) $row['slug']) : '';
+        $color = isset($row['color']) ? lds_tw_color_normalize_hex($row['color']) : null;
+        if ($slug === '' || $color === null || isset($seen[$slug])) {
+            continue;
+        }
+        $seen[$slug] = true;
+        $palette[] = array(
+            'slug' => $slug,
+            'name' => ucwords(str_replace(array('-', '_'), ' ', $slug)),
+            'color' => $color,
+        );
+    }
+
+    if (empty($palette)) {
+        throw new RuntimeException('Palette cannot be empty.');
+    }
+
+    $breakpoints = isset($state['breakpoints']) && is_array($state['breakpoints']) ? $state['breakpoints'] : array();
+    $containers = isset($state['containerMaxWidths']) && is_array($state['containerMaxWidths']) ? $state['containerMaxWidths'] : array();
+    $base_settings = isset($state['baseSettings']) && is_array($state['baseSettings']) ? $state['baseSettings'] : array();
+    $base_size = isset($base_settings['baseSize']) ? (float) $base_settings['baseSize'] : 16.0;
+    $ratio = isset($base_settings['r']) ? (float) $base_settings['r'] : 1.2;
+    $increment = isset($base_settings['incrementFactor']) ? (float) $base_settings['incrementFactor'] : 1.01;
+
+    if ($base_size <= 0 || $ratio <= 0 || $increment <= 0) {
+        throw new RuntimeException('baseSize, r and incrementFactor must be positive numbers.');
+    }
+
+    $pairings = lds_tw_get_font_pairings();
+    $pairing_id = isset($state['fontPairing']) ? (string) $state['fontPairing'] : '';
+    $pairing = null;
+    foreach ($pairings as $candidate) {
+        if ($candidate['id'] === $pairing_id) {
+            $pairing = $candidate;
+            break;
+        }
+    }
+
+    $font_families = isset($theme_json['settings']['typography']['fontFamilies']) && is_array($theme_json['settings']['typography']['fontFamilies'])
+        ? $theme_json['settings']['typography']['fontFamilies']
+        : array();
+
+    if (!empty($pairings)) {
+        if ($pairing === null) {
+            $pairing = $pairings[0];
+        }
+
+        $font_families = array(
+            array(
+                'slug' => 'primary',
+                'name' => $pairing['first'],
+                'fontFamily' => $pairing['first'] . ', ui-sans-serif, system-ui, sans-serif',
+            ),
+            array(
+                'slug' => lds_tw_font_slug($pairing['second'], 'secondary'),
+                'name' => $pairing['second'],
+                'fontFamily' => $pairing['second'] . ', ui-sans-serif, system-ui, sans-serif',
+            ),
+        );
+    }
+
+    $content_size = isset($containers['xl']) ? trim((string) $containers['xl']) : '1140px';
+    $wide_size = isset($containers['2xl']) ? trim((string) $containers['2xl']) : $content_size;
+    if ($content_size === '') {
+        $content_size = '1140px';
+    }
+    if ($wide_size === '') {
+        $wide_size = $content_size;
+    }
+
+    if (!isset($theme_json['settings']) || !is_array($theme_json['settings'])) {
+        $theme_json['settings'] = array();
+    }
+    if (!isset($theme_json['settings']['color']) || !is_array($theme_json['settings']['color'])) {
+        $theme_json['settings']['color'] = array();
+    }
+    if (!isset($theme_json['settings']['layout']) || !is_array($theme_json['settings']['layout'])) {
+        $theme_json['settings']['layout'] = array();
+    }
+    if (!isset($theme_json['settings']['typography']) || !is_array($theme_json['settings']['typography'])) {
+        $theme_json['settings']['typography'] = array();
+    }
+    if (!isset($theme_json['settings']['custom']) || !is_array($theme_json['settings']['custom'])) {
+        $theme_json['settings']['custom'] = array();
+    }
+    if (!isset($theme_json['settings']['custom']['lds']) || !is_array($theme_json['settings']['custom']['lds'])) {
+        $theme_json['settings']['custom']['lds'] = array();
+    }
+    if (!isset($theme_json['styles']) || !is_array($theme_json['styles'])) {
+        $theme_json['styles'] = array();
+    }
+    if (!isset($theme_json['styles']['typography']) || !is_array($theme_json['styles']['typography'])) {
+        $theme_json['styles']['typography'] = array();
+    }
+
+    $theme_json['settings']['color']['palette'] = $palette;
+    $theme_json['settings']['color']['defaultPalette'] = false;
+    $theme_json['settings']['layout']['contentSize'] = $content_size;
+    $theme_json['settings']['layout']['wideSize'] = $wide_size;
+    $theme_json['settings']['typography']['fontFamilies'] = $font_families;
+    $theme_json['settings']['custom']['lds']['breakpoints'] = $breakpoints;
+    $theme_json['settings']['custom']['lds']['containerMaxWidths'] = $containers;
+    $theme_json['settings']['custom']['lds']['baseSettings'] = array(
+        'baseSize' => $base_size,
+        'r' => $ratio,
+        'incrementFactor' => $increment,
+    );
+    $theme_json['styles']['typography']['fontFamily'] = 'var(--wp--preset--font-family--primary)';
+
+    return $theme_json;
+}
+
+function lds_tw_write_theme_json($theme_json)
+{
+    $encoded = wp_json_encode($theme_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    if (!is_string($encoded) || $encoded === '') {
+        throw new RuntimeException('Could not encode theme.json.');
+    }
+
+    $result = file_put_contents(lds_tw_theme_config_path(), $encoded . "\n");
+    if ($result === false) {
+        throw new RuntimeException('Could not write theme.json.');
+    }
+}
+
+function lds_tw_render_theme_tokens_page()
+{
+    if (!current_user_can('manage_options')) {
+        wp_die('Unauthorized', 403);
+    }
+    ?>
+    <div class="wrap">
+      <h1>LDS Theme Tokens</h1>
+      <p>Global token settings with live preview and asynchronous compile.</p>
+      <div id="lds-tw-theme-tokens-root"></div>
+    </div>
+    <?php
+}
+
+function lds_tw_register_theme_tokens_page()
+{
+    add_theme_page(
+        'LDS Theme Tokens',
+        'LDS Theme Tokens',
+        'manage_options',
+        'lds-tw-theme-tokens',
+        'lds_tw_render_theme_tokens_page'
+    );
+}
+add_action('admin_menu', 'lds_tw_register_theme_tokens_page');
+
 function lds_tw_add_compile_button($wp_admin_bar)
 {
     if (!current_user_can('manage_options')) {
@@ -739,8 +1035,45 @@ function lds_tw_enqueue_admin_script($hook_suffix)
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('lds_tw_compilation_nonce'),
     ));
+
+    if ($hook_suffix === 'appearance_page_lds-tw-theme-tokens') {
+        $admin_ui_path = lds_tw_plugin_dir() . 'admin/theme-tokens-ui.js';
+        wp_enqueue_script(
+            'lds-tw-theme-tokens-admin',
+            lds_tw_plugin_url() . 'admin/theme-tokens-ui.js',
+            array(),
+            file_exists($admin_ui_path) ? (string) filemtime($admin_ui_path) : LDS_TW_VERSION,
+            true
+        );
+        wp_localize_script('lds-tw-theme-tokens-admin', 'ldsTwTokensUi', array(
+            'restBase' => esc_url_raw(rest_url('lds-tw/v1')),
+            'nonce' => wp_create_nonce('wp_rest'),
+        ));
+    }
 }
 add_action('admin_enqueue_scripts', 'lds_tw_enqueue_admin_script');
+
+function lds_tw_enqueue_block_editor_assets()
+{
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    $editor_ui_path = lds_tw_plugin_dir() . 'admin/theme-tokens-editor.js';
+    wp_enqueue_script(
+        'lds-tw-theme-tokens-editor',
+        lds_tw_plugin_url() . 'admin/theme-tokens-editor.js',
+        array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-data'),
+        file_exists($editor_ui_path) ? (string) filemtime($editor_ui_path) : LDS_TW_VERSION,
+        true
+    );
+
+    wp_localize_script('lds-tw-theme-tokens-editor', 'ldsTwTokensEditor', array(
+        'restBase' => esc_url_raw(rest_url('lds-tw/v1')),
+        'nonce' => wp_create_nonce('wp_rest'),
+    ));
+}
+add_action('enqueue_block_editor_assets', 'lds_tw_enqueue_block_editor_assets');
 
 function lds_tw_enqueue_styles()
 {
@@ -776,24 +1109,8 @@ function lds_tw_run_nightly_compilation()
 }
 add_action(LDS_TW_CRON_HOOK, 'lds_tw_run_nightly_compilation');
 
-function lds_tw_copy_default_config_to_theme()
-{
-    $source = lds_tw_plugin_config_path();
-    $destination = lds_tw_theme_config_path();
-    $destination_dir = dirname($destination);
-
-    if (!is_dir($destination_dir)) {
-        wp_mkdir_p($destination_dir);
-    }
-
-    if (!file_exists($destination) && file_exists($source)) {
-        copy($source, $destination);
-    }
-}
-
 function lds_tw_activate_plugin()
 {
-    lds_tw_copy_default_config_to_theme();
     lds_tw_schedule_compilation();
 }
 register_activation_hook(__FILE__, 'lds_tw_activate_plugin');

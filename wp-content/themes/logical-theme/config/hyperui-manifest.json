@@ -1,0 +1,470 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-18T16:00:36.187Z",
+  "collections": {
+    "marketing": {
+      "announcements": {
+        "title": "Announcements",
+        "description": "Discover announcement components built with Tailwind CSS v4. These responsive, accessible banners and notification bars are perfect for marketing websites, SaaS products, and eCommerce stores. Easily highlight updates, promotions, or important messages with customizable UI elements optimized for SEO and user engagement.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/announcements/6.html"
+          }
+        }
+      },
+      "banners": {
+        "title": "Banners",
+        "description": "Responsive, customizable banner and hero section components for marketing websites. Built with Tailwind CSS v4, these banner designs feature clean layouts, flexible content areas, and mobile-friendly interfaces. Perfect for landing pages, promotional announcements, and website headers that drive user engagement and conversion.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/banners/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/banners/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/banners/3.html"
+          }
+        }
+      },
+      "blog-cards": {
+        "title": "Blog Cards",
+        "description": "Discover modern blog card components built with Tailwind CSS v4. Enhance your marketing pages with responsive, customizable blog cards for posts, articles, and news—optimized for performance and SEO.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/6.html"
+          },
+          "7": {
+            "path": "hyperui/hyperui-main/public/components/marketing/blog-cards/7.html"
+          }
+        }
+      },
+      "buttons": {
+        "title": "Buttons",
+        "description": "Explore a curated collection of button components built with Tailwind CSS v4. Discover modern, responsive, and customizable buttons for marketing websites, optimized for performance and accessibility.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/6.html"
+          },
+          "7": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/7.html"
+          },
+          "8": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/8.html"
+          },
+          "9": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/9.html"
+          },
+          "10": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/10.html"
+          },
+          "11": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/11.html"
+          },
+          "12": {
+            "path": "hyperui/hyperui-main/public/components/marketing/buttons/12.html"
+          }
+        }
+      },
+      "cards": {
+        "title": "Cards",
+        "description": "Explore a variety of card components designed with Tailwind CSS v4. These responsive, SEO-friendly cards are ideal for showcasing content, products, blog posts, and user profiles on modern marketing websites and applications. Fully customizable for any project.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/6.html"
+          },
+          "7": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/7.html"
+          },
+          "8": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/8.html"
+          },
+          "9": {
+            "path": "hyperui/hyperui-main/public/components/marketing/cards/9.html"
+          }
+        }
+      },
+      "carts": {
+        "title": "Carts",
+        "description": "Cart components crafted with Tailwind CSS v4 for eCommerce and online stores. These responsive, accessible shopping cart UIs are fully customizable and optimized for seamless checkout experiences, mobile usability, and SEO best practices.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/carts/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/carts/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/carts/3.html"
+          }
+        }
+      },
+      "contact-forms": {
+        "title": "Contact Forms",
+        "description": "Explore a curated collection of contact form components built with Tailwind CSS v4. Display contact forms with modern, responsive layouts perfect for marketing websites and lead generation.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/contact-forms/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/contact-forms/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/contact-forms/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/contact-forms/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/contact-forms/5.html"
+          }
+        }
+      },
+      "ctas": {
+        "title": "CTAs",
+        "description": "Discover high-converting CTA components built with Tailwind CSS v4. Boost your marketing campaigns with modern, responsive call-to-action designs optimized for engagement and conversion.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/ctas/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/ctas/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/ctas/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/ctas/4.html"
+          }
+        }
+      },
+      "empty-content": {
+        "title": "Empty Content",
+        "description": "Empty content components for Tailwind CSS. Engagement-focused patterns for marketing sites and e-commerce with friendly messaging and exploration-oriented actions, helping users discover related content and stay engaged.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/empty-content/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/empty-content/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/empty-content/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/empty-content/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/empty-content/5.html"
+          }
+        }
+      },
+      "faqs": {
+        "title": "FAQs",
+        "description": "Selection of FAQ components created with Tailwind CSS v4, featuring responsive design, interactive toggles, and customizable styling. Perfect for websites, landing pages, and knowledge bases to improve user experience and SEO through structured question-answer formats.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/faqs/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/faqs/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/faqs/3.html"
+          }
+        }
+      },
+      "feature-grids": {
+        "title": "Feature Grids",
+        "description": "Explore a curated collection of feature grid components built with Tailwind CSS v4. Display product features, benefits, and service highlights with modern, responsive layouts perfect for marketing websites.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/feature-grids/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/feature-grids/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/feature-grids/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/feature-grids/4.html"
+          }
+        }
+      },
+      "footers": {
+        "title": "Footers",
+        "description": "Explore our collection of responsive footer components, designed with Tailwind CSS v4. These customizable website footers enhance user navigation, SEO, and brand presence while maintaining accessibility and performance standards.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/6.html"
+          },
+          "7": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/7.html"
+          },
+          "8": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/8.html"
+          },
+          "9": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/9.html"
+          },
+          "10": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/10.html"
+          },
+          "11": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/11.html"
+          },
+          "12": {
+            "path": "hyperui/hyperui-main/public/components/marketing/footers/12.html"
+          }
+        }
+      },
+      "headers": {
+        "title": "Header",
+        "description": "Header components designed with Tailwind CSS v4 for marketing websites and web applications. These responsive, SEO-optimized headers feature navigation, branding, and call-to-action layouts, making them perfect for landing pages, SaaS, and eCommerce projects.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/headers/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/headers/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/headers/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/headers/4.html"
+          }
+        }
+      },
+      "logo-clouds": {
+        "title": "Logo Clouds",
+        "description": "Explore a curated collection of logo cloud components built with Tailwind CSS v4. Display client, partner, and brand logos with modern, responsive layouts perfect for marketing websites.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/logo-clouds/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/logo-clouds/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/logo-clouds/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/logo-clouds/4.html"
+          }
+        }
+      },
+      "newsletter-signup": {
+        "title": "Newsletter Signup",
+        "description": "Newsletter signup components created with Tailwind CSS v4. Perfect for capturing email leads and growing your audience on marketing websites and web applications.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/newsletter-signup/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/newsletter-signup/2.html"
+          }
+        }
+      },
+      "polls": {
+        "title": "Polls",
+        "description": "Interactive poll and survey components built with Tailwind CSS v4. Use these blocks to gather feedback, run surveys, or engage users on marketing websites and web applications.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/polls/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/polls/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/polls/3.html"
+          }
+        }
+      },
+      "pricing": {
+        "title": "Pricing",
+        "description": "Pricing components built with Tailwind CSS v4. These responsive, customizable pricing tables and plan layouts are ideal for SaaS, eCommerce, and service websites. Improve conversions and SEO with clear, accessible pricing options for your users.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/pricing/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/pricing/2.html"
+          }
+        }
+      },
+      "product-cards": {
+        "title": "Product Cards",
+        "description": "Product card components built with Tailwind CSS v4. These responsive, SEO-friendly cards are perfect for showcasing products in eCommerce stores, landing pages, and marketing sites. Easily customizable for any brand or catalog.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/4.html"
+          },
+          "5": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/5.html"
+          },
+          "6": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/6.html"
+          },
+          "7": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/7.html"
+          },
+          "8": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-cards/8.html"
+          }
+        }
+      },
+      "product-collections": {
+        "title": "Product Collections",
+        "description": "Product collection components built with Tailwind CSS v4. These responsive, customizable layouts are ideal for displaying product groups, categories, and featured items in eCommerce and marketing websites. Optimized for SEO and user experience.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-collections/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-collections/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-collections/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/product-collections/4.html"
+          }
+        }
+      },
+      "sections": {
+        "title": "Sections",
+        "description": "Section components created with Tailwind CSS v4. These responsive, SEO-optimized layouts are perfect for building content blocks, feature sections, and landing page segments for marketing websites and web applications.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/sections/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/sections/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/sections/3.html"
+          },
+          "4": {
+            "path": "hyperui/hyperui-main/public/components/marketing/sections/4.html"
+          }
+        }
+      },
+      "stats": {
+        "title": "stats",
+        "description": "",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/stats/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/stats/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/stats/3.html"
+          }
+        }
+      },
+      "team-sections": {
+        "title": "Team Sections",
+        "description": "Explore a curated collection of team section components built with Tailwind CSS v4. Display team member profiles with images, names, roles, and social links perfect for company websites and about pages.",
+        "variants": {
+          "1": {
+            "path": "hyperui/hyperui-main/public/components/marketing/team-sections/1.html"
+          },
+          "2": {
+            "path": "hyperui/hyperui-main/public/components/marketing/team-sections/2.html"
+          },
+          "3": {
+            "path": "hyperui/hyperui-main/public/components/marketing/team-sections/3.html"
+          }
+        }
+      }
+    }
+  }
+}

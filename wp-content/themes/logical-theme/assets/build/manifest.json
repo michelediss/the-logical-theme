@@ -1,9 +1,6 @@
 {
   "src/editor.js": {
     "file": "editor.js",
-    "imports": [
-      "src/theme.js"
-    ],
     "isEntry": true,
     "src": "src/editor.js"
   },

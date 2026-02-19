@@ -4,8 +4,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
-const SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
-
 function normalizeHex(hex) {
   const raw = String(hex ?? '').trim().toLowerCase().replace(/^#/, '');
   const full = raw.length === 3 ? raw.split('').map((c) => `${c}${c}`).join('') : raw;
@@ -13,49 +11,6 @@ function normalizeHex(hex) {
     return null;
   }
   return `#${full}`;
-}
-
-function hexToRgb(hex) {
-  const n = normalizeHex(hex);
-  if (!n) return null;
-  return [
-    Number.parseInt(n.slice(1, 3), 16),
-    Number.parseInt(n.slice(3, 5), 16),
-    Number.parseInt(n.slice(5, 7), 16),
-  ];
-}
-
-function rgbToHex(r, g, b) {
-  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
-  return `#${[clamp(r), clamp(g), clamp(b)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-}
-
-function mixColors(colorA, colorB, percentA) {
-  const a = hexToRgb(colorA);
-  const b = hexToRgb(colorB);
-  if (!a || !b) return colorB;
-  const w = Math.max(0, Math.min(100, Number(percentA))) / 100;
-  return rgbToHex((a[0] * w) + (b[0] * (1 - w)), (a[1] * w) + (b[1] * (1 - w)), (a[2] * w) + (b[2] * (1 - w)));
-}
-
-function generateShades(baseColor, variation = {}) {
-  const white = variation.white ?? 90;
-  const light = variation.light ?? 60;
-  const dark = variation.dark ?? 60;
-  const black = variation.black ?? 90;
-  return {
-    50: mixColors('#ffffff', baseColor, white),
-    100: mixColors('#ffffff', baseColor, white * 0.8),
-    200: mixColors('#ffffff', baseColor, light * 0.8),
-    300: mixColors('#ffffff', baseColor, light),
-    400: mixColors('#ffffff', baseColor, light * 0.5),
-    500: baseColor,
-    600: mixColors('#000000', baseColor, dark * 0.5),
-    700: mixColors('#000000', baseColor, dark),
-    800: mixColors('#000000', baseColor, black * 0.8),
-    900: mixColors('#000000', baseColor, black),
-    950: mixColors('#000000', baseColor, Math.min(98, black + 8)),
-  };
 }
 
 function generateTypographyScale(ratio) {
@@ -92,56 +47,162 @@ function parseFontImport(value) {
   return `@import url('https://fonts.googleapis.com/css2?${families.join('&')}&display=swap');`;
 }
 
-function readJson(themePath, pluginPath) {
-  const sourcePath = fs.existsSync(themePath) ? themePath : pluginPath;
-  if (!fs.existsSync(sourcePath)) {
-    throw new Error(`JSON config not found: ${sourcePath}`);
+function firstFontName(fontFamily) {
+  const value = String(fontFamily ?? '').trim();
+  if (!value) return null;
+  const first = value.split(',')[0]?.trim();
+  if (!first) return null;
+  return first.replace(/^['"]+|['"]+$/g, '').trim() || null;
+}
+
+function createPairingImport(families) {
+  const names = families
+    .map((entry) => firstFontName(entry?.fontFamily) || String(entry?.name ?? '').trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((name) => name.replace(/\s+/g, '_'));
+
+  if (names.length === 0) return [];
+  return [`font-pairing-list/_${names.join('_+_')}`];
+}
+
+function readThemeJson(themePath) {
+  if (!fs.existsSync(themePath)) {
+    throw new Error(`theme.json not found: ${themePath}`);
   }
-  const raw = fs.readFileSync(sourcePath, 'utf8');
+
+  const raw = fs.readFileSync(themePath, 'utf8');
   let data;
   try {
     data = JSON.parse(raw);
   } catch (err) {
-    throw new Error(`Invalid JSON in ${sourcePath}: ${err.message}`);
+    throw new Error(`Invalid JSON in ${themePath}: ${err.message}`);
   }
+
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    throw new Error(`Invalid JSON structure in ${sourcePath}: root must be an object.`);
+    throw new Error(`Invalid JSON structure in ${themePath}: root must be an object.`);
   }
-  const keys = ['baseSettings', 'baseColors', 'palette', 'colorVariations', 'breakpoints', 'containerMaxWidths', 'font'];
-  for (const key of keys) {
-    if (data[key] != null && (typeof data[key] !== 'object' || Array.isArray(data[key]))) {
-      throw new Error(`Invalid ${key} in ${sourcePath}: must be an object.`);
-    }
-  }
-  if (data.font?.imports != null && !Array.isArray(data.font.imports)) {
-    throw new Error(`Invalid font.imports in ${sourcePath}: must be an array.`);
-  }
-  if (data.font?.classes != null && (typeof data.font.classes !== 'object' || Array.isArray(data.font.classes))) {
-    throw new Error(`Invalid font.classes in ${sourcePath}: must be an object.`);
-  }
-  return { data, sourcePath };
+
+  return data;
 }
 
-function buildPaletteShades(data) {
-  const baseColors = data.baseColors ?? {};
-  const black = normalizeHex(baseColors.black ?? '#1e201f');
-  const gray = normalizeHex(baseColors.gray ?? '#666666');
-  const white = normalizeHex(baseColors.white ?? '#fcfcfe');
-  const fallbackPalette = {
-    primary: '#f05252',
-    secondary: '#c27803',
-    gray,
-    black,
-    white,
+function themeToLds(themeJson) {
+  const paletteItems = Array.isArray(themeJson?.settings?.color?.palette) ? themeJson.settings.color.palette : [];
+  const breakpoints = themeJson?.settings?.custom?.lds?.breakpoints;
+  const containerMaxWidths = themeJson?.settings?.custom?.lds?.containerMaxWidths;
+  const customBase = themeJson?.settings?.custom?.lds?.baseSettings;
+
+  const palette = {};
+  const baseColors = {};
+
+  for (const item of paletteItems) {
+    const slug = String(item?.slug ?? '').trim().toLowerCase();
+    const hex = normalizeHex(item?.color);
+    if (!slug || !hex) continue;
+
+    if (slug === 'white' || slug === 'black' || slug === 'gray') {
+      baseColors[slug] = hex;
+    } else {
+      palette[slug] = hex;
+    }
+  }
+
+  if (!baseColors.white) baseColors.white = '#ffffff';
+  if (!baseColors.black) baseColors.black = '#000000';
+
+  if (!palette.primary && paletteItems.length > 0) {
+    const primary = paletteItems.find((item) => String(item?.slug ?? '').toLowerCase() === 'primary');
+    const value = normalizeHex(primary?.color);
+    if (value) palette.primary = value;
+  }
+
+  const defaultBreakpoints = {
+    null: 0,
+    sm: '576px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1600px',
+    '3xl': '1920px',
+    '4xl': '2560px',
+    '5xl': '3840px',
   };
-  const palette = (data.palette && Object.keys(data.palette).length) ? data.palette : fallbackPalette;
-  const variations = data.colorVariations ?? {};
+
+  const defaultContainers = {
+    sm: '540px',
+    md: '720px',
+    lg: '960px',
+    xl: '1140px',
+    '2xl': '1440px',
+    '3xl': '1680px',
+    '4xl': '1920px',
+    '5xl': '2560px',
+  };
+
+  const layoutContent = String(themeJson?.settings?.layout?.contentSize ?? '').trim();
+  const layoutWide = String(themeJson?.settings?.layout?.wideSize ?? '').trim();
+
+  const finalContainers = {
+    ...defaultContainers,
+    ...(containerMaxWidths && typeof containerMaxWidths === 'object' ? containerMaxWidths : {}),
+  };
+
+  if (!finalContainers.xl && layoutContent) finalContainers.xl = layoutContent;
+  if (!finalContainers['2xl'] && layoutWide) finalContainers['2xl'] = layoutWide;
+
+  const fontFamilies = Array.isArray(themeJson?.settings?.typography?.fontFamilies)
+    ? themeJson.settings.typography.fontFamilies
+    : [];
+
+  const fontImports = createPairingImport(fontFamilies);
+
+  const defaultBaseSettings = {
+    baseSize: 16,
+    r: 1.2,
+    incrementFactor: 1.01,
+  };
+
+  return {
+    baseSettings: {
+      ...defaultBaseSettings,
+      ...(customBase && typeof customBase === 'object' ? customBase : {}),
+    },
+    baseColors,
+    palette,
+    breakpoints: {
+      ...defaultBreakpoints,
+      ...(breakpoints && typeof breakpoints === 'object' ? breakpoints : {}),
+    },
+    containerMaxWidths: finalContainers,
+    font: {
+      imports: fontImports,
+      classes: {},
+    },
+  };
+}
+
+function buildPaletteColors(data) {
+  const baseColors = data.baseColors ?? {};
+  const palette = data.palette ?? {};
   const output = {};
+
+  for (const [name, color] of Object.entries(baseColors)) {
+    const normalized = normalizeHex(color);
+    if (!normalized) continue;
+    output[name] = normalized;
+  }
+
   for (const [name, color] of Object.entries(palette)) {
     const normalized = normalizeHex(color);
     if (!normalized) continue;
-    output[name] = generateShades(normalized, variations[name] ?? {});
+    output[name] = normalized;
   }
+
+  if (!output.primary) output.primary = '#f05252';
+  if (!output.secondary) output.secondary = '#c27803';
+  if (!output.black) output.black = '#1e201f';
+  if (!output.white) output.white = '#fcfcfe';
+
   return output;
 }
 
@@ -175,12 +236,9 @@ function generateTokensCss(data) {
     css.push('  --lds-border-radius: 0;');
   }
 
-  const paletteShades = buildPaletteShades(data);
-  for (const [name, shades] of Object.entries(paletteShades)) {
-    for (const shade of SHADES) {
-      css.push(`  --${name}-${shade}: ${shades[shade]};`);
-    }
-    css.push(`  --${name}: ${shades[500]};`);
+  const paletteColors = buildPaletteColors(data);
+  for (const [name, color] of Object.entries(paletteColors)) {
+    css.push(`  --${name}: ${color};`);
   }
 
   const typoScale = generateTypographyScale(ratio);
@@ -218,7 +276,7 @@ function generateRuntimeConfig(data) {
   const breakpoints = data.breakpoints ?? {};
   const containers = data.containerMaxWidths ?? {};
   const ratio = Number(data.baseSettings?.r ?? 1.2);
-  const colors = buildPaletteShades(data);
+  const colors = buildPaletteColors(data);
   const colorNames = Object.keys(colors);
   const variants = Object.keys(breakpoints).filter((k) => k !== 'null');
   const screens = Object.fromEntries(
@@ -233,7 +291,6 @@ function generateRuntimeConfig(data) {
   );
   const colorPattern = colorNames.length ? colorNames.join('|') : 'primary|secondary';
   const utilityPattern = 'bg|text|decoration|border|outline|shadow|inset-shadow|ring|inset-ring|accent|caret|fill|stroke';
-  const shadePattern = SHADES.join('|');
   const fontScale = generateTypographyScale(ratio);
   const fontSizes = Object.fromEntries(
     Object.entries(fontScale).map(([k, v]) => [k, [`${v}rem`, { lineHeight: '1.2' }]]),
@@ -247,13 +304,11 @@ function generateRuntimeConfig(data) {
 
   const insetSafelist = [];
   for (const name of colorNames) {
-    for (const shade of SHADES) {
-      const a = `inset-shadow-${name}-${shade}`;
-      const b = `inset-ring-${name}-${shade}`;
-      insetSafelist.push(a, b);
-      for (const variant of variants) {
-        insetSafelist.push(`${variant}:${a}`, `${variant}:${b}`);
-      }
+    const a = `inset-shadow-${name}`;
+    const b = `inset-ring-${name}`;
+    insetSafelist.push(a, b);
+    for (const variant of variants) {
+      insetSafelist.push(`${variant}:${a}`, `${variant}:${b}`);
     }
   }
 
@@ -266,7 +321,7 @@ function generateRuntimeConfig(data) {
     ],
     safelist: [
       {
-        pattern: `__REGEX__^(${utilityPattern})-(${colorPattern})(-(${shadePattern}))?$__END__`,
+        pattern: `__REGEX__^(${utilityPattern})-(${colorPattern})$__END__`,
         variants,
       },
       {
@@ -412,16 +467,16 @@ function main() {
   const defaultThemeDir = path.resolve(process.argv[3] || path.join(pluginDir, '..', '..', 'themes', 'logical-theme'));
   const themeDir = resolveActiveThemeDir(pluginDir, defaultThemeDir);
 
-  const themeConfigPath = process.argv[4] || path.join(themeDir, 'assets', 'json', 'lds-input.json');
-  const pluginConfigPath = process.argv[5] || path.join(pluginDir, 'config', 'lds-input.json');
+  const themeJsonPath = process.argv[4] || path.join(themeDir, 'theme.json');
 
   const generatedDir = path.join(pluginDir, 'src', 'generated');
   const distDir = path.join(pluginDir, 'dist');
-  const themeCssPath = process.argv[6] || path.join(themeDir, 'assets', 'css', 'lds-style.css');
-  const themeMinCssPath = process.argv[7] || path.join(themeDir, 'assets', 'css', 'lds-style.min.css');
+  const themeCssPath = process.argv[5] || path.join(themeDir, 'assets', 'css', 'lds-style.css');
+  const themeMinCssPath = process.argv[6] || path.join(themeDir, 'assets', 'css', 'lds-style.min.css');
 
   const start = Date.now();
-  const { data } = readJson(themeConfigPath, pluginConfigPath);
+  const themeJson = readThemeJson(themeJsonPath);
+  const data = themeToLds(themeJson);
   const tokensCss = generateTokensCss(data);
   const runtimeConfig = generateRuntimeConfig(data);
 

@@ -1,0 +1,33 @@
+{
+  "colors": {
+    "black": "rgb(var(--color-black-rgb) / <alpha-value>)",
+    "white": "rgb(var(--color-white-rgb) / <alpha-value>)",
+    "light": "rgb(var(--color-light-rgb) / <alpha-value>)",
+    "primary": "rgb(var(--color-primary-rgb) / <alpha-value>)",
+    "secondary": "rgb(var(--color-secondary-rgb) / <alpha-value>)"
+  },
+  "screens": {
+    "sm": "576px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1600px",
+    "3xl": "1920px",
+    "4xl": "2560px",
+    "5xl": "3840px"
+  },
+  "container": {
+    "center": true,
+    "padding": "1rem",
+    "screens": {
+      "sm": "540px",
+      "md": "720px",
+      "lg": "960px",
+      "xl": "1140px",
+      "2xl": "1440px",
+      "3xl": "1680px",
+      "4xl": "1920px",
+      "5xl": "2560px"
+    }
+  }
+}

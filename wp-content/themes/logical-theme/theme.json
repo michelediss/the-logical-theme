@@ -1,0 +1,133 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "version": 3,
+    "settings": {
+        "color": {
+            "palette": [
+                {
+                    "slug": "black",
+                    "name": "Black",
+                    "color": "#1e201f"
+                },
+                {
+                    "slug": "white",
+                    "name": "White",
+                    "color": "#fcfcfe"
+                },
+                {
+                    "slug": "light",
+                    "name": "Light",
+                    "color": "#fcfcfe"
+                },
+                {
+                    "slug": "primary",
+                    "name": "Primary",
+                    "color": "#bf4a4a"
+                },
+                {
+                    "slug": "secondary",
+                    "name": "Secondary",
+                    "color": "#c27803"
+                }
+            ],
+            "defaultPalette": false
+        },
+        "spacing": {
+            "units": [
+                "px",
+                "rem",
+                "em",
+                "%",
+                "vw",
+                "vh"
+            ]
+        },
+        "layout": {
+            "contentSize": "1140px",
+            "wideSize": "1440px"
+        },
+        "typography": {
+            "fluid": true,
+            "fontSizes": [
+                {
+                    "slug": "sm",
+                    "name": "Small",
+                    "size": "0.875rem"
+                },
+                {
+                    "slug": "base",
+                    "name": "Base",
+                    "size": "1rem"
+                },
+                {
+                    "slug": "lg",
+                    "name": "Large",
+                    "size": "1.125rem"
+                },
+                {
+                    "slug": "xl",
+                    "name": "XL",
+                    "size": "1.25rem"
+                },
+                {
+                    "slug": "2xl",
+                    "name": "2XL",
+                    "size": "1.5rem"
+                },
+                {
+                    "slug": "3xl",
+                    "name": "3XL",
+                    "size": "1.875rem"
+                }
+            ],
+            "fontFamilies": [
+                {
+                    "slug": "primary",
+                    "name": "Raleway",
+                    "fontFamily": "Raleway, ui-sans-serif, system-ui, sans-serif"
+                },
+                {
+                    "slug": "vollkorn",
+                    "name": "Vollkorn",
+                    "fontFamily": "Vollkorn, ui-sans-serif, system-ui, sans-serif"
+                }
+            ]
+        },
+        "custom": {
+            "lds": {
+                "breakpoints": {
+                    "null": "0",
+                    "sm": "576px",
+                    "md": "768px",
+                    "lg": "1024px",
+                    "xl": "1280px",
+                    "2xl": "1600px",
+                    "3xl": "1920px",
+                    "4xl": "2560px",
+                    "5xl": "3840px"
+                },
+                "containerMaxWidths": {
+                    "sm": "540px",
+                    "md": "720px",
+                    "lg": "960px",
+                    "xl": "1140px",
+                    "2xl": "1440px",
+                    "3xl": "1680px",
+                    "4xl": "1920px",
+                    "5xl": "2560px"
+                },
+                "baseSettings": {
+                    "baseSize": 16,
+                    "r": 1.2,
+                    "incrementFactor": 1.01
+                }
+            }
+        }
+    },
+    "styles": {
+        "typography": {
+            "fontSize": "16px",
+            "fontFamily": "var(--wp--preset--font-family--primary)"
+        }
+    }
+}

@@ -1,7 +1,12 @@
+@import './generated/tokens.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 .wp-block-logical-theme-hello {
   @apply rounded border border-slate-300 bg-slate-50 p-4 text-slate-900;
+}
+
+.wp-block-logical-theme-hyperui-section {
+  @apply rounded border border-dashed border-black bg-white p-4 text-black;
 }
