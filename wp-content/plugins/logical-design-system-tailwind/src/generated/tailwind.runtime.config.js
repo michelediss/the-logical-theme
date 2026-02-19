@@ -125,25 +125,25 @@ export default {
   ],
   "theme": {
     "screens": {
-      "sm": "576px",
+      "sm": "640px",
       "md": "768px",
       "lg": "1024px",
       "xl": "1280px",
-      "2xl": "1600px",
+      "2xl": "1536px",
       "3xl": "1920px",
       "4xl": "2560px",
       "5xl": "3840px"
     },
     "container": {
       "screens": {
-        "sm": "540px",
-        "md": "720px",
-        "lg": "960px",
-        "xl": "1140px",
-        "2xl": "1440px",
-        "3xl": "1680px",
-        "4xl": "1920px",
-        "5xl": "2560px"
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px",
+        "2xl": "1536px",
+        "3xl": "1920px",
+        "4xl": "2560px",
+        "5xl": "3840px"
       }
     },
     "colors": {

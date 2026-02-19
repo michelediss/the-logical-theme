@@ -34,6 +34,14 @@ function logical_theme_setup()
 }
 add_action('after_setup_theme', 'logical_theme_setup');
 
+function logical_theme_disable_plugin_frontend_css()
+{
+    if (function_exists('lds_tw_enqueue_styles')) {
+        remove_action('wp_enqueue_scripts', 'lds_tw_enqueue_styles', 20);
+    }
+}
+add_action('after_setup_theme', 'logical_theme_disable_plugin_frontend_css', 100);
+
 function logical_theme_relocate_templates()
 {
     $types = array(

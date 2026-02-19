@@ -7,11 +7,11 @@
     "secondary": "rgb(var(--color-secondary-rgb) / <alpha-value>)"
   },
   "screens": {
-    "sm": "576px",
+    "sm": "640px",
     "md": "768px",
     "lg": "1024px",
     "xl": "1280px",
-    "2xl": "1600px",
+    "2xl": "1536px",
     "3xl": "1920px",
     "4xl": "2560px",
     "5xl": "3840px"
@@ -20,14 +20,26 @@
     "center": true,
     "padding": "1rem",
     "screens": {
-      "sm": "540px",
-      "md": "720px",
-      "lg": "960px",
-      "xl": "1140px",
-      "2xl": "1440px",
-      "3xl": "1680px",
-      "4xl": "1920px",
-      "5xl": "2560px"
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px",
+      "2xl": "1536px",
+      "3xl": "1920px",
+      "4xl": "2560px",
+      "5xl": "3840px"
     }
+  },
+  "maxWidths": {
+    "content": "1280px",
+    "wide": "1536px",
+    "container-sm": "640px",
+    "container-md": "768px",
+    "container-lg": "1024px",
+    "container-xl": "1280px",
+    "container-2xl": "1536px",
+    "container-3xl": "1920px",
+    "container-4xl": "2560px",
+    "container-5xl": "3840px"
   }
 }

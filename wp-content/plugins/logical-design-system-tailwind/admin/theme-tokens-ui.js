@@ -139,7 +139,7 @@
         <p><button class="button" data-action="add-ct" type="button">Add container</button></p>
 
         <h2>Derived Layout (read-only)</h2>
-        <p>contentSize: <code>${state.layout.contentSize || ''}</code> &nbsp; wideSize: <code>${state.layout.wideSize || ''}</code></p>
+        <p>contentSize: <code id="lds-derived-content-size">${state.layout.contentSize || ''}</code> &nbsp; wideSize: <code id="lds-derived-wide-size">${state.layout.wideSize || ''}</code></p>
 
         <p>
           <button class="button button-primary" data-action="save" type="button">Save</button>
@@ -148,6 +148,17 @@
     `;
 
     attachHandlers();
+  }
+
+  function renderDerivedLayout() {
+    const contentSizeEl = root.querySelector('#lds-derived-content-size');
+    const wideSizeEl = root.querySelector('#lds-derived-wide-size');
+    if (contentSizeEl) {
+      contentSizeEl.textContent = state && state.layout ? (state.layout.contentSize || '') : '';
+    }
+    if (wideSizeEl) {
+      wideSizeEl.textContent = state && state.layout ? (state.layout.wideSize || '') : '';
+    }
   }
 
   function recalcLayout() {
@@ -238,13 +249,13 @@
       const i = Number(e.currentTarget.dataset.index || '-1');
       if (i >= 0) state.containerRows[i].key = e.currentTarget.value;
       recalcLayout();
-      render();
+      renderDerivedLayout();
     }));
     root.querySelectorAll('[data-kind="ct-value"]').forEach((el) => el.addEventListener('input', (e) => {
       const i = Number(e.currentTarget.dataset.index || '-1');
       if (i >= 0) state.containerRows[i].value = e.currentTarget.value;
       recalcLayout();
-      render();
+      renderDerivedLayout();
     }));
 
     root.querySelector('[data-action="save"]')?.addEventListener('click', saveState);

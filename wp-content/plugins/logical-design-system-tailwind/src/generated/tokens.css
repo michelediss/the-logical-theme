@@ -23,11 +23,11 @@
   --text-9xl: 13.786rem;
 }
 html { font-size: 32px; }
-@media (min-width: 576px) { html { font-size: 32.32px; } }
+@media (min-width: 640px) { html { font-size: 32.32px; } }
 @media (min-width: 768px) { html { font-size: 32.643px; } }
 @media (min-width: 1024px) { html { font-size: 32.97px; } }
 @media (min-width: 1280px) { html { font-size: 33.299px; } }
-@media (min-width: 1600px) { html { font-size: 33.632px; } }
+@media (min-width: 1536px) { html { font-size: 33.632px; } }
 @media (min-width: 1920px) { html { font-size: 33.969px; } }
 @media (min-width: 2560px) { html { font-size: 34.308px; } }
 @media (min-width: 3840px) { html { font-size: 34.651px; } }

@@ -3,11 +3,11 @@
   const FONT_LINK_ID = 'lds-tw-runtime-preview-fonts';
   const DEFAULT_BREAKPOINTS = {
     null: 0,
-    sm: '576px',
+    sm: '640px',
     md: '768px',
     lg: '1024px',
     xl: '1280px',
-    '2xl': '1600px',
+    '2xl': '1536px',
     '3xl': '1920px',
     '4xl': '2560px',
     '5xl': '3840px'

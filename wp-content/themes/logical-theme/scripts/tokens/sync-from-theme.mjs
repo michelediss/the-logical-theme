@@ -8,17 +8,17 @@ const tailwindTokensPath = path.join(themeDir, 'src', 'generated', 'tailwind.tok
 
 const DEFAULT_BREAKPOINTS = {
   null: 0,
-  sm: '576px',
+  sm: '640px',
   md: '768px',
   lg: '1024px',
   xl: '1280px',
-  '2xl': '1600px',
+  '2xl': '1536px',
   '3xl': '1920px',
   '4xl': '2560px',
   '5xl': '3840px'
 };
 
-const DEFAULT_CONTAINERS = {
+const DEFAULT_CONTAINER_MAX_WIDTHS = {
   sm: '540px',
   md: '720px',
   lg: '960px',
@@ -118,9 +118,9 @@ function extractScreens(themeJson) {
 
 function extractContainer(themeJson) {
   const fromCustom = themeJson?.settings?.custom?.lds?.containerMaxWidths;
-  const source = fromCustom && typeof fromCustom === 'object' ? fromCustom : DEFAULT_CONTAINERS;
-
+  const source = fromCustom && typeof fromCustom === 'object' ? fromCustom : DEFAULT_CONTAINER_MAX_WIDTHS;
   const screens = {};
+
   Object.entries(source).forEach(([key, value]) => {
     if (typeof value !== 'string' || value.trim() === '') return;
     screens[key] = value.trim();
@@ -131,6 +131,29 @@ function extractContainer(themeJson) {
     padding: '1rem',
     screens
   };
+}
+
+function extractMaxWidths(themeJson) {
+  const layout = themeJson?.settings?.layout && typeof themeJson.settings.layout === 'object'
+    ? themeJson.settings.layout
+    : {};
+  const fromCustom = themeJson?.settings?.custom?.lds?.containerMaxWidths;
+  const custom = fromCustom && typeof fromCustom === 'object' ? fromCustom : DEFAULT_CONTAINER_MAX_WIDTHS;
+  const maxWidths = {};
+
+  if (typeof layout.contentSize === 'string' && layout.contentSize.trim() !== '') {
+    maxWidths.content = layout.contentSize.trim();
+  }
+  if (typeof layout.wideSize === 'string' && layout.wideSize.trim() !== '') {
+    maxWidths.wide = layout.wideSize.trim();
+  }
+
+  Object.entries(custom).forEach(([key, value]) => {
+    if (typeof value !== 'string' || value.trim() === '') return;
+    maxWidths[`container-${key}`] = value.trim();
+  });
+
+  return maxWidths;
 }
 
 function buildTailwindColors(colorTokens) {
@@ -161,12 +184,14 @@ function main() {
   const colorTokens = extractColorTokens(themeJson);
   const screens = extractScreens(themeJson);
   const container = extractContainer(themeJson);
+  const maxWidths = extractMaxWidths(themeJson);
   const colors = buildTailwindColors(colorTokens);
 
   const tailwindTokens = {
     colors,
     screens,
-    container
+    container,
+    maxWidths
   };
 
   ensureDir(tokensCssPath);
