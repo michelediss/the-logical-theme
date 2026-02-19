@@ -1,379 +1,301 @@
 {
-    "version": "3.0",
-    "layout": [
+  "version": "4.0",
+  "layout": [
+    {
+      "id": "row_hero",
+      "type": "row",
+      "settings": {
+        "container": "default",
+        "gap": "md",
+        "alignY": "center",
+        "backgroundColor": "white"
+      },
+      "columns": [
         {
-            "id": "row_srv_hero",
-            "type": "row",
-            "settings": {
-                "container": "wide",
-                "gap": "lg",
-                "alignY": "center",
-                "backgroundColor": "light"
+          "id": "col_hero_main",
+          "type": "column",
+          "settings": {
+            "desktop": 8,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "center"
+          },
+          "items": [
+            {
+              "id": "item_hero_pretitle",
+              "type": "pretitle",
+              "data": {
+                "text": "Consulenza IT per PMI e professionisti"
+              },
+              "settings": {}
             },
-            "columns": [
-                {
-                    "id": "col_srv_hero_text",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 7,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "center"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_hero_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "Servizi"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_hero_title",
-                            "type": "title",
-                            "data": {
-                                "text": "Soluzioni digitali modulari per crescere",
-                                "level": "h1"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_hero_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Strategia, design e sviluppo WordPress in un unico processo, con blocchi riutilizzabili e contenuti governati da JSON."
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_hero_btn",
-                            "type": "button",
-                            "data": {
-                                "label": "Parla con noi",
-                                "url": "/contatti",
-                                "variant": "primary",
-                                "target": "_self",
-                                "rel": ""
-                            },
-                            "settings": []
-                        }
-                    ]
-                },
-                {
-                    "id": "col_srv_hero_img",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 5,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "stretch"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_hero_img",
-                            "type": "image",
-                            "data": {
-                                "id": 0,
-                                "src": "https://picsum.photos/960/720?random=101",
-                                "alt": "Team al lavoro su un progetto digitale"
-                            },
-                            "settings": []
-                        }
-                    ]
-                }
-            ]
+            {
+              "id": "item_hero_title",
+              "type": "title",
+              "data": {
+                "text": "Servizi informatici su misura per far crescere il tuo business",
+                "level": "h1"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_hero_text",
+              "type": "text",
+              "data": {
+                "text": "Ti aiuto a rendere infrastruttura, sicurezza e processi digitali affidabili, scalabili e semplici da gestire."
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_hero_cta",
+              "type": "button",
+              "data": {
+                "label": "Richiedi una call gratuita",
+                "url": "/contatti",
+                "variant": "primary",
+                "target": "_self"
+              },
+              "settings": {}
+            }
+          ]
         },
         {
-            "id": "row_srv_grid",
-            "type": "row",
-            "settings": {
-                "container": "default",
-                "gap": "md",
-                "alignY": "stretch",
-                "backgroundColor": ""
-            },
-            "columns": [
-                {
-                    "id": "col_srv_strategy",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 4,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "stretch"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_strategy_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "01"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_strategy_title",
-                            "type": "title",
-                            "data": {
-                                "text": "Strategia",
-                                "level": "h3"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_strategy_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Analisi, posizionamento e roadmap editoriale orientata agli obiettivi."
-                            },
-                            "settings": []
-                        }
-                    ]
-                },
-                {
-                    "id": "col_srv_design",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 4,
-                        "tablet": 6,
-                        "mobile": 12,
-                        "alignY": "stretch"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_design_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "02"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_design_title",
-                            "type": "title",
-                            "data": {
-                                "text": "UX / UI",
-                                "level": "h3"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_design_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Interfacce chiare, accessibili e coerenti con un design system scalabile."
-                            },
-                            "settings": []
-                        }
-                    ]
-                },
-                {
-                    "id": "col_srv_dev",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 4,
-                        "tablet": 6,
-                        "mobile": 12,
-                        "alignY": "stretch"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_dev_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "03"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_dev_title",
-                            "type": "title",
-                            "data": {
-                                "text": "Sviluppo",
-                                "level": "h3"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_dev_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Implementazione custom Gutenberg + post meta JSON con flusso di sync bidirezionale."
-                            },
-                            "settings": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "row_srv_showcase",
-            "type": "row",
-            "settings": {
-                "container": "wide",
-                "gap": "lg",
-                "alignY": "center",
-                "backgroundColor": "secondary"
-            },
-            "columns": [
-                {
-                    "id": "col_srv_showcase_media",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 8,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "stretch"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_showcase_media",
-                            "type": "image",
-                            "data": {
-                                "id": 0,
-                                "src": "https://picsum.photos/1280/760?random=102",
-                                "alt": "Preview di dashboard progetto"
-                            },
-                            "settings": []
-                        }
-                    ]
-                },
-                {
-                    "id": "col_srv_showcase_copy",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 4,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "center"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_showcase_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "Case Study"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_showcase_title",
-                            "type": "title",
-                            "data": {
-                                "text": "Lancio completo in 6 settimane",
-                                "level": "h2"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_showcase_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Processo snello, blocchi componibili e governance contenuti senza duplicazioni."
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_showcase_btn",
-                            "type": "button",
-                            "data": {
-                                "label": "Scopri il progetto",
-                                "url": "/case-study",
-                                "variant": "outline",
-                                "target": "_self",
-                                "rel": ""
-                            },
-                            "settings": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "row_srv_cta",
-            "type": "row",
-            "settings": {
-                "container": "default",
-                "gap": "md",
-                "alignY": "center",
-                "backgroundColor": "primary"
-            },
-            "columns": [
-                {
-                    "id": "col_srv_cta_text",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 8,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "center"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_cta_pre",
-                            "type": "pretitle",
-                            "data": {
-                                "text": "Inizia oggi"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_cta_title",
-                            "type": "title",
-                            "data": {
-                                "text": "Costruiamo insieme la tua pagina servizi",
-                                "level": "h2"
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_cta_text",
-                            "type": "text",
-                            "data": {
-                                "text": "Ti consegniamo una struttura pronta per essere gestita in autonomia dal tuo team."
-                            },
-                            "settings": []
-                        }
-                    ]
-                },
-                {
-                    "id": "col_srv_cta_actions",
-                    "type": "column",
-                    "settings": {
-                        "desktop": 4,
-                        "tablet": 12,
-                        "mobile": 12,
-                        "alignY": "center"
-                    },
-                    "items": [
-                        {
-                            "id": "item_srv_cta_btn_1",
-                            "type": "button",
-                            "data": {
-                                "label": "Prenota call",
-                                "url": "/contatti",
-                                "variant": "secondary",
-                                "target": "_self",
-                                "rel": ""
-                            },
-                            "settings": []
-                        },
-                        {
-                            "id": "item_srv_cta_btn_2",
-                            "type": "button",
-                            "data": {
-                                "label": "Scarica PDF",
-                                "url": "/brochure.pdf",
-                                "variant": "link",
-                                "target": "_blank",
-                                "rel": "noopener noreferrer"
-                            },
-                            "settings": []
-                        }
-                    ]
-                }
-            ]
+          "id": "col_hero_side",
+          "type": "column",
+          "settings": {
+            "desktop": 4,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "stretch"
+          },
+          "items": [
+            {
+              "id": "item_hero_img",
+              "type": "image",
+              "data": {
+                "id": 0,
+                "src": "https://picsum.photos/seed/consulenza-it-hero/900/700",
+                "alt": "Consulente informatico al lavoro"
+              },
+              "settings": {}
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "id": "row_servizi",
+      "type": "row",
+      "settings": {
+        "container": "default",
+        "gap": "md",
+        "alignY": "stretch",
+        "backgroundColor": "light"
+      },
+      "columns": [
+        {
+          "id": "col_servizio_1",
+          "type": "column",
+          "settings": {
+            "desktop": 4,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "stretch"
+          },
+          "items": [
+            {
+              "id": "item_s1_title",
+              "type": "title",
+              "data": {
+                "text": "Audit e strategia IT",
+                "level": "h3"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_s1_text",
+              "type": "text",
+              "data": {
+                "text": "Analisi dell'infrastruttura esistente, individuazione dei colli di bottiglia e piano di miglioramento con priorità e budget chiari."
+              },
+              "settings": {}
+            }
+          ]
+        },
+        {
+          "id": "col_servizio_2",
+          "type": "column",
+          "settings": {
+            "desktop": 4,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "stretch"
+          },
+          "items": [
+            {
+              "id": "item_s2_title",
+              "type": "title",
+              "data": {
+                "text": "Cybersecurity operativa",
+                "level": "h3"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_s2_text",
+              "type": "text",
+              "data": {
+                "text": "Hardening sistemi, backup verificati, MFA e monitoraggio continuo per ridurre il rischio di fermo e perdita dati."
+              },
+              "settings": {}
+            }
+          ]
+        },
+        {
+          "id": "col_servizio_3",
+          "type": "column",
+          "settings": {
+            "desktop": 4,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "stretch"
+          },
+          "items": [
+            {
+              "id": "item_s3_title",
+              "type": "title",
+              "data": {
+                "text": "Cloud e automazione",
+                "level": "h3"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_s3_text",
+              "type": "text",
+              "data": {
+                "text": "Migrazione servizi in cloud, standardizzazione degli ambienti e automazioni per tagliare tempi operativi e costi ricorrenti."
+              },
+              "settings": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_metodo",
+      "type": "row",
+      "settings": {
+        "container": "default",
+        "gap": "lg",
+        "alignY": "start",
+        "backgroundColor": "white"
+      },
+      "columns": [
+        {
+          "id": "col_metodo_left",
+          "type": "column",
+          "settings": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "start"
+          },
+          "items": [
+            {
+              "id": "item_metodo_title",
+              "type": "title",
+              "data": {
+                "text": "Come lavoro",
+                "level": "h2"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_metodo_text",
+              "type": "text",
+              "data": {
+                "text": "1) Assessment iniziale. 2) Roadmap con obiettivi misurabili. 3) Implementazione graduale. 4) Formazione del team e supporto continuativo."
+              },
+              "settings": {}
+            }
+          ]
+        },
+        {
+          "id": "col_metodo_right",
+          "type": "column",
+          "settings": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "stretch"
+          },
+          "items": [
+            {
+              "id": "item_metodo_img",
+              "type": "image",
+              "data": {
+                "id": 0,
+                "src": "https://picsum.photos/seed/consulenza-it-processo/900/700",
+                "alt": "Schema di processo IT"
+              },
+              "settings": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_cta",
+      "type": "row",
+      "settings": {
+        "container": "default",
+        "gap": "md",
+        "alignY": "center",
+        "backgroundColor": "primary"
+      },
+      "columns": [
+        {
+          "id": "col_cta",
+          "type": "column",
+          "settings": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12,
+            "alignY": "center"
+          },
+          "items": [
+            {
+              "id": "item_cta_title",
+              "type": "title",
+              "data": {
+                "text": "Parliamo del tuo progetto IT",
+                "level": "h2"
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_cta_text",
+              "type": "text",
+              "data": {
+                "text": "Prenota una consulenza iniziale: analizziamo insieme criticità, priorità e opportunità concrete."
+              },
+              "settings": {}
+            },
+            {
+              "id": "item_cta_button",
+              "type": "button",
+              "data": {
+                "label": "Contattami ora",
+                "url": "/contatti",
+                "variant": "secondary",
+                "target": "_self"
+              },
+              "settings": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

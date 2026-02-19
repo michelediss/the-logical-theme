@@ -112,6 +112,7 @@
       if (!slug || !hex || !rgb) return;
       lines.push(`  --color-${slug}: ${hex};`);
       lines.push(`  --color-${slug}-rgb: ${rgb};`);
+      lines.push(`  --wp--preset--color--${slug}: ${hex};`);
     });
 
     Object.entries(typeScale).forEach(([key, value]) => {
@@ -198,11 +199,11 @@
       `  --wp--preset--font-family--primary: ${primary}, ui-sans-serif, system-ui, sans-serif;`,
       `  --wp--preset--font-family--secondary: ${secondary}, ui-sans-serif, system-ui, sans-serif;`,
       '}',
-      `body, .editor-styles-wrapper { font-family: var(--wp--preset--font-family--primary) !important; }`,
-      `.font-primary, .editor-styles-wrapper .font-primary { font-family: var(--wp--preset--font-family--primary) !important; }`,
-      `.font-secondary, .editor-styles-wrapper .font-secondary { font-family: var(--wp--preset--font-family--secondary) !important; }`,
-      `.paragraph, .editor-styles-wrapper .paragraph { font-family: var(--wp--preset--font-family--primary) !important; }`,
-      `.heading, .editor-styles-wrapper .heading { font-family: var(--wp--preset--font-family--secondary) !important; }`
+      'body { font-family: var(--wp--preset--font-family--primary) !important; }',
+      '.font-primary { font-family: var(--wp--preset--font-family--primary) !important; }',
+      '.font-secondary { font-family: var(--wp--preset--font-family--secondary) !important; }',
+      '.paragraph { font-family: var(--wp--preset--font-family--primary) !important; }',
+      '.heading { font-family: var(--wp--preset--font-family--secondary) !important; }'
     ].join('\n');
   }
 
@@ -256,12 +257,11 @@
   }
 
   function getTargetDocs() {
-    const docs = [document];
     const iframe = document.querySelector('iframe[name="editor-canvas"], iframe.edit-post-visual-editor__iframe');
     if (iframe && iframe.contentDocument) {
-      docs.push(iframe.contentDocument);
+      return [iframe.contentDocument];
     }
-    return docs;
+    return [];
   }
 
   function applyPreviewToEditorAndCanvas(state) {

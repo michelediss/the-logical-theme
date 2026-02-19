@@ -4,13 +4,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!defined('LOGICAL_THEME_ENABLE_LEGACY_CONTENT_JSON')) {
+    define('LOGICAL_THEME_ENABLE_LEGACY_CONTENT_JSON', false);
+}
+
 $logical_theme_content_json_bootstrap = get_stylesheet_directory() . '/inc/content-json.php';
 if (file_exists($logical_theme_content_json_bootstrap)) {
     require_once $logical_theme_content_json_bootstrap;
 }
-$logical_theme_content_json_sync_bootstrap = get_stylesheet_directory() . '/inc/content-json-sync.php';
-if (file_exists($logical_theme_content_json_sync_bootstrap)) {
-    require_once $logical_theme_content_json_sync_bootstrap;
+$logical_theme_layout_io_bootstrap = get_stylesheet_directory() . '/inc/content-layout-io.php';
+if (file_exists($logical_theme_layout_io_bootstrap)) {
+    require_once $logical_theme_layout_io_bootstrap;
 }
 $logical_theme_custom_blocks_bootstrap = get_stylesheet_directory() . '/inc/custom-blocks.php';
 if (file_exists($logical_theme_custom_blocks_bootstrap)) {
@@ -90,14 +94,16 @@ if (!function_exists('logical_theme_build_color_context_css')) {
         );
 
         $css_lines = array(
-            '.logical-theme-color-surface{background-color:var(--logical-surface-bg,transparent);}',
-            '.logical-theme-color-surface :where(p,li){color:var(--logical-color-body,currentColor);}',
-            '.logical-theme-color-surface :where(h1,h2,h3,h4,h5,h6){color:var(--logical-color-heading,var(--logical-color-body,currentColor));}',
-            '.logical-theme-color-surface .logical-color-body{color:var(--logical-color-body,currentColor);}',
-            '.logical-theme-color-surface .logical-color-heading{color:var(--logical-color-heading,var(--logical-color-body,currentColor));}',
-            '.logical-theme-color-surface .logical-color-eyebrow{color:var(--logical-color-eyebrow,var(--logical-color-heading,currentColor));}',
-            '.logical-theme-color-surface .logical-color-muted{color:var(--logical-color-muted,var(--logical-color-body,currentColor));}',
-            '.logical-theme-color-surface .logical-color-border{border-color:var(--logical-color-muted,currentColor);}',
+            '.logical-theme-color-surface{background-color:var(--logical-surface-bg,var(--wp--style--color--background,transparent));}',
+            '.logical-theme-color-surface :where(p,li){color:var(--logical-color-body,var(--wp--style--color--text,currentColor));}',
+            '.logical-theme-color-surface :where(h1,h2,h3,h4,h5,h6){color:var(--logical-color-heading,var(--logical-color-body,var(--wp--style--color--text,currentColor)));}',
+            '.logical-theme-color-surface .logical-color-body{color:var(--logical-color-body,var(--wp--style--color--text,currentColor));}',
+            '.logical-theme-color-surface .logical-color-heading{color:var(--logical-color-heading,var(--logical-color-body,var(--wp--style--color--text,currentColor)));}',
+            '.logical-theme-color-surface .logical-color-eyebrow{color:var(--logical-color-eyebrow,var(--logical-color-heading,var(--wp--style--color--text,currentColor)));}',
+            '.logical-theme-color-surface .logical-color-muted{color:var(--logical-color-muted,var(--logical-color-body,var(--wp--style--color--text,currentColor)));}',
+            '.logical-theme-color-surface .logical-color-border{border-color:var(--logical-color-muted,var(--wp--style--color--text,currentColor));}',
+            '.logical-layout-block[class*="-font-family"] :where(.heading,.paragraph,.logical-layout-pretitle,.logical-layout-title,.logical-layout-text,.logical-layout-button){font-family:inherit;}',
+            '.logical-layout-block.has-text-color .logical-theme-color-surface :where(p,li,h1,h2,h3,h4,h5,h6,.logical-color-body,.logical-color-heading,.logical-color-eyebrow,.logical-color-muted){color:inherit;}',
         );
 
         $default_surface = in_array('white', $palette_slugs, true) ? 'white' : $palette_slugs[0];
