@@ -1,14 +1,17 @@
 (function ($) {
     function initDefaultFeaturedImagePicker() {
-        const selectButton = $('#pap-default-featured-image-select');
-        const removeButton = $('#pap-default-featured-image-remove');
-        const imageInput = $('#pap-default-featured-image-id');
-        const preview = $('.pap-default-featured-image-preview');
+        const selectButton = $('#tlt-default-featured-image-select');
+        const removeButton = $('#tlt-default-featured-image-remove');
+        const imageInput = $('#tlt-default-featured-image-id');
+        const preview = $('.tlt-default-featured-image-preview');
+
         if (!selectButton.length) {
             return;
         }
 
         let mediaFrame;
+
+        const labels = window.theLogicalThemeDefaultFeaturedImage || {};
 
         const escapeHtml = (text) =>
             String(text || '')
@@ -20,8 +23,8 @@
 
         const renderPlaceholder = () => {
             preview.html(
-                '<div class="pap-default-featured-image-placeholder">' +
-                    (papDefaultFeaturedImage?.placeholderText || '') +
+                '<div class="tlt-default-featured-image-placeholder">' +
+                    (labels.placeholderText || '') +
                     '</div>'
             );
         };
@@ -39,9 +42,9 @@
             }
 
             mediaFrame = wp.media({
-                title: papDefaultFeaturedImage?.frameTitle || '',
+                title: labels.frameTitle || '',
                 button: {
-                    text: papDefaultFeaturedImage?.chooseButton || '',
+                    text: labels.chooseButton || '',
                 },
                 library: { type: 'image' },
                 multiple: false,
@@ -49,9 +52,11 @@
 
             mediaFrame.on('select', () => {
                 const attachment = mediaFrame.state().get('selection').first();
+
                 if (!attachment) {
                     return;
                 }
+
                 const details = attachment.toJSON();
                 const imageUrl =
                     (details.sizes && details.sizes.medium && details.sizes.medium.url) ||
@@ -68,12 +73,12 @@
 
         removeButton.on('click', (event) => {
             event.preventDefault();
+
             if (removeButton.prop('disabled')) {
                 return;
             }
 
-            const confirmMessage = papDefaultFeaturedImage?.removeConfirm || '';
-            if (confirmMessage && !window.confirm(confirmMessage)) {
+            if (labels.removeConfirm && !window.confirm(labels.removeConfirm)) {
                 return;
             }
 

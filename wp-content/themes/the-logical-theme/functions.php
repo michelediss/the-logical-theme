@@ -28,6 +28,7 @@ function the_logical_theme_setup(): void
     add_theme_support('responsive-embeds');
     add_theme_support('editor-styles');
     add_theme_support('automatic-feed-links');
+    add_theme_support('post-thumbnails');
     add_editor_style('assets/css/editor.css');
 
     register_nav_menus([

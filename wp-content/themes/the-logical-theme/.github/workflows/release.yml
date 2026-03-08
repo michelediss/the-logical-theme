@@ -151,6 +151,12 @@ jobs:
               VERSION="${TAG#plugin-logical-social-share-v}"
               SOURCE_PATH="wp-content/plugins/logical-social-share"
               ;;
+            plugin-logical-cf7-sync-v*)
+              SLUG="logical-cf7-sync"
+              TYPE="plugin"
+              VERSION="${TAG#plugin-logical-cf7-sync-v}"
+              SOURCE_PATH="wp-content/plugins/logical-cf7-sync"
+              ;;
             plugin-turnstile-wp-v*)
               SLUG="turnstile-wp"
               TYPE="plugin"
