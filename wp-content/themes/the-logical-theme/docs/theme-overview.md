@@ -35,6 +35,24 @@
 - `style.css`: theme registration metadata required by WordPress.
 - `vite.config.js` and `tailwind.config.js`: build pipeline configuration.
 
+## JavaScript
+
+- `src/js/app.js` is the front-end bootstrap entrypoint. It waits for `DOMContentLoaded` and then initializes the small progressive-enhancement modules used by the theme.
+- `src/js/modules/` contains one module per concern:
+  - `fade-in.js` reveals eligible front-end sections on scroll with GSAP and `ScrollTrigger`. It only targets managed elements, skips nodes marked with `.no-fadein`, and shows content immediately when the user prefers reduced motion. Use `.no-fadein` consistently on sections that can appear above the fold so primary content does not load in a hidden state.
+  - `menu.js` keeps the theme-level `.menu-is-open` state on `<html>` synchronized with the core Navigation block responsive overlay, so scroll locking reflects the real open or closed state of the mobile menu.
+  - `page-transitions.js` handles subtle page entry animation and intercepts eligible same-origin links to run a short exit transition before navigation. External links, modified clicks, downloads, admin routes, and same-page hash jumps are ignored.
+- `src/js/blocks/` contains editor and front-end scripts for custom blocks. Shared entrypoints (`editor.js` and `view.js`) import block-specific modules so Vite can bundle them into the assets consumed by WordPress.
+- `src/js/patterns/` contains lightweight hooks for pattern-level DOM behavior. These hooks should stay optional and should not become a second application bootstrap layer.
+- Keep JavaScript as progressive enhancement. Theme templates, patterns, and custom blocks must remain usable without client-side JS.
+
+## Vite Asset Flow
+
+- In development, `inc/assets.php` checks whether the local Vite dev server is available and, if so, enqueues source entries such as `src/js/app.js` directly from `http://localhost:5173`.
+- In production, Vite builds the source files into `assets/` and writes `assets/.vite/manifest.json`. WordPress resolves the final bundle filenames from that manifest before enqueueing them.
+- The main front-end entrypoint is `src/js/app.js`. Additional entries exist for block editor scripts, block view scripts, SEO editor utilities, and CSS bundles as defined in `vite.config.js`.
+- When JavaScript or CSS files under `src/` change, run `npm run build` so the production bundles in `assets/` stay aligned with the source.
+
 ## Maintenance Notes
 
 - When source files in `src/` change, rebuild assets with `npm run build` so production bundles in `assets/` stay aligned.

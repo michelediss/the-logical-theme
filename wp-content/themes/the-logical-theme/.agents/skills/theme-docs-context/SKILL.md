@@ -1,6 +1,6 @@
 ---
 name: theme-docs-context
-description: Use this skill when a task depends on the canonical Markdown documentation of `the-logical-theme`. It loads and relies on every file in `docs/`: `docs/theme-overview.md`, `docs/allowed-blocks.md`, and `docs/custom-blocks.md`.
+description: "Use this skill when a task depends on the canonical Markdown documentation of `the-logical-theme`. It loads and relies on every file in `docs/`: `docs/theme-overview.md`, `docs/allowed-blocks.md`, and `docs/custom-blocks.md`."
 ---
 
 # Theme Docs Context
