@@ -117,6 +117,45 @@ export function getRunRoot(targetName, runId, explicitRoot) {
   return path.join(baseRoot, sanitizeSegment(targetName), sanitizeSegment(runId));
 }
 
+export function getRunManifestPath(runRoot) {
+  return path.join(runRoot, 'run-manifest.json');
+}
+
+export function parseIterationValue(rawValue, fallback = 1) {
+  const value = rawValue === undefined ? fallback : Number(rawValue);
+
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error('Iteration must be a positive integer.');
+  }
+
+  return value;
+}
+
+export function findHighestIteration(runRoot) {
+  const roots = [
+    path.join(runRoot, 'output'),
+    path.join(runRoot, 'performance'),
+    path.join(runRoot, 'reports'),
+  ];
+  let highest = 0;
+
+  for (const root of roots) {
+    if (!fileExists(root)) {
+      continue;
+    }
+
+    for (const name of fs.readdirSync(root)) {
+      const match = /^iter-(\d+)(?:\.[^.]+)?$/.exec(name);
+
+      if (match) {
+        highest = Math.max(highest, Number(match[1]));
+      }
+    }
+  }
+
+  return highest;
+}
+
 export function writeJson(filePath, data) {
   ensureDir(path.dirname(filePath));
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf8');
@@ -129,6 +168,18 @@ export function writeText(filePath, data) {
 
 export function fileExists(filePath) {
   return fs.existsSync(filePath);
+}
+
+export function readJsonFile(filePath) {
+  if (!fileExists(filePath)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
 }
 
 function isNonEmptyString(value) {
@@ -358,4 +409,187 @@ export function completeCaptureManifest(manifest) {
 
 export function logCaptureProgress(message) {
   process.stderr.write(`${message}\n`);
+}
+
+export function createRunManifest({ targetName, runId, runRoot }) {
+  return {
+    version: 1,
+    targetName,
+    runId,
+    runRoot,
+    current_iteration: 0,
+    baseline_generation: 0,
+    baseline_history: [],
+    resume_events: [],
+  };
+}
+
+function createInitialBaselineRecord() {
+  return {
+    generation: 1,
+    mode: 'initial',
+    refreshed_before_iteration: 1,
+    figma_capture_completed: false,
+    design_context_refreshed: false,
+    page_key: null,
+    figma_url: null,
+    note: null,
+  };
+}
+
+export function loadRunManifest(runRoot, { targetName = null, runId = null } = {}) {
+  const manifestPath = getRunManifestPath(runRoot);
+  const existing = readJsonFile(manifestPath);
+
+  if (existing) {
+    existing.current_iteration = Number.isInteger(existing.current_iteration) && existing.current_iteration >= 0
+      ? existing.current_iteration
+      : findHighestIteration(runRoot);
+    existing.baseline_generation = Number.isInteger(existing.baseline_generation) && existing.baseline_generation >= 0
+      ? existing.baseline_generation
+      : 0;
+    existing.baseline_history = Array.isArray(existing.baseline_history) ? existing.baseline_history : [];
+    existing.resume_events = Array.isArray(existing.resume_events) ? existing.resume_events : [];
+
+    return existing;
+  }
+
+  const manifest = createRunManifest({
+    targetName: targetName || path.basename(path.dirname(runRoot)),
+    runId: runId || path.basename(runRoot),
+    runRoot,
+  });
+
+  manifest.current_iteration = findHighestIteration(runRoot);
+
+  if (fileExists(path.join(runRoot, 'input', 'manifest.json'))) {
+    manifest.baseline_generation = 1;
+    manifest.baseline_history.push(createInitialBaselineRecord());
+  }
+
+  return manifest;
+}
+
+export function writeRunManifest(manifest) {
+  writeJson(getRunManifestPath(manifest.runRoot), manifest);
+}
+
+export function ensureRunManifest(runRoot, details = {}) {
+  const manifest = loadRunManifest(runRoot, details);
+  writeRunManifest(manifest);
+  return manifest;
+}
+
+export function ensureInitialBaseline(manifest, details = {}) {
+  if (manifest.baseline_history.length > 0) {
+    return manifest.baseline_history.at(-1);
+  }
+
+  const baseline = {
+    ...createInitialBaselineRecord(),
+    page_key: details.pageKey ?? null,
+    figma_url: details.figmaUrl ?? null,
+  };
+
+  manifest.baseline_generation = 1;
+  manifest.baseline_history.push(baseline);
+
+  return baseline;
+}
+
+export function recordBaselineSnapshot(manifest, {
+  mode = 'initial',
+  refreshedBeforeIteration = 1,
+  pageKey = null,
+  figmaUrl = null,
+  note = null,
+  figmaCaptureCompleted = false,
+  designContextRefreshed = false,
+} = {}) {
+  const generation = mode === 'initial' && manifest.baseline_history.length === 0
+    ? 1
+    : manifest.baseline_generation + 1;
+  const snapshot = {
+    generation,
+    mode,
+    refreshed_before_iteration: refreshedBeforeIteration,
+    figma_capture_completed: figmaCaptureCompleted,
+    design_context_refreshed: designContextRefreshed,
+    page_key: pageKey,
+    figma_url: figmaUrl,
+    note,
+  };
+
+  manifest.baseline_generation = generation;
+  manifest.baseline_history.push(snapshot);
+
+  return snapshot;
+}
+
+export function markBaselineCaptureComplete(manifest, updates = {}) {
+  const baseline = ensureInitialBaseline(manifest);
+
+  baseline.figma_capture_completed = updates.figmaCaptureCompleted ?? true;
+  if (updates.designContextRefreshed !== undefined) {
+    baseline.design_context_refreshed = updates.designContextRefreshed;
+  }
+  if (updates.pageKey !== undefined) {
+    baseline.page_key = updates.pageKey;
+  }
+  if (updates.figmaUrl !== undefined) {
+    baseline.figma_url = updates.figmaUrl;
+  }
+  if (updates.note !== undefined) {
+    baseline.note = updates.note;
+  }
+
+  return baseline;
+}
+
+export function recordResumeEvent(manifest, {
+  iteration,
+  baselineMode,
+  note = null,
+  baselineGeneration = null,
+  designContextRefreshRequired = false,
+} = {}) {
+  manifest.resume_events.push({
+    iteration,
+    baseline_mode: baselineMode,
+    baseline_generation: baselineGeneration,
+    design_context_refresh_required: designContextRefreshRequired,
+    note,
+  });
+}
+
+export function setCurrentIteration(manifest, iteration) {
+  manifest.current_iteration = Math.max(manifest.current_iteration || 0, iteration);
+}
+
+export function getNextIteration(manifest) {
+  return (manifest.current_iteration || 0) + 1;
+}
+
+export function getBaselineForIteration(manifest, iteration) {
+  if (!Array.isArray(manifest?.baseline_history) || manifest.baseline_history.length === 0) {
+    return null;
+  }
+
+  let active = manifest.baseline_history[0];
+
+  for (const baseline of manifest.baseline_history) {
+    if ((baseline.refreshed_before_iteration || 1) <= iteration) {
+      active = baseline;
+    }
+  }
+
+  return active;
+}
+
+export function getResumeEventForIteration(manifest, iteration) {
+  if (!Array.isArray(manifest?.resume_events)) {
+    return null;
+  }
+
+  return manifest.resume_events.find((event) => event.iteration === iteration) ?? null;
 }

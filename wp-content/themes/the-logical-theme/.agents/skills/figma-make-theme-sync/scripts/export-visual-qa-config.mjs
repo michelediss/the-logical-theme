@@ -20,6 +20,12 @@ const payload = {
       inp_ms: 200,
     },
   },
+  resume: {
+    supported: true,
+    strategy: 'same_run_unlimited_iteration',
+    baseline_modes: ['reuse', 'refresh'],
+    refresh_policy: 'refresh_requires_new_figma_screenshot_and_new_mcp_design_context_in_skill_workflow',
+  },
 };
 
 process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);

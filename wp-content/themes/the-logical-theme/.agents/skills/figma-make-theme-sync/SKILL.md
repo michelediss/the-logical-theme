@@ -50,6 +50,7 @@ Read runtime facts from these sources before generating code:
 - `.agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs`
 - `.agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs`
 - `.agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs`
 - `.agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs`
 
 During development, always read:
@@ -76,8 +77,10 @@ When the task depends on the Make app implementation, read `references/figma-mak
 12. Compose `templates/*.html` from patterns and parts instead of writing monolithic markup.
 13. Run WordPress screenshot capture for the current iteration.
 14. Run Lighthouse against the same WordPress URL for the current iteration.
-15. If Lighthouse is below threshold, apply low-risk remediation to the generated code, then repeat WordPress capture and Lighthouse until the page passes or the 3-iteration limit is reached.
-16. Finish page-oriented work with the visual QA and performance reports.
+15. If Lighthouse is below threshold, apply low-risk remediation to the generated code, then repeat WordPress capture and Lighthouse until the page passes or the default 3-iteration loop is exhausted.
+16. If the result is still unsatisfactory, continue on the same `run_id` with a resume cycle that appends `iter-4+`.
+17. On resume, let the user choose `reuse` or `refresh` for the Figma baseline. `refresh` means rerun both MCP design context and the Figma screenshot baseline.
+18. Finish page-oriented work with the visual QA and performance reports.
 
 ## Hard Rules
 
@@ -95,3 +98,4 @@ When the task depends on the Make app implementation, read `references/figma-mak
 - Treat Lighthouse as lab-data validation of the generated WordPress page, not as field data or as a Figma Make audit.
 - Use a soft gate for performance: do not claim a full pass while mobile Lighthouse remains below threshold, but prefer warning or max-iterations status over destructive layout changes.
 - Auto-remediation is allowed only for low-risk fixes such as image loading hints, preload/preconnect, asset deferral, missing dimensions, or similarly local changes tied to the generated output.
+- Use `run-manifest.json` as the source of truth for current iteration, baseline generations, and resume history on a shared `run_id`.

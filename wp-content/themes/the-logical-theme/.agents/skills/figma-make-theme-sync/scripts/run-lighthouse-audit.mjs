@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   ensureDir,
+  ensureRunManifest,
   getRunRoot,
   loadFigmaConfig,
   parseArgs,
+  parseIterationValue,
   readCanonicalArg,
   requireCanonicalArg,
   requireRunId,
   resolveSiteCaptureUrl,
+  setCurrentIteration,
   writeJson,
   writeText,
+  writeRunManifest,
 } from './visual-qa-common.mjs';
 
 const DEFAULT_THRESHOLDS = {
@@ -20,16 +25,6 @@ const DEFAULT_THRESHOLDS = {
   cls: 0.1,
   inp_ms: 200,
 };
-
-function getIteration(args) {
-  const iteration = Number(readCanonicalArg(args, 'iteration') || 1);
-
-  if (!Number.isInteger(iteration) || iteration < 1 || iteration > 3) {
-    throw new Error('Iteration must be an integer between 1 and 3');
-  }
-
-  return iteration;
-}
 
 function normalizeNumber(value) {
   return Number.isFinite(value) ? value : null;
@@ -198,26 +193,25 @@ async function loadLighthouseDependencies() {
   }
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
-  const config = loadFigmaConfig();
-  const pageKey = readCanonicalArg(args, 'page-key', ['pageKey', 'page_key']);
-  const previewUrl = readCanonicalArg(args, 'preview-url', ['url', 'previewUrl', 'preview_url']);
-  const targetName = requireCanonicalArg(args, 'target-name', ['targetName', 'target_name']);
-  const runId = requireRunId(args);
-  const artifactRoot = readCanonicalArg(args, 'artifact-root', ['artifactRoot', 'artifact_root']);
-  const iteration = getIteration(args);
-  const appliedFixes = String(readCanonicalArg(args, 'applied-fixes', ['appliedFixes', 'applied_fixes']) || '')
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
+export async function runLighthouseAudit({
+  targetName,
+  runId,
+  artifactRoot,
+  pageKey = null,
+  previewUrl,
+  iteration = 1,
+  appliedFixes = [],
+  config = loadFigmaConfig(),
+}) {
   const pageUrl = resolveSiteCaptureUrl({
     explicitUrl: previewUrl,
     pageKey,
     config,
   });
   const runRoot = getRunRoot(targetName, runId, artifactRoot);
-  const outputDir = ensureDir(path.join(runRoot, 'performance', `iter-${iteration}`));
+  const normalizedIteration = parseIterationValue(iteration, 1);
+  const runManifest = ensureRunManifest(runRoot, { targetName, runId });
+  const outputDir = ensureDir(path.join(runRoot, 'performance', `iter-${normalizedIteration}`));
   const thresholds = { ...DEFAULT_THRESHOLDS };
   const { lighthouse, chromeLauncher } = await loadLighthouseDependencies();
 
@@ -231,7 +225,7 @@ async function main() {
   const summary = {
     targetName,
     runId,
-    iteration,
+    iteration: normalizedIteration,
     url: pageUrl,
     runRoot,
     status: mobile.failures.length === 0 ? 'pass' : 'warning',
@@ -243,15 +237,52 @@ async function main() {
   };
 
   const summaryPath = path.join(outputDir, 'summary.json');
-  const markdownPath = path.join(runRoot, 'reports', `performance-iter-${iteration}.md`);
+  const markdownPath = path.join(runRoot, 'reports', `performance-iter-${normalizedIteration}.md`);
 
   writeJson(summaryPath, summary);
   writeText(markdownPath, buildMarkdown(summary));
+  setCurrentIteration(runManifest, normalizedIteration);
+  writeRunManifest(runManifest);
 
-  process.stdout.write(`${summaryPath}\n`);
+  return {
+    summaryPath,
+    markdownPath,
+    runRoot,
+    iteration: normalizedIteration,
+    pageUrl,
+  };
 }
 
-main().catch((error) => {
-  process.stderr.write(`${error.message}\n`);
-  process.exit(1);
-});
+async function main() {
+  const args = parseArgs(process.argv);
+  const config = loadFigmaConfig();
+  const pageKey = readCanonicalArg(args, 'page-key', ['pageKey', 'page_key']);
+  const previewUrl = readCanonicalArg(args, 'preview-url', ['url', 'previewUrl', 'preview_url']);
+  const targetName = requireCanonicalArg(args, 'target-name', ['targetName', 'target_name']);
+  const runId = requireRunId(args);
+  const artifactRoot = readCanonicalArg(args, 'artifact-root', ['artifactRoot', 'artifact_root']);
+  const iteration = parseIterationValue(readCanonicalArg(args, 'iteration'), 1);
+  const appliedFixes = String(readCanonicalArg(args, 'applied-fixes', ['appliedFixes', 'applied_fixes']) || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const result = await runLighthouseAudit({
+    targetName,
+    runId,
+    artifactRoot,
+    pageKey,
+    previewUrl,
+    iteration,
+    appliedFixes,
+    config,
+  });
+
+  process.stdout.write(`${result.summaryPath}\n`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    process.stderr.write(`${error.message}\n`);
+    process.exit(1);
+  });
+}

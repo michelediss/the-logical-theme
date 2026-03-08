@@ -22,6 +22,7 @@
     "visual-qa:figma": "node .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs",
     "visual-qa:wp": "node .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs",
     "visual-qa:lighthouse": "node .agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs",
+    "visual-qa:resume": "node .agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs",
     "visual-qa:report": "node .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs"
   },
   "dependencies": {

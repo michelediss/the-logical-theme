@@ -6,13 +6,23 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { getRunRoot } from '../scripts/visual-qa-common.mjs';
+import {
+  createRunManifest,
+  getBaselineForIteration,
+  getRunRoot,
+  loadRunManifest,
+  recordBaselineSnapshot,
+  recordResumeEvent,
+  writeRunManifest,
+} from '../scripts/visual-qa-common.mjs';
+import { runVisualQaReport } from '../scripts/prepare-visual-qa-report.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const themeRoot = path.resolve(__dirname, '../../../..');
 const figmaCaptureScript = path.join(themeRoot, '.agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs');
 const wpCaptureScript = path.join(themeRoot, '.agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs');
 const lighthouseAuditScript = path.join(themeRoot, '.agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs');
+const resumeScript = path.join(themeRoot, '.agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs');
 const reportScript = path.join(themeRoot, '.agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs');
 
 function runNode(scriptPath, args) {
@@ -49,6 +59,15 @@ test('prepare-report requires --run-id', () => {
 
 test('lighthouse audit requires --run-id', () => {
   const result = runNode(lighthouseAuditScript, ['--target-name', 'page']);
+
+  assert.equal(result.status, 1);
+  if (!hasSandboxSpawnError(result)) {
+    assert.match(getCombinedOutput(result), /--run-id/);
+  }
+});
+
+test('resume runner requires --run-id', () => {
+  const result = runNode(resumeScript, ['--target-name', 'page']);
 
   assert.equal(result.status, 1);
   if (!hasSandboxSpawnError(result)) {
@@ -163,4 +182,98 @@ test('prepare-report includes lighthouse summary when present', () => {
   assert.equal(result.status, 0);
   assert.equal(report.performance_audit.status, 'warning');
   assert.match(fs.readFileSync(reportMarkdown, 'utf8'), /Performance Audit/);
+});
+
+test('loadRunManifest infers current iteration from existing iter directories', () => {
+  const artifactRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'figma-skill-manifest-'));
+  const runRoot = path.join(artifactRoot, 'page', 'contract-test');
+
+  fs.mkdirSync(path.join(runRoot, 'output', 'iter-4'), { recursive: true });
+
+  const manifest = loadRunManifest(runRoot, { targetName: 'page', runId: 'contract-test' });
+
+  assert.equal(manifest.current_iteration, 4);
+});
+
+test('runVisualQaReport supports iter-4 and includes resume context', async () => {
+  const artifactRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'figma-skill-iter4-'));
+  const runRoot = path.join(artifactRoot, 'page', 'contract-test');
+  const reportDir = path.join(runRoot, 'reports');
+  const outputDir = path.join(runRoot, 'output', 'iter-4');
+  const performanceDir = path.join(runRoot, 'performance', 'iter-4');
+  const inputDir = path.join(runRoot, 'input');
+  const manifest = createRunManifest({
+    targetName: 'page',
+    runId: 'contract-test',
+    runRoot,
+  });
+
+  fs.mkdirSync(reportDir, { recursive: true });
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.mkdirSync(performanceDir, { recursive: true });
+  fs.mkdirSync(inputDir, { recursive: true });
+  fs.writeFileSync(path.join(inputDir, 'manifest.json'), JSON.stringify({ status: 'completed' }, null, 2));
+  fs.writeFileSync(path.join(outputDir, 'manifest.json'), JSON.stringify({ status: 'completed' }, null, 2));
+  fs.writeFileSync(path.join(performanceDir, 'summary.json'), JSON.stringify({
+    targetName: 'page',
+    runId: 'contract-test',
+    iteration: 4,
+    url: 'http://example.com',
+    runRoot,
+    status: 'pass',
+    thresholds: {
+      performance_score: 0.75,
+      lcp_ms: 2500,
+      cls: 0.1,
+      inp_ms: 200,
+    },
+    mobile: { score: 0.9, web_vitals: { lcp: 2000, cls: 0.02, inp: 100 } },
+    desktop: { score: 0.95, web_vitals: { lcp: 1200, cls: 0.01, inp: 80 } },
+    applied_fixes: [],
+    remaining_failures: [],
+  }, null, 2));
+
+  recordBaselineSnapshot(manifest, {
+    mode: 'initial',
+    refreshedBeforeIteration: 1,
+    pageKey: 'home',
+    figmaUrl: 'https://www.figma.com/make/example',
+    figmaCaptureCompleted: true,
+    designContextRefreshed: false,
+  });
+  recordBaselineSnapshot(manifest, {
+    mode: 'refresh',
+    refreshedBeforeIteration: 4,
+    pageKey: 'home',
+    figmaUrl: 'https://www.figma.com/make/example?screen=refresh',
+    figmaCaptureCompleted: true,
+    designContextRefreshed: true,
+    note: 'refresh baseline',
+  });
+  recordResumeEvent(manifest, {
+    iteration: 4,
+    baselineMode: 'refresh',
+    baselineGeneration: 2,
+    designContextRefreshRequired: true,
+    note: 'new round',
+  });
+  manifest.current_iteration = 4;
+  writeRunManifest(manifest);
+
+  const report = await runVisualQaReport({
+    targetName: 'page',
+    runId: 'contract-test',
+    artifactRoot,
+    iteration: 4,
+    breakpoints: ['sm'],
+    finalStatus: 'pending_review',
+  });
+  const reportJson = JSON.parse(fs.readFileSync(report.jsonPath, 'utf8'));
+  const reportMarkdown = fs.readFileSync(report.markdownPath, 'utf8');
+
+  assert.equal(reportJson.iteration, 4);
+  assert.equal(reportJson.baseline.generation, 2);
+  assert.equal(reportJson.resume_event.baseline_mode, 'refresh');
+  assert.equal(getBaselineForIteration(manifest, 4).generation, 2);
+  assert.match(reportMarkdown, /Run Context/);
 });

@@ -76,10 +76,22 @@ input_schema:
           type: integer
           minimum: 1
           maximum: 3
-          description: Hard stop for the correction loop. Defaults to 3.
+          description: Default stop for the first correction loop. Additional iterations may continue on the same run_id through resume mode.
         figma_capture_url:
           type: string
           description: Optional explicit Figma Make URL to capture if it differs from figma.app_url.
+        resume:
+          type: object
+          description: Continue the same run_id with additional iter-N steps after the initial loop.
+          properties:
+            enabled:
+              type: boolean
+            baseline_mode:
+              type: string
+              enum:
+                - reuse
+                - refresh
+              description: Reuse the recorded Figma baseline or refresh it before the next iteration.
     performance_audit:
       type: object
       description: Lighthouse-based performance audit configuration for generated WordPress pages.
@@ -91,7 +103,7 @@ input_schema:
           type: integer
           minimum: 1
           maximum: 3
-          description: Shared correction-loop limit for visual and performance QA. Defaults to 3.
+          description: Default shared correction-loop limit for the initial pass. Resume mode may extend iter-N on the same run_id.
         applied_fixes:
           type: array
           items:
@@ -145,6 +157,8 @@ safety_rules:
   - Run Lighthouse on the generated WordPress page URL, not on Figma Make.
   - Treat Lighthouse as lab-data validation and keep performance as a soft gate.
   - Limit auto-remediation to low-risk fixes directly tied to generated output and local asset loading.
+  - When resuming a run, keep the same run_id and append new iter-N entries instead of starting a hidden new run.
+  - When the user selects baseline refresh, rerun both MCP design context and the local Figma screenshot baseline.
 runtime_notes:
   preferred_files:
     - figma.json
@@ -176,6 +190,7 @@ runtime_notes:
     wp_preview_url_flag: --preview-url
     figma_capture_url_flag: --figma-capture-url
     legacy_alias_policy: rejected
+    resume_script: .agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs
   page_mapping_resolution:
     site_url_priority:
       - preview_url
@@ -187,6 +202,8 @@ runtime_notes:
   visual_qa:
     breakpoints_source: .agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs
     max_iterations: 3
+    resume_supported: true
+    same_run_resume_strategy: unlimited_iter_n
     compare_mode: llm_screenshot_review_with_metrics
     run_id_required: true
     screenshot_backend: playwright
@@ -199,6 +216,7 @@ runtime_notes:
       figma_capture: .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs
       wp_capture: .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs
       lighthouse_audit: .agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs
+      resume: .agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs
       report: .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs
   performance_audit:
     provider: lighthouse

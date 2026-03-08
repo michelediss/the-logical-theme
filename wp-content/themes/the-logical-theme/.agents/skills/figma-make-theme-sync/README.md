@@ -127,6 +127,7 @@ For Figma screenshots:
 - `scripts/capture-figma-make-screenshots.mjs`
 - `scripts/capture-wp-screenshots.mjs`
 - `scripts/run-lighthouse-audit.mjs`
+- `scripts/resume-visual-qa-run.mjs`
 - `scripts/prepare-visual-qa-report.mjs`
 
 Theme npm scripts:
@@ -139,6 +140,7 @@ npm run visual-qa:figma -- --page-key home --target-name front-page --run-id hom
 npm run visual-qa:wp -- --page-key home --target-name front-page --run-id home-qa-1 --iteration 1
 npm run visual-qa:lighthouse -- --page-key home --target-name front-page --run-id home-qa-1 --iteration 1
 npm run visual-qa:report -- --target-name front-page --run-id home-qa-1 --iteration 1
+npm run visual-qa:resume -- --page-key home --target-name front-page --run-id home-qa-1 --baseline-mode reuse
 ./.agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh --field site_url --page-key home
 ```
 
@@ -156,6 +158,7 @@ Use the breakpoints exported by `scripts/export-visual-qa-config.mjs`.
 Artifacts:
 
 - `.artifacts/visual-qa/<target-name>/<run-id>/input/`
+- `.artifacts/visual-qa/<target-name>/<run-id>/run-manifest.json`
 - `.artifacts/visual-qa/<target-name>/<run-id>/output/iter-N/`
 - `.artifacts/visual-qa/<target-name>/<run-id>/diff/iter-N/`
 - `.artifacts/visual-qa/<target-name>/<run-id>/reports/`
@@ -204,6 +207,18 @@ Policy:
 - failed Lighthouse audits should trigger low-risk remediation on the generated code, then rerun WordPress capture plus Lighthouse
 - the loop stops after 3 iterations even if performance remains below threshold
 
+## Resume Workflow
+
+The default correction loop still aims to close within 3 iterations, but the run can now continue on the same `run_id` with additional iterations such as `iter-4`, `iter-5`, and beyond.
+
+Rules:
+
+- `run-manifest.json` is the source of truth for the current iteration, baseline generations, and resume events
+- `npm run visual-qa:resume` opens the next iteration automatically on the same `run_id`
+- `--baseline-mode reuse` keeps the existing Figma baseline in `input/`
+- `--baseline-mode refresh` refreshes the local Figma screenshot baseline and records that the skill workflow must also rerun MCP `get_design_context`
+- reports include the baseline generation and resume context used by each iteration
+
 ## Workflow Summary
 
 1. Read the theme structure and required docs context.
@@ -220,7 +235,8 @@ Policy:
 12. Run Lighthouse on the generated WordPress page and store mobile plus desktop reports.
 13. Produce a comparison report with objective metrics and performance summary.
 14. Use AI only for layout mapping, semantic mismatch analysis, and low-risk performance remediation.
-15. Correct and repeat until the result is satisfactory or the 3-iteration limit is reached.
+15. If the first 3-iteration loop is still unsatisfactory, continue on the same `run_id` with `visual-qa:resume` and either `reuse` or `refresh` baseline mode.
+16. Correct and repeat until the result is satisfactory.
 
 For `theme.json` generation, use this decision order:
 
