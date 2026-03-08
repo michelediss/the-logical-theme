@@ -1,5 +1,23 @@
 name: figma-make-theme-sync
 description: Generate Gutenberg-compatible theme.json suggestions, block patterns, template parts, and templates for the-logical-theme from a repository-local figma.json that points to a Figma Make app URL.
+tooling:
+  allowed_tools:
+    - functions.exec_command
+    - functions.list_mcp_resources
+    - functions.list_mcp_resource_templates
+    - functions.read_mcp_resource
+    - functions.mcp__figma__get_design_context
+    - functions.mcp__figma__get_screenshot
+  required_tools:
+    - functions.exec_command
+    - functions.mcp__figma__get_design_context
+    - functions.mcp__figma__get_screenshot
+  optional_tools:
+    - functions.list_mcp_resources
+    - functions.list_mcp_resource_templates
+    - functions.read_mcp_resource
+  fallback_without_figma_mcp: false
+  requires_visual_context: true
 context:
   platform: wordpress
   theme: the-logical-theme
@@ -94,6 +112,8 @@ safety_rules:
   - Read figma.json from the theme root as the only Figma configuration source.
   - Read docs/theme-overview.md, docs/allowed-blocks.md, and docs/custom-blocks.md before generating code.
   - Stop if figma.source is not make or if figma.app_url is missing or malformed.
+  - Stop if mcp__figma__get_design_context is unavailable.
+  - Stop if mcp__figma__get_screenshot is unavailable.
   - Validate figma.pages mappings when provided, and stop on the exact invalid key.
   - Never invent node ids, frame ids, or alternate Figma URLs.
   - Respect the existing block-theme conventions before writing code.
@@ -111,10 +131,12 @@ runtime_notes:
     - .artifacts/visual-qa/
   verified_tool_split:
     make_source_introspection: mcp__figma__get_design_context
-    make_visual_capture: playwright_scripts
+    make_visual_reference: mcp__figma__get_screenshot
+    visual_qa_execution: playwright_scripts
     notes:
       - For Figma Make files, use MCP to inspect source structure and asset references.
-      - For screenshots and visual QA, use the repository Playwright scripts rather than relying on MCP screenshot-style tools.
+      - Use MCP screenshots as required visual context for the same Make app under review.
+      - Use the repository Playwright scripts for the visual QA loop and output capture.
       - get_metadata is not the primary inspection path for Figma Make.
   resolver_scripts:
     blocks: .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php
