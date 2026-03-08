@@ -1,0 +1,10 @@
+@layer utilities {
+  .fade-target {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+
+  .menu-is-open {
+    overflow: hidden;
+  }
+}

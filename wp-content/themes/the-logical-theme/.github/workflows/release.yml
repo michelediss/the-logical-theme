@@ -110,10 +110,10 @@ jobs:
 
           case "$TAG" in
             theme-logical-theme-v*)
-              SLUG="logical-theme"
+              SLUG="the-logical-theme"
               TYPE="theme"
               VERSION="${TAG#theme-logical-theme-v}"
-              SOURCE_PATH="wp-content/themes/logical-theme"
+              SOURCE_PATH="wp-content/themes/the-logical-theme"
               ;;
             plugin-logical-cookie-consent-v*)
               SLUG="logical-cookie-consent"

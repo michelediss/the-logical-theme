@@ -1,0 +1,5 @@
+body {
+  background: var(--wp--preset--color--canvas);
+  color: var(--wp--preset--color--foreground);
+  font-family: var(--wp--preset--font-family--sans);
+}
