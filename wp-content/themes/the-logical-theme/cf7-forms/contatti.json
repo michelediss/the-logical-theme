@@ -1,0 +1,34 @@
+{
+  "slug": "contatti",
+  "title": "Contatti",
+  "status": "publish",
+  "locale": "it_IT",
+  "form": "<label> Nome\n    [text* your-name autocomplete:name] </label>\n\n<label> Email\n    [email* your-email autocomplete:email] </label>\n\n<label> Messaggio\n    [textarea* your-message] </label>\n\n[submit \"Invia\"]",
+  "mail": {
+    "active": true,
+    "subject": "[_site_title] Nuovo messaggio da [your-name]",
+    "sender": "[_site_title] <wordpress@localhost>",
+    "recipient": "info@example.com",
+    "body": "Nome: [your-name]\nEmail: [your-email]\n\nMessaggio:\n[your-message]",
+    "additional_headers": "Reply-To: [your-email]",
+    "attachments": "",
+    "use_html": false,
+    "exclude_blank": false
+  },
+  "mail_2": {
+    "active": false,
+    "subject": "Abbiamo ricevuto il tuo messaggio",
+    "sender": "[_site_title] <wordpress@localhost>",
+    "recipient": "[your-email]",
+    "body": "Ciao [your-name],\n\nabbiamo ricevuto il tuo messaggio e ti risponderemo al piu presto.",
+    "additional_headers": "",
+    "attachments": "",
+    "use_html": false,
+    "exclude_blank": false
+  },
+  "messages": {
+    "mail_sent_ok": "Grazie, il tuo messaggio e stato inviato.",
+    "mail_sent_ng": "Si e verificato un errore durante l'invio del messaggio. Riprova."
+  },
+  "additional_settings": ""
+}

@@ -15,7 +15,7 @@ on:
           - all
           - single
       tag:
-        description: "Richiesto solo con mode=single (es: plugin-logical-cookie-consent-v1.4.0)"
+        description: "Richiesto solo con mode=single (es: plugin-cf7-sync-v1.4.0)"
         required: false
         type: string
       seq:
@@ -66,6 +66,7 @@ jobs:
               "plugin-logical-design-system-preview-v${BASE_VERSION}"
               "plugin-logical-seo-toolbox-v${BASE_VERSION}"
               "plugin-logical-social-share-v${BASE_VERSION}"
+              "plugin-cf7-sync-v${BASE_VERSION}"
               "plugin-turnstile-wp-v${BASE_VERSION}"
             )
           fi
@@ -151,11 +152,11 @@ jobs:
               VERSION="${TAG#plugin-logical-social-share-v}"
               SOURCE_PATH="wp-content/plugins/logical-social-share"
               ;;
-            plugin-logical-cf7-sync-v*)
-              SLUG="logical-cf7-sync"
+            plugin-cf7-sync-v*)
+              SLUG="cf7-sync"
               TYPE="plugin"
-              VERSION="${TAG#plugin-logical-cf7-sync-v}"
-              SOURCE_PATH="wp-content/plugins/logical-cf7-sync"
+              VERSION="${TAG#plugin-cf7-sync-v}"
+              SOURCE_PATH="wp-content/plugins/cf7-sync"
               ;;
             plugin-turnstile-wp-v*)
               SLUG="turnstile-wp"

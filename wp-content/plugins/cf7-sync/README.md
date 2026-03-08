@@ -1,4 +1,4 @@
-# Logical CF7 Sync
+# CF7 Sync
 
 `cf7-sync` is a small WordPress plugin that synchronizes Contact Form 7 forms from versioned JSON manifests through WP-CLI.
 
@@ -20,7 +20,7 @@
 The plugin registers this command:
 
 ```bash
-wp logical cf7 sync
+wp cf7 sync
 ```
 
 Supported options:
@@ -32,20 +32,20 @@ Supported options:
 Examples:
 
 ```bash
-wp logical cf7 sync --dir=wp-content/cf7-forms
-wp logical cf7 sync --slug=contatti --dry-run
+wp cf7 sync --dir=wp-content/themes/the-logical-theme/cf7-forms
+wp cf7 sync --slug=contatti --dry-run
 ```
 
 If `--dir` is omitted, the default directory is:
 
 ```text
-wp-content/cf7-forms
+wp-content/themes/the-logical-theme/cf7-forms
 ```
 
 ## How Matching Works
 
 - Each manifest must define a unique `slug`.
-- The plugin stores that slug in the CF7 post meta key `_logical_cf7_slug`.
+- The plugin stores that slug in the CF7 post meta key `_cf7_sync_slug`.
 - On sync, the plugin looks up an existing `wpcf7_contact_form` post by that meta value.
 - If no matching form exists, it creates one.
 - If a matching form exists, it compares the normalized current snapshot against the manifest snapshot and updates only when something changed.

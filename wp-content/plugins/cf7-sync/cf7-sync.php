@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Logical CF7 Sync
+ * Plugin Name: CF7 Sync
  * Description: Sync Contact Form 7 forms from versioned JSON manifests via WP-CLI.
  * Version: 0.1.0
  * Plugin URI: https://github.com/michelediss/the-logical-theme
@@ -12,11 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'Logical_CF7_Sync_Plugin' ) ) {
-	final class Logical_CF7_Sync_Plugin {
-		const VERSION          = '0.1.0';
-		const FORM_META_SLUG   = '_logical_cf7_slug';
-		const DEFAULT_FORMS_DIR = 'wp-content/cf7-forms';
+if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
+	final class CF7_Sync_Plugin {
+		const VERSION           = '0.1.0';
+		const FORM_META_SLUG    = '_cf7_sync_slug';
+		const DEFAULT_FORMS_DIR = 'wp-content/themes/the-logical-theme/cf7-forms';
 
 		public static function init() {
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -29,7 +29,7 @@ if ( ! class_exists( 'Logical_CF7_Sync_Plugin' ) ) {
 				return;
 			}
 
-			WP_CLI::add_command( 'logical cf7 sync', [ __CLASS__, 'handle_sync_command' ] );
+			WP_CLI::add_command( 'cf7 sync', [ __CLASS__, 'handle_sync_command' ] );
 		}
 
 		/**
@@ -48,8 +48,8 @@ if ( ! class_exists( 'Logical_CF7_Sync_Plugin' ) ) {
 		 *
 		 * ## EXAMPLES
 		 *
-		 *     wp logical cf7 sync --dir=wp-content/cf7-forms
-		 *     wp logical cf7 sync --slug=contatti --dry-run
+		 *     wp cf7 sync --dir=wp-content/themes/the-logical-theme/cf7-forms
+		 *     wp cf7 sync --slug=contatti --dry-run
 		 */
 		public static function handle_sync_command( $args, $assoc_args ) {
 			unset( $args );
@@ -487,5 +487,5 @@ if ( ! class_exists( 'Logical_CF7_Sync_Plugin' ) ) {
 		}
 	}
 
-	Logical_CF7_Sync_Plugin::init();
+	CF7_Sync_Plugin::init();
 }
