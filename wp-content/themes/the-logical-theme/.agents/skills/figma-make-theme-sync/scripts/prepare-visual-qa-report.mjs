@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   BREAKPOINTS,
@@ -8,9 +10,51 @@ import {
   getBreakpointList,
   getRunRoot,
   parseArgs,
+  readCanonicalArg,
+  requireCanonicalArg,
+  requireRunId,
   writeJson,
   writeText,
 } from './visual-qa-common.mjs';
+
+function readPngMetadata(filePath) {
+  if (!fileExists(filePath)) {
+    return null;
+  }
+
+  const buffer = fs.readFileSync(filePath);
+
+  if (buffer.length < 24 || buffer.toString('ascii', 12, 16) !== 'IHDR') {
+    return {
+      byte_size: buffer.length,
+      sha256: crypto.createHash('sha256').update(buffer).digest('hex'),
+      format: 'unknown',
+    };
+  }
+
+  return {
+    byte_size: buffer.length,
+    sha256: crypto.createHash('sha256').update(buffer).digest('hex'),
+    format: 'png',
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20),
+  };
+}
+
+function buildObjectiveMetrics(inputPath, outputPath, viewport) {
+  const input = readPngMetadata(inputPath);
+  const output = readPngMetadata(outputPath);
+
+  return {
+    input_exists: Boolean(input),
+    output_exists: Boolean(output),
+    viewport,
+    input,
+    output,
+    identical_binary: Boolean(input && output && input.sha256 === output.sha256),
+    byte_delta: input && output ? output.byte_size - input.byte_size : null,
+  };
+}
 
 function buildMarkdown(report) {
   const lines = [
@@ -30,9 +74,20 @@ function buildMarkdown(report) {
     lines.push(`- Input: \`${entry.input}\``);
     lines.push(`- Output: \`${entry.output}\``);
     lines.push(`- Review status: \`${entry.review_status}\``);
+    lines.push(`- Binary identical: \`${entry.objective_metrics.identical_binary}\``);
+    lines.push(`- Byte delta: \`${entry.objective_metrics.byte_delta}\``);
+    if (entry.capture_manifest_status) {
+      lines.push(`- Capture manifest status: \`${entry.capture_manifest_status}\``);
+    }
     lines.push(`- Notes: ${entry.notes.length > 0 ? entry.notes.join('; ') : 'pending manual/LLM review'}`);
     lines.push('');
   }
+
+  lines.push('## Objective Metrics');
+  lines.push('');
+  lines.push('- Each entry includes viewport, file presence, PNG dimensions, SHA-256 hashes, and byte deltas.');
+  lines.push('- Use these metrics to detect missing captures or obviously inconsistent output before semantic review.');
+  lines.push('');
 
   lines.push('## Review Checklist');
   lines.push('');
@@ -55,23 +110,32 @@ function buildFinalSummary(targetName, runRoot, finalStatus, iteration) {
     `- Last iteration: \`${iteration}\``,
     `- Run root: \`${runRoot}\``,
     '',
-    'Open the latest `reports/iter-N.json` and `reports/iter-N.md` files to complete the LLM screenshot review and document any residual mismatches.',
+    'Use the latest `reports/iter-N.json` objective metrics first, then complete the semantic screenshot review and document residual mismatches.',
     '',
   ].join('\n');
 }
 
+function readManifestStatus(filePath) {
+  if (!fileExists(filePath)) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return typeof decoded.status === 'string' ? decoded.status : null;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv);
-  const targetName = args['target-name'] || args.targetName;
-  const runId = args['run-id'] || args.runId;
-  const artifactRoot = args['artifact-root'] || args.artifactRoot;
-  const iteration = Number(args.iteration || 1);
-  const breakpoints = getBreakpointList(args.breakpoints);
-  const finalStatus = args['final-status'] || args.finalStatus || 'pending_review';
-
-  if (!targetName) {
-    throw new Error('Missing required --target-name');
-  }
+  const targetName = requireCanonicalArg(args, 'target-name', ['targetName', 'target_name']);
+  const runId = requireRunId(args);
+  const artifactRoot = readCanonicalArg(args, 'artifact-root', ['artifactRoot', 'artifact_root']);
+  const iteration = Number(readCanonicalArg(args, 'iteration') || 1);
+  const breakpoints = getBreakpointList(readCanonicalArg(args, 'breakpoints'));
+  const finalStatus = readCanonicalArg(args, 'final-status', ['finalStatus', 'final_status']) || 'pending_review';
 
   if (!Number.isInteger(iteration) || iteration < 1 || iteration > 3) {
     throw new Error('Iteration must be an integer between 1 and 3');
@@ -83,6 +147,8 @@ async function main() {
   const entries = breakpoints.map((breakpoint) => {
     const inputPath = path.join(runRoot, 'input', `${breakpoint}.png`);
     const outputPath = path.join(runRoot, 'output', `iter-${iteration}`, `${breakpoint}.png`);
+    const inputManifestPath = path.join(runRoot, 'input', 'manifest.json');
+    const outputManifestPath = path.join(runRoot, 'output', `iter-${iteration}`, 'manifest.json');
     const missing = [];
 
     if (!fileExists(inputPath)) {
@@ -100,6 +166,8 @@ async function main() {
       output: outputPath,
       diff_dir: diffDir,
       review_status: missing.length > 0 ? 'blocked' : 'pending',
+      capture_manifest_status: readManifestStatus(outputManifestPath) || readManifestStatus(inputManifestPath),
+      objective_metrics: buildObjectiveMetrics(inputPath, outputPath, BREAKPOINTS[breakpoint]),
       checklist: [
         'layout_spacing',
         'content_hierarchy',
@@ -117,6 +185,7 @@ async function main() {
     iteration,
     status: entries.some((entry) => entry.review_status === 'blocked') ? 'blocked' : 'pending_review',
     finalStatus,
+    compare_mode: 'llm_screenshot_review_with_metrics',
     entries,
   };
 

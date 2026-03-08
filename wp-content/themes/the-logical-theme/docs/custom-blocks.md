@@ -60,6 +60,7 @@ src/css/blocks.css
 - Do not manually add a new custom block to `partials/block-availability.php` unless there is an explicit exception.
 - Always update `docs/allowed-blocks.md` when adding a new custom block so the AI skill that generates templates can use newly available blocks as well.
 - Do not duplicate runtime logic in that file: document availability and usage rules only.
+- The `figma-make-theme-sync` skill should discover custom block availability from runtime exports, then use this document only for implementation standards and usage constraints.
 
 ## Minimum Checklist
 

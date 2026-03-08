@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "skill:export-blocks": "php .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php",
+    "skill:export-tokens": "node .agents/skills/figma-make-theme-sync/scripts/export-theme-tokens.mjs",
+    "skill:export-visual-qa": "node .agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs",
+    "skill:test-visual-qa": "node --test .agents/skills/figma-make-theme-sync/tests/*.test.mjs",
     "visual-qa:figma": "node .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs",
     "visual-qa:wp": "node .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs",
     "visual-qa:report": "node .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs"

@@ -9,6 +9,8 @@ Custom theme blocks are also allowed. The runtime source of truth is:
 
 Do not treat this file as the only source of truth for custom blocks. When a custom block exists in `blocks/*/block.json`, it is considered allowed unless project instructions say otherwise.
 
+For `figma-make-theme-sync`, this file is required development guidance, not the canonical runtime block registry. The skill should read the runtime export from `.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php` first, then use this document to decide how the available blocks should be composed.
+
 ## General rules
 
 - Prefer simple structure first: `group` -> content blocks -> optional spacing/separators.

@@ -27,6 +27,7 @@
 - `inc/blocks.php`: custom block discovery and registration.
 - `inc/patterns.php`: block pattern registration loader.
 - `theme.json`: design system and editor configuration.
+- `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, and visual QA tooling for Figma Make to Gutenberg workflows.
 - `src/js/app.js`: front-end bootstrap entrypoint.
 - `src/js/blocks/editor.js`: shared editor entry for custom blocks.
 - `src/js/blocks/view.js`: shared front-end entry for custom block behavior.
@@ -59,3 +60,4 @@
 - Keep new PHP APIs prefixed with `the_logical_theme_` to avoid collisions with plugins or other themes.
 - Prefer block patterns and `theme.json` settings over custom PHP rendering unless the editor cannot express the requirement cleanly.
 - When adding a new custom block, update both `docs/custom-blocks.md` and `docs/allowed-blocks.md` if the block should be available to AI-assisted template generation.
+- The `figma-make-theme-sync` skill must read `docs/` during development, but runtime facts for blocks, tokens, and visual QA must come from theme code and its resolver scripts.

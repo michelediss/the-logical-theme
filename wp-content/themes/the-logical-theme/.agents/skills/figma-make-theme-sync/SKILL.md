@@ -7,85 +7,88 @@ description: Generate Gutenberg-compatible theme.json suggestions, block pattern
 
 Use this skill when the user wants Gutenberg-compatible code for `the-logical-theme` based on Figma Make.
 
-This skill is template-first and includes an iterative visual QA loop driven by screenshots. When the task is page-oriented, the minimum acceptable output is at least one working file in `templates/` plus a matching visual validation pass.
+This skill is tool-driven. It should alternate short prompts with repository-local scripts so runtime facts come from the theme itself instead of from hardcoded markdown.
 
-This skill is repository-local on purpose. It must read the theme's real files before generating anything:
+## Runtime Sources Of Truth
+
+Read runtime facts from these files and scripts, in this order:
 
 - `figma.json`
-- `theme.json`
-- `inc/patterns.php`
-- `patterns/*.php`
-- `parts/*.html`
-- `templates/*.html`
+- `partials/block-availability.php`
+- `inc/blocks.php`
+- `blocks/*/block.json`
+- `.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php`
+- `.agents/skills/figma-make-theme-sync/scripts/export-theme-tokens.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh`
+- `.agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs`
+
+Do not restate block lists or breakpoint values from memory when the scripts above can resolve them.
+
+`theme.json` is not a primary design input of this skill. When the skill reads it through `export-theme-tokens.mjs`, treat it only as the current theme state to compare against or update.
+
+## Development Context
+
+During the development phase, always read all of these Markdown files before generating code:
+
 - `docs/theme-overview.md`
 - `docs/allowed-blocks.md`
 - `docs/custom-blocks.md`
-- `.artifacts/visual-qa/` when the task includes validation history
-- page mappings in `figma.json` when page-specific Figma/site URL relationships are configured
 
-## Repository assumptions
+Use them as development guidance:
 
-Treat the directory containing `figma.json` as the theme root. In this repository that root is the same directory that contains:
+- `docs/theme-overview.md` explains the theme architecture and naming conventions.
+- `docs/allowed-blocks.md` explains when to use allowed blocks.
+- `docs/custom-blocks.md` explains how custom theme blocks are structured and discovered.
 
-- `theme.json`
-- `patterns/`
-- `parts/`
-- `templates/`
-- `inc/`
+Rule:
 
-Do not read Figma configuration from any other file.
-
-## When to use
-
-Use this skill for requests such as:
-
-- generate a hero pattern from the figma make app
-- generate archive.html from figma context
-- propose theme.json tokens based on figma UI
-- map a Figma Make design into a Gutenberg template part for this theme
-
-Do not use this skill for generic React exports, custom block development, or plugin architecture unless the user explicitly asks for that.
+- runtime data from PHP/JSON/scripts wins over docs when they disagree
+- docs still must be read because they define theme conventions and maintenance expectations
+- if docs and runtime conflict, call out the mismatch explicitly
 
 ## Workflow
 
-1. Confirm the theme structure by checking `patterns/`, `parts/`, `templates/`, `inc/`, and `theme.json`.
-2. Read the current theme conventions from:
-   - `docs/theme-overview.md`
-   - `docs/allowed-blocks.md`
-   - `docs/custom-blocks.md` when the task may interact with custom blocks
-   - existing files in the target output directory
-3. Resolve the Figma Make URL by running `scripts/get-figma-app-url.sh`.
-4. Validate that `figma.json` contains:
-   - `figma.source` equal to `make`
-   - `figma.app_url` as the global Make app source
-   - optional `figma.pages` mappings for page-specific Figma/site URL relationships
-5. Parse the Make app/file identifier from `figma.app_url`.
-6. Retrieve Figma context through MCP using the Make app as the source of truth.
-7. Capture reference screenshots from Figma Make for all five Tailwind breakpoints before finalizing code.
-8. Generate only one of these target types unless the user explicitly asks for multiple:
-   - `theme.json` suggestions
-   - `patterns/*.php`
-   - `parts/*.html`
-   - `templates/*.html`
-9. When the task is page-oriented, always finish with at least one concrete `templates/*.html` artifact named by the user.
-10. Before writing code, compare the generated structure against the theme's existing conventions and the Gutenberg block whitelist below.
-11. Prefer the smallest change that matches the design intent.
-12. Capture output screenshots from WordPress, compare them against the Figma reference set, then iterate on the generated code until the comparison is satisfactory or the loop reaches the hard stop.
+1. Confirm the theme structure by checking `patterns/`, `parts/`, `templates/`, and `inc/`.
+2. Read the development context from all Markdown files in `docs/`.
+3. Validate `figma.json` and resolve URLs through `scripts/get-figma-app-url.sh` and `visual-qa-common.mjs`.
+4. Export runtime block availability with `scripts/export-theme-blocks.php`.
+5. Inspect the current `theme.json` state with `scripts/export-theme-tokens.mjs` only when you need to update or merge existing tokens.
+6. Export visual QA configuration with `scripts/export-visual-qa-config.mjs`.
+7. Retrieve Figma context through MCP using `figma.app_url` as the source of truth.
+8. Generate `theme.json` suggestions first when the task is page-oriented or system-oriented.
+9. Use the allowed blocks to build `patterns/*.php` for reusable sections before composing templates.
+10. Build `parts/*.html` when the page needs shared structural regions.
+11. Compose `templates/*.html` from those patterns and parts instead of writing monolithic template markup.
+12. For page-oriented work, always finish with:
+   - `theme.json` output or update suggestions
+   - at least one reusable pattern or part
+   - at least one concrete `templates/*.html` artifact named by the user
+13. Before writing code, compare the proposed structure against:
+   - exported block availability
+   - current theme token state when applicable
+   - existing files in the destination directory
+   - conventions in `docs/`
+14. Prefer the smallest change that matches the design intent.
+15. Run the visual QA loop with screenshots, metrics, and semantic review before considering the task complete.
 
-## Required task inputs
+## Required Task Inputs
 
 Use these inputs when the skill is invoked:
 
 - `task`: natural-language generation request
 - `target_type`: one of `theme.json`, `pattern`, `part`, or `template`
-- `target_name`: required for template work; the user explicitly names the template to generate, for example `page`, `front-page`, or a custom page template slug
+- `target_name`: required for page-oriented template work; the user explicitly names the template to generate, for example `page`, `front-page`, or a custom page template slug
+- `run_id`: required for the screenshot-driven visual QA loop; all capture and report steps must share it
 - `page_key`: optional logical key that resolves a configured pair of `figma_url` and `site_url` from `figma.json`
 - `output_path`: optional explicit destination path inside the theme
 - `preview_url`: optional override for the WordPress page URL used for output screenshots; it wins over any configured site mapping
 
 Do not assume a default page template. If the user says "sviluppa il template X", treat `X` as mandatory input and generate that template.
 
-## Configuration rules
+## Configuration Rules
 
 Expected config:
 
@@ -125,7 +128,7 @@ Error handling:
 - If `figma.pages` is malformed, stop and report the exact invalid key.
 - Never fall back to node ids, frame URLs, or view URLs.
 
-## MCP integration
+## MCP Integration
 
 Use `figma.app_url` as the global MCP configuration input.
 
@@ -150,7 +153,7 @@ Rules:
 - Always start from `figma.app_url`.
 - If MCP cannot provide usable context from the Make app URL alone, stop with a clear explanation instead of inventing missing identifiers.
 
-## Page URL mappings
+## Page URL Mappings
 
 `figma.json` can persist logical relationships between a Figma Make page URL and a site page URL.
 
@@ -176,29 +179,24 @@ Resolution priority:
 
 When a page mapping exists, prefer it for screenshot-based visual QA rather than making the user repeat raw URLs in every prompt.
 
-## Visual QA loop
+## Visual QA Loop
 
 The skill must validate generated code visually before considering the task complete.
 
-### Breakpoints
+Use the runtime visual QA config exported by `scripts/export-visual-qa-config.mjs`.
 
-Use exactly these five Tailwind breakpoints for every capture set:
+Rules:
 
-- `sm`: width `640`
-- `md`: width `768`
-- `lg`: width `1024`
-- `xl`: width `1280`
-- `2xl`: width `1536`
+- do not hardcode viewport sizes in the prompt if the export script can provide them
+- save full-page screenshots
+- store artifacts under `.artifacts/visual-qa/<target-name>/<run-id>/`
+- use the report JSON as the objective record of each iteration
+- use only canonical CLI flags when invoking the scripts:
+  - `--run-id`
+  - `--preview-url`
+  - `--figma-capture-url`
 
-Use a consistent browser height of `1600` and save full-page screenshots.
-
-### Artifact location
-
-Store every visual QA artifact under:
-
-- `wp-content/themes/the-logical-theme/.artifacts/visual-qa/<target-name>/<timestamp>/`
-
-Expected structure:
+Expected artifact structure:
 
 - `input/<breakpoint>.png`
 - `output/iter-1/<breakpoint>.png`
@@ -209,28 +207,38 @@ Expected structure:
 - `reports/iter-N.md`
 - `reports/final-summary.md`
 
-### Capture tooling
-
-Use the bundled Playwright scripts:
-
-- `scripts/capture-figma-make-screenshots.mjs`
-- `scripts/capture-wp-screenshots.mjs`
-- `scripts/prepare-visual-qa-report.mjs`
-- `scripts/get-figma-app-url.sh --field app_url|figma_url|site_url [--page-key KEY]`
-
-Run them from the theme root so their relative paths resolve correctly.
-
-### Loop rules
+### Loop Rules
 
 Follow this loop for template-oriented tasks:
 
-1. Capture Figma Make reference screenshots for the five breakpoints.
-2. Generate or update the target template and any supporting patterns, parts, or `theme.json` values required to match the design.
-3. Capture WordPress screenshots for the same five breakpoints.
-4. Prepare a comparison report for the current iteration.
-5. Compare input and output screenshots and identify concrete mismatches in structure, spacing, typography scale, media treatment, and CTA placement.
-6. If the result is satisfactory, stop and preserve the final screenshots and report.
-7. Otherwise, revise the generated code and repeat the cycle.
+1. Capture Figma Make reference screenshots for the configured breakpoints.
+2. Generate or update `theme.json` values required to match the design.
+3. Generate or update the supporting patterns and parts required by the page.
+4. Compose the target template from those patterns and parts.
+5. Capture WordPress screenshots for the same breakpoints.
+6. Prepare a comparison report for the current iteration.
+7. Review objective metrics first:
+   - missing files
+   - viewport metadata
+   - PNG dimensions
+   - SHA-256 hashes
+   - byte deltas
+8. Review semantic mismatches second:
+   - `layout_spacing`
+   - `content_hierarchy`
+   - `typography_scale`
+   - `media_crop_or_size`
+   - `cta_navigation_placement`
+9. If the result is satisfactory, stop and preserve the final screenshots and report.
+10. Otherwise, revise `theme.json`, patterns, parts, or template composition as needed and repeat the cycle.
+
+When invoking the scripts manually, use one shared run id across the loop, for example:
+
+```bash
+npm run visual-qa:figma -- --page-key home --target-name front-page --run-id home-qa-1
+npm run visual-qa:wp -- --page-key home --target-name front-page --run-id home-qa-1 --iteration 1
+npm run visual-qa:report -- --target-name front-page --run-id home-qa-1 --iteration 1
+```
 
 Hard stop:
 
@@ -240,21 +248,15 @@ Completion rule:
 
 - the task is complete only when the loop reaches a satisfactory comparison or the third iteration finishes with an explicit report of residual mismatches
 
-### Comparison policy
+The comparison remains AI-assisted, but the report must contain objective metrics before semantic review.
 
-The comparison is LLM-guided, not pixel-perfect.
+Real validation rules:
 
-When reviewing screenshots, classify issues at minimum as:
+- treat WordPress capture as the minimum required end-to-end browser validation
+- treat Figma capture as valid only when all configured breakpoints complete
+- if Figma capture fails or times out on a specific breakpoint, preserve partial artifacts and report the exact breakpoint instead of hanging silently
 
-- `layout_spacing`
-- `content_hierarchy`
-- `typography_scale`
-- `media_crop_or_size`
-- `cta_navigation_placement`
-
-Treat the result as satisfactory only when no structural or obviously responsive mismatch remains.
-
-## Code generation targets
+## Code Generation Targets
 
 ### `theme.json` suggestions
 
@@ -300,9 +302,9 @@ Rules:
 - prefer `core/template-part` for shared areas
 - use dynamic blocks only for archive, single, search, or other WordPress-driven content
 - keep the template compatible with Site Editor conventions
-- for page-oriented tasks, this is the minimum required final artifact
+- for page-oriented tasks, this artifact must be composed from generated patterns and parts whenever the layout can be decomposed that way
 
-## Theme constraints
+## Theme Constraints
 
 Respect these conventions at all times:
 
@@ -320,109 +322,6 @@ Prefer:
 - patterns for reusable sections
 - template parts for shared structural regions
 - plain block composition over custom PHP
+- templates as orchestration layers over patterns and parts, not as the first place where sections are authored
 
-## Gutenberg block whitelist
-
-Generate only these blocks unless the user explicitly requests otherwise.
-
-### Layout / Content
-
-- `core/group`
-- `core/columns`
-- `core/column`
-- `core/spacer`
-- `core/separator`
-- `core/heading`
-- `core/paragraph`
-- `core/list`
-- `core/list-item`
-- `core/quote`
-- `core/details`
-- `core/image`
-- `core/gallery`
-- `core/cover`
-- `core/media-text`
-- `core/buttons`
-- `core/button`
-- `core/accordion`
-- `core/accordion-item`
-- `core/accordion-heading`
-- `core/accordion-panel`
-- `core/social-links`
-- `core/social-link`
-- `core/search`
-
-### Theme / Site
-
-- `core/navigation`
-- `core/navigation-link`
-- `core/navigation-submenu`
-- `core/home-link`
-- `core/template-part`
-- `core/site-logo`
-- `core/site-title`
-- `core/site-tagline`
-
-### Dynamic / Post
-
-- `core/query`
-- `core/post-template`
-- `core/query-title`
-- `core/query-total`
-- `core/query-no-results`
-- `core/query-pagination`
-- `core/query-pagination-previous`
-- `core/query-pagination-numbers`
-- `core/query-pagination-next`
-- `core/post-title`
-- `core/post-content`
-- `core/post-excerpt`
-- `core/post-date`
-- `core/post-featured-image`
-- `core/post-terms`
-- `core/post-navigation-link`
-
-If the current theme contains blocks outside this list, do not copy them forward unless the user explicitly asks to keep them.
-
-## Gutenberg composition rules
-
-- Start with `core/group` as the default layout wrapper.
-- Use `core/columns` only when the design clearly needs side-by-side content.
-- Prefer `core/media-text` over manual columns for simple media-plus-copy layouts.
-- Use `core/spacer` sparingly; prefer token-driven spacing from `theme.json`.
-- Use `core/template-part` for shared header, footer, hero, or page-heading regions.
-- In templates, use `core/query` and related post blocks only for dynamic contexts.
-- In patterns, prefer static content placeholders and editor-friendly defaults.
-- Avoid custom classes unless they are necessary and consistent with existing theme conventions.
-- Avoid inline style noise when the same result can be expressed through presets or block attributes.
-
-## Coding rules
-
-- Read existing target files before generating a new file in the same category.
-- Match the style of the nearest existing example in this theme.
-- Keep output ASCII unless the source content requires another character.
-- Do not add custom Gutenberg blocks unless explicitly requested.
-- Do not create PHP render callbacks unless the editor cannot express the requirement and the user approves.
-- Keep explanations concise and focus on the generated artifact and any assumptions taken from Figma context.
-
-## Prompt examples
-
-- `generate a hero pattern from the figma make app`
-- `generate archive.html from figma context`
-- `propose theme.json tokens based on figma UI`
-- `create a footer template part from the figma make app using only allowed blocks`
-- `turn the current figma make layout into a reusable CTA pattern for this theme`
-- `sviluppa il template page usando il contesto figma make e valida il risultato con screenshot responsive`
-- `generate front-page.html, capture figma and wordpress screenshots, then iterate until visual QA is satisfactory`
-- `sviluppa il template front-page usando la page_key home definita in figma.json`
-
-## Safety rules
-
-- Never assume a node-id.
-- Never require frame selection.
-- Always use `figma.app_url`.
-- Never generate custom Gutenberg blocks unless explicitly requested.
-- Prefer patterns and block composition over custom PHP rendering.
-- Never skip screenshot capture and comparison for template-oriented tasks.
-- Never declare success without a final visual QA report.
-- Never ignore an explicit `preview_url`; it has higher priority than a mapped site URL.
+When deciding which blocks are available, use the JSON export from `scripts/export-theme-blocks.php` instead of any hardcoded list in this file.

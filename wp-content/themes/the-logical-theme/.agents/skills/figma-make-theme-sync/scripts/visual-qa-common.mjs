@@ -54,12 +54,38 @@ export function sanitizeSegment(value) {
   return String(value).trim().replace(/[^a-zA-Z0-9-_]+/g, '-').replace(/^-+|-+$/g, '') || 'unnamed';
 }
 
-export function getRunId(explicitRunId) {
-  if (explicitRunId) {
-    return sanitizeSegment(explicitRunId);
+function hasOwnArg(args, key) {
+  return Object.prototype.hasOwnProperty.call(args, key);
+}
+
+function formatOptionName(key) {
+  return key.startsWith('--') ? key : `--${key}`;
+}
+
+export function readCanonicalArg(args, canonicalKey, legacyKeys = []) {
+  for (const legacyKey of legacyKeys) {
+    if (hasOwnArg(args, legacyKey)) {
+      throw new Error(`Unsupported option ${formatOptionName(legacyKey)}. Use ${formatOptionName(canonicalKey)} instead.`);
+    }
   }
 
-  return new Date().toISOString().replace(/[:.]/g, '-');
+  return hasOwnArg(args, canonicalKey) ? args[canonicalKey] : undefined;
+}
+
+export function requireCanonicalArg(args, canonicalKey, legacyKeys = []) {
+  const value = readCanonicalArg(args, canonicalKey, legacyKeys);
+
+  if (!isNonEmptyString(value)) {
+    throw new Error(`Missing required ${formatOptionName(canonicalKey)}.`);
+  }
+
+  return value.trim();
+}
+
+export function requireRunId(args) {
+  return sanitizeSegment(
+    requireCanonicalArg(args, 'run-id', ['runId', 'run_id']),
+  );
 }
 
 export function ensureDir(dirPath) {
@@ -88,7 +114,7 @@ export function getBreakpointList(rawValue) {
 
 export function getRunRoot(targetName, runId, explicitRoot) {
   const baseRoot = explicitRoot ? path.resolve(explicitRoot) : getArtifactsRoot();
-  return path.join(baseRoot, sanitizeSegment(targetName), getRunId(runId));
+  return path.join(baseRoot, sanitizeSegment(targetName), sanitizeSegment(runId));
 }
 
 export function writeJson(filePath, data) {
@@ -239,5 +265,97 @@ export function resolveSiteCaptureUrl({ explicitUrl, pageKey, config }) {
     return resolveFigmaPageMapping(pageKey, config).siteUrl;
   }
 
-  throw new Error('Missing site URL. Pass --url/preview_url or configure figma.pages.<page_key>.site_url');
+  throw new Error('Missing site URL. Pass --preview-url or configure figma.pages.<page_key>.site_url');
+}
+
+export function isPlaceholderFigmaMakeUrl(value) {
+  if (!isNonEmptyString(value)) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value.trim());
+    const segments = url.pathname.split('/').filter(Boolean);
+    const makeId = segments[1] ?? '';
+
+    return segments[0] === 'make' && makeId.toUpperCase() === 'APP_ID';
+  } catch {
+    return false;
+  }
+}
+
+export function createBreakpointTimeoutMessage(kind, breakpoint, timeoutMs) {
+  return `${kind} capture timed out at breakpoint '${breakpoint}' after ${timeoutMs}ms.`;
+}
+
+export async function runWithTimeout(task, timeoutMs, errorMessage) {
+  let timerId;
+
+  try {
+    return await Promise.race([
+      task(),
+      new Promise((_, reject) => {
+        timerId = setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timerId);
+  }
+}
+
+export function createCaptureManifest({
+  targetName,
+  pageKey = null,
+  runId,
+  runRoot,
+  kind,
+  source,
+  breakpoints,
+  iteration = null,
+}) {
+  return {
+    targetName,
+    pageKey,
+    runId,
+    runRoot,
+    kind,
+    source,
+    iteration,
+    status: 'pending',
+    current_breakpoint: null,
+    completed_breakpoints: [],
+    pending_breakpoints: [...breakpoints],
+    captures: [],
+    error: null,
+  };
+}
+
+export function updateCaptureManifestProgress(manifest, breakpoint, capture = null) {
+  manifest.current_breakpoint = breakpoint;
+  manifest.status = 'in_progress';
+
+  if (capture) {
+    manifest.completed_breakpoints.push(breakpoint);
+    manifest.pending_breakpoints = manifest.pending_breakpoints.filter((item) => item !== breakpoint);
+    manifest.captures.push(capture);
+    manifest.current_breakpoint = null;
+  }
+}
+
+export function failCaptureManifest(manifest, error) {
+  manifest.status = 'failed';
+  manifest.error = {
+    message: error.message,
+    breakpoint: manifest.current_breakpoint,
+  };
+}
+
+export function completeCaptureManifest(manifest) {
+  manifest.status = 'completed';
+  manifest.current_breakpoint = null;
+  manifest.error = null;
+}
+
+export function logCaptureProgress(message) {
+  process.stderr.write(`${message}\n`);
 }

@@ -24,6 +24,9 @@ input_schema:
     target_name:
       type: string
       description: Destination name such as hero, header, archive, page, or a user-specified template slug.
+    run_id:
+      type: string
+      description: Shared visual QA run identifier. Required for the documented screenshot capture and report workflow.
     page_key:
       type: string
       description: Optional logical key that resolves figma_url and site_url from figma.json mappings.
@@ -89,23 +92,33 @@ output_schema:
         type: string
 safety_rules:
   - Read figma.json from the theme root as the only Figma configuration source.
+  - Read docs/theme-overview.md, docs/allowed-blocks.md, and docs/custom-blocks.md before generating code.
   - Stop if figma.source is not make or if figma.app_url is missing or malformed.
   - Validate figma.pages mappings when provided, and stop on the exact invalid key.
   - Never invent node ids, frame ids, or alternate Figma URLs.
   - Respect the existing block-theme conventions before writing code.
-  - For template-oriented tasks, do not finish without screenshot capture and a visual QA report.
+  - For page-oriented tasks, do not finish without theme.json output or update suggestions, reusable patterns or parts, screenshot capture, a shared run_id, and a visual QA report.
 runtime_notes:
   preferred_files:
     - figma.json
-    - theme.json
+    - docs/theme-overview.md
+    - docs/allowed-blocks.md
+    - docs/custom-blocks.md
     - inc/patterns.php
     - patterns/
     - parts/
     - templates/
-    - docs/theme-overview.md
-    - docs/allowed-blocks.md
-    - docs/custom-blocks.md
     - .artifacts/visual-qa/
+  resolver_scripts:
+    blocks: .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php
+    theme_tokens_state: .agents/skills/figma-make-theme-sync/scripts/export-theme-tokens.mjs
+    visual_qa_config: .agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs
+    config_resolver: .agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh
+  cli_contract:
+    run_id_flag: --run-id
+    wp_preview_url_flag: --preview-url
+    figma_capture_url_flag: --figma-capture-url
+    legacy_alias_policy: rejected
   page_mapping_resolution:
     site_url_priority:
       - preview_url
@@ -115,26 +128,16 @@ runtime_notes:
       - figma.pages.<page_key>.figma_url
       - figma.app_url
   visual_qa:
-    breakpoints:
-      sm:
-        width: 640
-        height: 1600
-      md:
-        width: 768
-        height: 1600
-      lg:
-        width: 1024
-        height: 1600
-      xl:
-        width: 1280
-        height: 1600
-      2xl:
-        width: 1536
-        height: 1600
+    breakpoints_source: .agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs
     max_iterations: 3
-    compare_mode: llm_screenshot_review
+    compare_mode: llm_screenshot_review_with_metrics
+    run_id_required: true
+    page_pipeline_order:
+      - theme.json
+      - patterns
+      - parts
+      - templates
     scripts:
       figma_capture: .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs
       wp_capture: .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs
       report: .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs
-      config_resolver: .agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh
