@@ -29,6 +29,7 @@
 - `inc/patterns.php`: custom block pattern category registration.
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
+- `partials/block-availability.php`: block availability bootstrap that loads the runtime whitelist logic and the related Appearance admin UI for block categories.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, visual QA tooling, Lighthouse performance audit tooling, and run-manifest based resume support for Figma Make to Gutenberg workflows.
 - `tailwind.config.js`: token bridge that maps WordPress CSS variables into Tailwind utilities for theme-authored CSS and markup.
 - `src/js/app.js`: front-end bootstrap entrypoint.

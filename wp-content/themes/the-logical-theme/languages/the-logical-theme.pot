@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-08T16:20:40+00:00\n"
+"POT-Creation-Date: 2026-03-08T19:25:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: the-logical-theme\n"
@@ -41,6 +41,7 @@ msgid "Home"
 msgstr ""
 
 #: blocks/breadcrumbs/render.php:50
+#: partials/block-availability/runtime.php:62
 msgid "Blog"
 msgstr ""
 
@@ -155,6 +156,112 @@ msgstr ""
 msgid "Save SEO Settings"
 msgstr ""
 
+#: partials/block-availability/admin.php:35
+#: partials/block-availability/admin.php:36
+msgid "Block Availability"
+msgstr ""
+
+#: partials/block-availability/admin.php:70
+msgid "active"
+msgstr ""
+
+#: partials/block-availability/admin.php:71
+msgid "inactive"
+msgstr ""
+
+#: partials/block-availability/admin.php:72
+msgid "matching blocks"
+msgstr ""
+
+#: partials/block-availability/admin.php:73
+#: partials/block-availability/admin.php:198
+msgid "No blocks match this filter."
+msgstr ""
+
+#. translators: 1: active blocks count, 2: total blocks count
+#: partials/block-availability/admin.php:131
+#, php-format
+msgid "%1$d / %2$d active"
+msgstr ""
+
+#: partials/block-availability/admin.php:146
+msgid "Enable category"
+msgstr ""
+
+#: partials/block-availability/admin.php:149
+msgid "Always on"
+msgstr ""
+
+#: partials/block-availability/admin.php:151
+msgid "Plugin detected"
+msgstr ""
+
+#: partials/block-availability/admin.php:153
+msgid "Separate area"
+msgstr ""
+
+#. translators: %s: category label
+#: partials/block-availability/admin.php:164
+#, php-format
+msgid "Filter %s blocks"
+msgstr ""
+
+#: partials/block-availability/admin.php:171
+msgid "Filter blocks…"
+msgstr ""
+
+#: partials/block-availability/admin.php:221
+msgid "Block availability updated."
+msgstr ""
+
+#: partials/block-availability/admin.php:230
+msgid "Block availability"
+msgstr ""
+
+#: partials/block-availability/admin.php:232
+msgid "Control which core, blog, WooCommerce, and custom blocks remain available in the editor without mixing categories."
+msgstr ""
+
+#: partials/block-availability/admin.php:236
+msgid "Core always enabled"
+msgstr ""
+
+#: partials/block-availability/admin.php:238
+msgid "WooCommerce not installed"
+msgstr ""
+
+#: partials/block-availability/admin.php:251
+msgid "Save block availability"
+msgstr ""
+
+#: partials/block-availability/runtime.php:24
+msgid "Core"
+msgstr ""
+
+#: partials/block-availability/runtime.php:25
+msgid "Content and theme structure blocks always available to the theme."
+msgstr ""
+
+#: partials/block-availability/runtime.php:63
+msgid "Dynamic post and query blocks used for editorial content."
+msgstr ""
+
+#: partials/block-availability/runtime.php:84
+msgid "WooCommerce"
+msgstr ""
+
+#: partials/block-availability/runtime.php:85
+msgid "Commerce-specific blocks available only when WooCommerce is active."
+msgstr ""
+
+#: partials/block-availability/runtime.php:89
+msgid "Custom"
+msgstr ""
+
+#: partials/block-availability/runtime.php:90
+msgid "Theme custom blocks managed separately from the curated core categories."
+msgstr ""
+
 #: partials/default-featured-image.php:85
 #: partials/default-featured-image.php:86
 msgid "Default Featured Image"
@@ -197,271 +304,293 @@ msgstr ""
 msgid "Save image"
 msgstr ""
 
-#: patterns/cta-band.php:8
+#: patterns/cta-band.php
+msgctxt "Pattern title"
 msgid "CTA Band"
 msgstr ""
 
-#: patterns/cta-band.php:9
+#: patterns/cta-band.php
+msgctxt "Pattern description"
 msgid "Simple full-width call to action."
 msgstr ""
 
-#: patterns/cta-band.php:29
+#: patterns/cta-band.php:11
 msgid "Ready for your next section or conversion moment."
 msgstr ""
 
-#: patterns/cta-band.php:30
+#: patterns/cta-band.php:15
 msgid "Drop this band between editorial sections to create rhythm and directional intent."
 msgstr ""
 
-#: patterns/cta-band.php:31
+#: patterns/cta-band.php:20
 msgid "Call to action"
 msgstr ""
 
-#: patterns/faq-section.php:8
+#: patterns/faq-section.php
+msgctxt "Pattern title"
 msgid "FAQ Section"
 msgstr ""
 
-#: patterns/faq-section.php:9
+#: patterns/faq-section.php
+msgctxt "Pattern description"
 msgid "Starter FAQ layout using headings and paragraphs."
 msgstr ""
 
-#: patterns/faq-section.php:35
+#: patterns/faq-section.php:11
 msgid "Frequently asked questions"
 msgstr ""
 
-#: patterns/faq-section.php:36
+#: patterns/faq-section.php:15
 msgid "How should this evolve?"
 msgstr ""
 
-#: patterns/faq-section.php:37
+#: patterns/faq-section.php:19
 msgid "Add or remove entries as needed, or replace this with a richer future block pattern."
 msgstr ""
 
-#: patterns/faq-section.php:38
+#: patterns/faq-section.php:23
 msgid "Why keep it simple?"
 msgstr ""
 
-#: patterns/faq-section.php:39
+#: patterns/faq-section.php:27
 msgid "The boilerplate should model structure and rhythm without locking final UX decisions too early."
 msgstr ""
 
-#: patterns/feature-grid.php:8
+#: patterns/feature-grid.php
+msgctxt "Pattern title"
 msgid "Feature Grid"
 msgstr ""
 
-#: patterns/feature-grid.php:9
+#: patterns/feature-grid.php
+msgctxt "Pattern description"
 msgid "Three-column feature overview."
 msgstr ""
 
-#: patterns/feature-grid.php:51
+#: patterns/feature-grid.php:11
 msgid "Feature grid"
 msgstr ""
 
-#: patterns/feature-grid.php:52
+#: patterns/feature-grid.php:17
 msgid "Composable"
 msgstr ""
 
-#: patterns/feature-grid.php:53
+#: patterns/feature-grid.php:21
 msgid "Build sections with patterns and keep structure editorially flexible."
 msgstr ""
 
-#: patterns/feature-grid.php:54
+#: patterns/feature-grid.php:27
 msgid "Lean"
 msgstr ""
 
-#: patterns/feature-grid.php:55
+#: patterns/feature-grid.php:31
 msgid "Use minimal glue code and keep frontend logic modular."
 msgstr ""
 
-#: patterns/feature-grid.php:56
+#: patterns/feature-grid.php:37
 msgid "Extendable"
 msgstr ""
 
-#: patterns/feature-grid.php:57
+#: patterns/feature-grid.php:41
 msgid "Add more patterns or JS modules without changing the theme core."
 msgstr ""
 
-#: patterns/hero.php:8
+#: patterns/hero.php
+msgctxt "Pattern title"
 msgid "Hero"
 msgstr ""
 
-#: patterns/hero.php:9
+#: patterns/hero.php
+msgctxt "Pattern description"
 msgid "Intro section with heading, copy, and primary CTA."
 msgstr ""
 
-#: patterns/hero.php:43
+#: patterns/hero.php:13
 msgid "Starter label"
 msgstr ""
 
-#: patterns/hero.php:44
+#: patterns/hero.php:17
 msgid "Use this hero as a clean starting point."
 msgstr ""
 
-#: patterns/hero.php:45
+#: patterns/hero.php:21
 msgid "Replace content and media, keep the section rhythm and block structure."
 msgstr ""
 
-#: patterns/hero.php:46
+#: patterns/hero.php:26
 msgid "Primary action"
 msgstr ""
 
-#: patterns/logo-cloud.php:8
+#: patterns/logo-cloud.php
+msgctxt "Pattern title"
 msgid "Logo Cloud"
 msgstr ""
 
-#: patterns/logo-cloud.php:9
+#: patterns/logo-cloud.php
+msgctxt "Pattern description"
 msgid "Simple logo placeholder row."
 msgstr ""
 
-#: patterns/logo-cloud.php:45
+#: patterns/logo-cloud.php:11
 msgid "Trusted by teams, studios, or partners."
 msgstr ""
 
-#: patterns/logo-cloud.php:46
+#: patterns/logo-cloud.php:17
 msgid "Logo One"
 msgstr ""
 
-#: patterns/logo-cloud.php:47
+#: patterns/logo-cloud.php:23
 msgid "Logo Two"
 msgstr ""
 
-#: patterns/logo-cloud.php:48
+#: patterns/logo-cloud.php:29
 msgid "Logo Three"
 msgstr ""
 
-#: patterns/logo-cloud.php:49
+#: patterns/logo-cloud.php:35
 msgid "Logo Four"
 msgstr ""
 
-#: patterns/media-content.php:8
+#: patterns/media-content.php
+msgctxt "Pattern title"
 msgid "Media Content"
 msgstr ""
 
-#: patterns/media-content.php:9
+#: patterns/media-content.php
+msgctxt "Pattern description"
 msgid "Text and media split layout."
 msgstr ""
 
-#: patterns/media-content.php:37
+#: patterns/media-content.php:19
 msgid "Pair media with a clear content block."
 msgstr ""
 
-#: patterns/media-content.php:38
+#: patterns/media-content.php:23
 msgid "Use this starter for editorial storytelling, product content, or feature callouts."
 msgstr ""
 
-#: patterns/media-content.php:39
+#: patterns/media-content.php:27
 msgid "Keep copy short"
 msgstr ""
 
-#: patterns/media-content.php:40
+#: patterns/media-content.php:27
 msgid "Let imagery support hierarchy"
 msgstr ""
 
-#: patterns/media-content.php:41
+#: patterns/media-content.php:27
 msgid "Prefer block-native controls"
 msgstr ""
 
-#: patterns/page-heading.php:8
+#: patterns/page-heading.php
+msgctxt "Pattern title"
 msgid "Page Heading"
 msgstr ""
 
-#: patterns/page-heading.php:9
+#: patterns/page-heading.php
+msgctxt "Pattern description"
 msgid "Intro heading section for generic pages."
 msgstr ""
 
-#: patterns/page-heading.php:27
+#: patterns/page-heading.php:11
 msgid "Section label"
 msgstr ""
 
-#: patterns/page-heading.php:28
+#: patterns/page-heading.php:15
 msgid "Page heading starter"
 msgstr ""
 
-#: patterns/page-heading.php:29
+#: patterns/page-heading.php:19
 msgid "Use this at the top of pages that need a lightweight intro block before the main content."
 msgstr ""
 
-#: patterns/site-footer.php:8
+#: patterns/site-footer.php
+msgctxt "Pattern title"
 msgid "Site Footer"
 msgstr ""
 
-#: patterns/site-footer.php:9
+#: patterns/site-footer.php
+msgctxt "Pattern description"
 msgid "Footer layout with site title, supporting copy, and navigation."
 msgstr ""
 
-#: patterns/site-footer.php:26
+#: patterns/site-footer.php:15
 msgid "Minimal footer starter for future navigation, legal copy, or contact details."
 msgstr ""
 
-#: patterns/site-hero-part.php:8
+#: patterns/site-hero-part.php
+msgctxt "Pattern title"
 msgid "Site Hero Part"
 msgstr ""
 
-#: patterns/site-hero-part.php:9
+#: patterns/site-hero-part.php
+msgctxt "Pattern description"
 msgid "Shared hero template part with translatable starter copy."
 msgstr ""
 
-#: patterns/site-hero-part.php:46
+#: patterns/site-hero-part.php:14
 msgid "Starter boilerplate"
 msgstr ""
 
-#: patterns/site-hero-part.php:47
+#: patterns/site-hero-part.php:18
 msgid "Build landing pages with core blocks, patterns, and a lean frontend pipeline."
 msgstr ""
 
-#: patterns/site-hero-part.php:48
+#: patterns/site-hero-part.php:22
 msgid "This hero stays generic on purpose: it defines structure, not branding."
 msgstr ""
 
-#: patterns/site-hero-part.php:49
+#: patterns/site-hero-part.php:27
 msgid "Explore sections"
 msgstr ""
 
-#: patterns/site-hero-part.php:50
+#: patterns/site-hero-part.php:35
 msgid "Reserved visual slot for future imagery, motion, or editorial messaging."
 msgstr ""
 
-#: patterns/template-404.php:8
+#: patterns/template-404.php
+msgctxt "Pattern title"
 msgid "404 Content"
 msgstr ""
 
-#: patterns/template-404.php:9
+#: patterns/template-404.php
+msgctxt "Pattern description"
 msgid "Not found template content with CTA and search."
 msgstr ""
 
-#: patterns/template-404.php:32
+#: patterns/template-404.php:12
 msgid "Page not found"
 msgstr ""
 
-#: patterns/template-404.php:33
+#: patterns/template-404.php:16
 msgid "The page you requested could not be found. Try searching or continue browsing from the homepage."
 msgstr ""
 
-#: patterns/template-404.php:35
+#: patterns/template-404.php:21
 msgid "Back home"
 msgstr ""
 
-#: patterns/testimonial-section.php:8
+#: patterns/testimonial-section.php
+msgctxt "Pattern title"
 msgid "Testimonial Section"
 msgstr ""
 
-#: patterns/testimonial-section.php:9
+#: patterns/testimonial-section.php
+msgctxt "Pattern description"
 msgid "Minimal quote-led social proof section."
 msgstr ""
 
-#: patterns/testimonial-section.php:37
+#: patterns/testimonial-section.php:11
 msgid "What people say"
 msgstr ""
 
-#: patterns/testimonial-section.php:38
+#: patterns/testimonial-section.php:17
 msgid "\"Keep testimonials brief, direct, and easy to swap.\""
 msgstr ""
 
-#: patterns/testimonial-section.php:39
+#: patterns/testimonial-section.php:21
 msgid "Person name, role"
 msgstr ""
 
-#: patterns/testimonial-section.php:40
+#: patterns/testimonial-section.php:27
 msgid "Add a second quote or replace this column with metrics, logos, or additional context."
 msgstr ""
 

@@ -25,7 +25,7 @@ foreach (glob(get_theme_file_path('partials/*.php')) ?: [] as $partial_file) {
  */
 function the_logical_theme_setup(): void
 {
-    load_theme_textdomain('the-logical-theme', the_logical_theme_languages_path());
+    the_logical_theme_load_translations();
 
     add_theme_support('wp-block-styles');
     add_theme_support('responsive-embeds');
@@ -40,6 +40,23 @@ function the_logical_theme_setup(): void
     ]);
 }
 add_action('after_setup_theme', 'the_logical_theme_setup');
+
+/**
+ * Loads the theme translations, supporting the current domain-prefixed MO naming.
+ */
+function the_logical_theme_load_translations(): void
+{
+    $languages_path = the_logical_theme_languages_path();
+    $locale = function_exists('determine_locale') ? determine_locale() : get_locale();
+    $domain_mofile = $languages_path . '/the-logical-theme-' . $locale . '.mo';
+
+    if (file_exists($domain_mofile)) {
+        load_textdomain('the-logical-theme', $domain_mofile);
+        return;
+    }
+
+    load_theme_textdomain('the-logical-theme', $languages_path);
+}
 
 /**
  * Returns the absolute path to the theme languages directory.

@@ -4,7 +4,7 @@ This file describes the blocks that are allowed in this theme and how an AI shou
 
 Custom theme blocks are also allowed. The runtime source of truth is:
 
-- `partials/block-availability.php` for curated core blocks
+- `partials/block-availability.php` for curated block categories and admin-managed availability
 - `blocks/*/block.json` for theme custom blocks discovered automatically
 
 Do not treat this file as the only source of truth for custom blocks. When a custom block exists in `blocks/*/block.json`, it is considered allowed unless project instructions say otherwise.
@@ -19,6 +19,15 @@ For `figma-make-theme-sync`, this file is required development guidance, not the
 - Use `columns` only when content clearly benefits from side-by-side layout.
 - Use `spacer` sparingly; prefer clean grouping and natural spacing from theme styles.
 - Use `template-part`, navigation, and site identity blocks only in theme-level areas such as header, footer, hero, or shared page sections.
+
+## Runtime categories
+
+- `core`: always available; combines the content and theme/site blocks listed below.
+- `blog`: covers the dynamic post/query blocks listed below and can be enabled or disabled from the Appearance admin screen.
+- `woocommerce`: only appears when WooCommerce is active and is populated from registered `woocommerce/*` blocks at runtime.
+- `custom`: theme custom blocks are managed in a separate admin area and are not mixed into the `core`, `blog`, or `woocommerce` categories.
+
+The Appearance admin UI can whitelist or blacklist blocks only inside their own category. A WooCommerce block can be enabled or disabled inside `woocommerce`, for example, but cannot be reassigned into `blog`.
 
 ## Content blocks
 
@@ -89,6 +98,8 @@ For `figma-make-theme-sync`, this file is required development guidance, not the
 | --- | --- |
 | `custom/social-share` | Use for contextual share actions on single content views, article endings, or post meta areas. Avoid using it in global header or footer areas. |
 | `custom/breadcrumbs` | Use near the top of pages, single posts, archives, or taxonomy views when the layout benefits from navigational context. |
+
+Custom blocks remain runtime-allowed through theme discovery from `blocks/*/block.json`, but the editor availability of each custom block is controlled from the separate `Custom` area in the block availability admin screen.
 
 ## Recommended composition patterns
 
