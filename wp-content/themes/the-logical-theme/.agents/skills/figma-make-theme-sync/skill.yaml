@@ -102,8 +102,9 @@ runtime_notes:
     - patterns/
     - parts/
     - templates/
-    - .agents/skills/figma-make-theme-sync/theme-overview.md
-    - .agents/skills/figma-make-theme-sync/allowed-blocks.md
+    - docs/theme-overview.md
+    - docs/allowed-blocks.md
+    - docs/custom-blocks.md
     - .artifacts/visual-qa/
   page_mapping_resolution:
     site_url_priority:

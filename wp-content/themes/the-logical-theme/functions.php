@@ -13,6 +13,7 @@ if (! defined('ABSPATH')) {
 const TLT_VERSION = '0.1.0';
 
 require_once get_theme_file_path('inc/assets.php');
+require_once get_theme_file_path('inc/blocks.php');
 require_once get_theme_file_path('inc/patterns.php');
 
 foreach (glob(get_theme_file_path('partials/*.php')) ?: [] as $partial_file) {

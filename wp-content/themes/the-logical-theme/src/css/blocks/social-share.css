@@ -1,0 +1,42 @@
+.wp-block-custom-social-share {
+  --social-share-color: var(--wp--preset--color--foreground);
+}
+
+.wp-block-custom-social-share .social-share__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wp--preset--spacing--xs);
+}
+
+.wp-block-custom-social-share .social-share__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid color-mix(in srgb, var(--social-share-color) 18%, transparent);
+  border-radius: var(--wp--custom--radius--md);
+  background: transparent;
+  color: var(--social-share-color);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.wp-block-custom-social-share .social-share__button:hover,
+.wp-block-custom-social-share .social-share__button:focus-visible {
+  background: color-mix(in srgb, var(--social-share-color) 10%, transparent);
+  border-color: color-mix(in srgb, var(--social-share-color) 40%, transparent);
+  color: var(--social-share-color);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.wp-block-custom-social-share .social-share__button svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: currentColor;
+}

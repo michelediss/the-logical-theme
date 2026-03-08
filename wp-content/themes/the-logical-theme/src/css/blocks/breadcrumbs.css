@@ -1,0 +1,45 @@
+.wp-block-custom-breadcrumbs {
+  color: color-mix(in srgb, var(--wp--preset--color--foreground) 72%, transparent);
+  font-size: var(--wp--preset--font-size--sm);
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__link,
+.wp-block-custom-breadcrumbs .breadcrumbs__current {
+  white-space: nowrap;
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__link:hover,
+.wp-block-custom-breadcrumbs .breadcrumbs__link:focus-visible {
+  color: var(--wp--preset--color--accent);
+  text-decoration: underline;
+  outline: none;
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__current {
+  color: var(--wp--preset--color--foreground);
+}
+
+.wp-block-custom-breadcrumbs .breadcrumbs__separator {
+  color: color-mix(in srgb, var(--wp--preset--color--foreground) 32%, transparent);
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "custom/breadcrumbs",
+  "version": "0.1.0",
+  "title": "Breadcrumbs",
+  "category": "widgets",
+  "icon": "ellipsis",
+  "description": "Percorso di navigazione contestuale per la vista corrente.",
+  "textdomain": "the-logical-theme",
+  "attributes": {
+    "showCurrent": {
+      "type": "boolean",
+      "default": true
+    },
+    "separator": {
+      "type": "string",
+      "default": "/"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "style": "the-logical-theme-blocks-style",
+  "editorScript": "the-logical-theme-blocks-editor"
+}

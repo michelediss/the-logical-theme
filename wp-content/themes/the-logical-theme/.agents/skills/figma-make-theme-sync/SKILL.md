@@ -17,8 +17,9 @@ This skill is repository-local on purpose. It must read the theme's real files b
 - `patterns/*.php`
 - `parts/*.html`
 - `templates/*.html`
-- `theme-overview.md`
-- `allowed-blocks.md`
+- `docs/theme-overview.md`
+- `docs/allowed-blocks.md`
+- `docs/custom-blocks.md`
 - `.artifacts/visual-qa/` when the task includes validation history
 - page mappings in `figma.json` when page-specific Figma/site URL relationships are configured
 
@@ -49,8 +50,9 @@ Do not use this skill for generic React exports, custom block development, or pl
 
 1. Confirm the theme structure by checking `patterns/`, `parts/`, `templates/`, `inc/`, and `theme.json`.
 2. Read the current theme conventions from:
-   - `theme-overview.md`
-   - `allowed-blocks.md`
+   - `docs/theme-overview.md`
+   - `docs/allowed-blocks.md`
+   - `docs/custom-blocks.md` when the task may interact with custom blocks
    - existing files in the target output directory
 3. Resolve the Figma Make URL by running `scripts/get-figma-app-url.sh`.
 4. Validate that `figma.json` contains:

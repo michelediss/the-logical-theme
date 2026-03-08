@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "custom/social-share",
+  "version": "0.1.0",
+  "title": "Social Share",
+  "category": "widgets",
+  "icon": "share",
+  "description": "Pulsanti social di condivisione per il contenuto corrente.",
+  "textdomain": "the-logical-theme",
+  "attributes": {
+    "color": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "style": "the-logical-theme-blocks-style",
+  "editorScript": "the-logical-theme-blocks-editor",
+  "viewScript": "the-logical-theme-blocks-view"
+}

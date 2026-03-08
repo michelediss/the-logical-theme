@@ -86,9 +86,11 @@ function the_logical_theme_allowed_blocks(): array
         $allowed_blocks = array_merge($allowed_blocks, $group['blocks']);
     }
 
+    $allowed_blocks = array_merge($allowed_blocks, the_logical_theme_get_custom_block_names());
+
     return array_values(array_unique($allowed_blocks));
 }
 
-add_filter('allowed_block_types_all', function ($allowed_blocks) {
+add_filter('allowed_block_types_all', function ($allowed_blocks, $editor_context) {
     return the_logical_theme_allowed_blocks();
-});
+}, 10, 2);

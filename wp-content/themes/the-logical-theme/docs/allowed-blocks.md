@@ -2,11 +2,18 @@
 
 This file describes the blocks that are allowed in this theme and how an AI should use them when composing layouts or templates.
 
+Custom theme blocks are also allowed. The runtime source of truth is:
+
+- `partials/block-availability.php` for curated core blocks
+- `blocks/*/block.json` for theme custom blocks discovered automatically
+
+Do not treat this file as the only source of truth for custom blocks. When a custom block exists in `blocks/*/block.json`, it is considered allowed unless project instructions say otherwise.
+
 ## General rules
 
 - Prefer simple structure first: `group` -> content blocks -> optional spacing/separators.
 - Use dynamic blocks only when the content must come from WordPress data such as the current post, query results, site identity, or navigation.
-- Do not invent blocks outside this list.
+- Do not invent blocks outside this list plus the custom theme blocks discovered from `blocks/*/block.json`.
 - Use `columns` only when content clearly benefits from side-by-side layout.
 - Use `spacer` sparingly; prefer clean grouping and natural spacing from theme styles.
 - Use `template-part`, navigation, and site identity blocks only in theme-level areas such as header, footer, hero, or shared page sections.
@@ -74,6 +81,13 @@ This file describes the blocks that are allowed in this theme and how an AI shou
 | `core/post-terms` | Use to show categories, tags, or taxonomy terms attached to the post. |
 | `core/post-navigation-link` | Use on single post layouts to link to the previous or next post. |
 
+## Custom theme blocks
+
+| Block | Usage guidance |
+| --- | --- |
+| `custom/social-share` | Use for contextual share actions on single content views, article endings, or post meta areas. Avoid using it in global header or footer areas. |
+| `custom/breadcrumbs` | Use near the top of pages, single posts, archives, or taxonomy views when the layout benefits from navigational context. |
+
 ## Recommended composition patterns
 
 - Simple page section: `group` + `heading` + `paragraph` + optional `buttons`.
@@ -82,3 +96,8 @@ This file describes the blocks that are allowed in this theme and how an AI shou
 - Archive grid: `query` + `post-template` + `post-featured-image` + `post-title` + `post-excerpt` + `query-pagination`.
 - Single post meta area: `group` + `post-date` + `post-terms` + optional `post-navigation-link`.
 - Shared layout area: `template-part` for header, hero, page heading, or footer instead of rebuilding them inline.
+
+## Maintenance rule
+
+- When a new custom block is added under `blocks/*/block.json`, update this file so AI-assisted theme generation can use it intentionally.
+- Do not duplicate the full registration logic here; document usage guidance only.

@@ -91,6 +91,82 @@ function the_logical_theme_get_theme_script_path(string $entry): string
 }
 
 /**
+ * Resolves a style entry to either a built asset or a source file URI.
+ */
+function the_logical_theme_get_theme_style_uri(string $entry): string
+{
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (isset($manifest[$entry]['file'])) {
+        return get_theme_file_uri('assets/' . $manifest[$entry]['file']);
+    }
+
+    return get_theme_file_uri($entry);
+}
+
+/**
+ * Resolves a style entry to either a built asset or a source file path.
+ */
+function the_logical_theme_get_theme_style_path(string $entry): string
+{
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (isset($manifest[$entry]['file'])) {
+        return get_theme_file_path('assets/' . $manifest[$entry]['file']);
+    }
+
+    return get_theme_file_path($entry);
+}
+
+/**
+ * Registers a Vite-driven script handle for later enqueueing.
+ */
+function the_logical_theme_register_vite_script(string $handle, string $entry, array $dependencies = []): void
+{
+    if (the_logical_theme_should_use_vite_dev_server()) {
+        $server = untrailingslashit(the_logical_theme_get_vite_dev_server());
+        wp_register_script($handle, $server . '/' . ltrim($entry, '/'), $dependencies, null, true);
+        return;
+    }
+
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (! isset($manifest[$entry]['file'])) {
+        return;
+    }
+
+    $script_uri = get_theme_file_uri('assets/' . $manifest[$entry]['file']);
+    $script_path = get_theme_file_path('assets/' . $manifest[$entry]['file']);
+    $version = file_exists($script_path) ? (string) filemtime($script_path) : TLT_VERSION;
+
+    wp_register_script($handle, $script_uri, $dependencies, $version, true);
+}
+
+/**
+ * Registers a Vite-driven style handle for later enqueueing.
+ */
+function the_logical_theme_register_vite_style(string $handle, string $entry, array $dependencies = []): void
+{
+    if (the_logical_theme_should_use_vite_dev_server()) {
+        $server = untrailingslashit(the_logical_theme_get_vite_dev_server());
+        wp_register_style($handle, $server . '/' . ltrim($entry, '/'), $dependencies, null);
+        return;
+    }
+
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (! isset($manifest[$entry]['file'])) {
+        return;
+    }
+
+    $style_uri = get_theme_file_uri('assets/' . $manifest[$entry]['file']);
+    $style_path = get_theme_file_path('assets/' . $manifest[$entry]['file']);
+    $version = file_exists($style_path) ? (string) filemtime($style_path) : TLT_VERSION;
+
+    wp_register_style($handle, $style_uri, $dependencies, $version);
+}
+
+/**
  * Enqueues the front-end JavaScript and CSS entrypoints.
  */
 function the_logical_theme_enqueue_vite_assets(): void
