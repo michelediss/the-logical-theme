@@ -7,7 +7,7 @@
 - `functions.php` loads the theme bootstrap and hooks setup, front-end assets, editor assets, and custom blocks into WordPress.
 - `inc/assets.php` switches between the local Vite dev server and the production manifest in `assets/.vite/manifest.json`.
 - `inc/blocks.php` discovers and registers custom theme blocks from `blocks/*/block.json`.
-- `inc/patterns.php` registers the custom block pattern category and loads all PHP pattern definitions from `patterns/`.
+- `inc/patterns.php` registers the custom block pattern category, while WordPress auto-discovers native pattern files from `patterns/`.
 - `templates/` and `parts/` contain the block theme HTML templates used by the Site Editor.
 - `src/js/` and `src/css/` contain the authored source files; built output is written to `assets/`.
 - `theme.json` defines the source-of-truth design tokens and editorial defaults that Gutenberg must know natively, while Tailwind consumes those same tokens as a bridge instead of defining a second design system.
@@ -25,7 +25,7 @@
 - `functions.php`: theme bootstrap and core hooks.
 - `inc/assets.php`: Vite integration and asset registration.
 - `inc/blocks.php`: custom block discovery and registration.
-- `inc/patterns.php`: block pattern registration loader.
+- `inc/patterns.php`: custom block pattern category registration.
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, and visual QA tooling for Figma Make to Gutenberg workflows.
@@ -67,6 +67,9 @@
 ## Maintenance Notes
 
 - When source files in `src/` change, rebuild assets with `npm run build` so production bundles in `assets/` stay aligned.
+- Keep all user-facing theme strings translatable with the `the-logical-theme` text domain. Load translations from `languages/`, use WordPress i18n helpers in PHP, and call `wp_set_script_translations()` for any theme-owned JS handle that uses `wp.i18n`.
+- Do not leave user-facing copy hardcoded inside `templates/*.html` or `parts/*.html`. In block themes those files are not reliable extraction targets, so translatable copy should live in PHP-registered patterns referenced by the HTML templates.
+- After adding or changing strings, regenerate catalogs with `npm run i18n:build` so `languages/the-logical-theme.pot`, locale `.po/.mo`, and JS translation JSON files stay aligned.
 - Keep new PHP APIs prefixed with `the_logical_theme_` to avoid collisions with plugins or other themes.
 - Prefer block patterns and `theme.json` settings over custom PHP rendering unless the editor cannot express the requirement cleanly.
 - When updating tokens or layout defaults, change `theme.json` first and let Tailwind keep consuming the generated CSS variables rather than redefining the values in `tailwind.config.js`.

@@ -9,7 +9,7 @@ const ServerSideRender = serverSideRender;
 
 registerBlockType('custom/breadcrumbs', {
   title: __('Breadcrumbs', 'the-logical-theme'),
-  description: __('Percorso di navigazione contestuale per la vista corrente.', 'the-logical-theme'),
+  description: __('Contextual navigation trail for the current view.', 'the-logical-theme'),
   category: 'widgets',
   icon: 'ellipsis',
   attributes: {

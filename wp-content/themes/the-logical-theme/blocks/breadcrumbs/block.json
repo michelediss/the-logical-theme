@@ -6,7 +6,7 @@
   "title": "Breadcrumbs",
   "category": "widgets",
   "icon": "ellipsis",
-  "description": "Percorso di navigazione contestuale per la vista corrente.",
+  "description": "Contextual navigation trail for the current view.",
   "textdomain": "the-logical-theme",
   "attributes": {
     "showCurrent": {

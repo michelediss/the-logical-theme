@@ -121,7 +121,7 @@ Use these defaults unless the Make source contradicts them:
 
 - `App.tsx` shell -> `templates/*.html`
 - `SputnikHeader`, `SputnikFooter` -> `parts/*.html`
-- section components -> `patterns/*.php`
+- section components -> native WordPress `patterns/*.php`
 - global tokens from `theme.css` and `fonts.css` -> `theme.json`
 - inline content arrays -> pattern placeholders, CPTs, or Query Loop sources
 - decorative overlays and gradients -> block styles, group wrappers, cover blocks, or theme CSS

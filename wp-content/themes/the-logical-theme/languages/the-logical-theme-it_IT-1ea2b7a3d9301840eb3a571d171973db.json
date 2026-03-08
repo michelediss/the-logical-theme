@@ -1,0 +1,42 @@
+{
+    "translation-revision-date": "2026-03-08T16:13:51+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "assets\/js\/editorSeo.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "it",
+                "plural-forms": "nplurals=2; plural=(n != 1);"
+            },
+            "SEO": [
+                "SEO"
+            ],
+            "SEO title": [
+                "Titolo SEO"
+            ],
+            "If empty, the post title and site name are used.": [
+                "Se vuoto, vengono usati il titolo del contenuto e il nome del sito."
+            ],
+            "Meta description": [
+                "Meta description"
+            ],
+            "If empty, the excerpt or content summary is used.": [
+                "Se vuoto, viene usato l'estratto o il riepilogo del contenuto."
+            ],
+            "Noindex": [
+                "Noindex"
+            ],
+            "Nofollow": [
+                "Nofollow"
+            ],
+            "Global robots and sitemap settings remain available in Settings > SEO.": [
+                "Le impostazioni globali di robots e sitemap restano disponibili in Impostazioni > SEO."
+            ],
+            "Open SEO settings": [
+                "Apri impostazioni SEO"
+            ]
+        }
+    }
+}

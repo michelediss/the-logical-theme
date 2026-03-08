@@ -1,0 +1,690 @@
+# Copyright (C) 2026 The Logical Theme
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: The Logical Theme 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/the-logical-theme\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-08T16:20:40+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: the-logical-theme\n"
+
+#. Theme Name of the theme
+#. Author of the theme
+#: style.css
+#: inc/patterns.php:20
+msgid "The Logical Theme"
+msgstr ""
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://example.com/the-logical-theme"
+msgstr ""
+
+#. Description of the theme
+#: style.css
+msgid "Minimal Gutenberg-first block theme boilerplate powered by Vite and Tailwind CSS."
+msgstr ""
+
+#. Author URI of the theme
+#: style.css
+msgid "https://michelepaolino.com"
+msgstr ""
+
+#: blocks/breadcrumbs/render.php:20
+msgid "Home"
+msgstr ""
+
+#: blocks/breadcrumbs/render.php:50
+msgid "Blog"
+msgstr ""
+
+#. translators: %s: search query.
+#: blocks/breadcrumbs/render.php:153
+#, php-format
+msgid "Search results for \"%s\""
+msgstr ""
+
+#: blocks/breadcrumbs/render.php:162
+msgid "Not found"
+msgstr ""
+
+#: blocks/breadcrumbs/render.php:185
+msgid "Breadcrumb"
+msgstr ""
+
+#: blocks/social-share/render.php:54
+msgid "Share on Facebook"
+msgstr ""
+
+#: blocks/social-share/render.php:59
+msgid "Share on X"
+msgstr ""
+
+#: blocks/social-share/render.php:64
+msgid "Share on WhatsApp"
+msgstr ""
+
+#: blocks/social-share/render.php:69
+msgid "Share on Telegram"
+msgstr ""
+
+#: blocks/social-share/render.php:74
+msgid "Share on LinkedIn"
+msgstr ""
+
+#: blocks/social-share/render.php:104
+#: blocks/social-share/render.php:105
+msgid "Share on Mastodon"
+msgstr ""
+
+#: blocks/social-share/render.php:112
+msgid "Take a look at this:"
+msgstr ""
+
+#: blocks/social-share/render.php:113
+#: blocks/social-share/render.php:114
+msgid "Share by email"
+msgstr ""
+
+#: blocks/social-share/render.php:124
+#: blocks/social-share/render.php:125
+msgid "Copy link"
+msgstr ""
+
+#: functions.php:38
+msgid "Primary Navigation"
+msgstr ""
+
+#: functions.php:39
+msgid "Footer Navigation"
+msgstr ""
+
+#: inc/seo/admin.php:15
+#: inc/seo/admin.php:106
+msgid "SEO Settings"
+msgstr ""
+
+#: inc/seo/admin.php:16
+#: src/js/editor-seo.js:73
+msgid "SEO"
+msgstr ""
+
+#: inc/seo/admin.php:79
+msgid "SEO settings saved."
+msgstr ""
+
+#: inc/seo/admin.php:109
+msgid "Robots.txt"
+msgstr ""
+
+#: inc/seo/admin.php:112
+msgid "Global Robots Meta"
+msgstr ""
+
+#: inc/seo/admin.php:114
+msgid "Set entire site to noindex"
+msgstr ""
+
+#: inc/seo/admin.php:117
+msgid "Set entire site to nofollow"
+msgstr ""
+
+#: inc/seo/admin.php:120
+msgid "XML Sitemap"
+msgstr ""
+
+#: inc/seo/admin.php:123
+msgid "Sitemap available at:"
+msgstr ""
+
+#: inc/seo/admin.php:127
+msgid "Sitemap not generated yet."
+msgstr ""
+
+#: inc/seo/admin.php:130
+msgid "Regenerate sitemap now"
+msgstr ""
+
+#: inc/seo/admin.php:134
+msgid "Save SEO Settings"
+msgstr ""
+
+#: partials/default-featured-image.php:85
+#: partials/default-featured-image.php:86
+msgid "Default Featured Image"
+msgstr ""
+
+#: partials/default-featured-image.php:120
+msgid "Select the default featured image"
+msgstr ""
+
+#: partials/default-featured-image.php:121
+msgid "Use this image"
+msgstr ""
+
+#: partials/default-featured-image.php:122
+msgid "Remove the default featured image?"
+msgstr ""
+
+#: partials/default-featured-image.php:123
+#: partials/default-featured-image.php:160
+msgid "No image selected"
+msgstr ""
+
+#: partials/default-featured-image.php:148
+msgid "Default featured image"
+msgstr ""
+
+#: partials/default-featured-image.php:149
+msgid "Used automatically for posts and pages that are saved without a featured image."
+msgstr ""
+
+#: partials/default-featured-image.php:176
+msgid "Choose from media library"
+msgstr ""
+
+#: partials/default-featured-image.php:179
+msgid "Remove"
+msgstr ""
+
+#: partials/default-featured-image.php:185
+msgid "Save image"
+msgstr ""
+
+#: patterns/cta-band.php:8
+msgid "CTA Band"
+msgstr ""
+
+#: patterns/cta-band.php:9
+msgid "Simple full-width call to action."
+msgstr ""
+
+#: patterns/cta-band.php:29
+msgid "Ready for your next section or conversion moment."
+msgstr ""
+
+#: patterns/cta-band.php:30
+msgid "Drop this band between editorial sections to create rhythm and directional intent."
+msgstr ""
+
+#: patterns/cta-band.php:31
+msgid "Call to action"
+msgstr ""
+
+#: patterns/faq-section.php:8
+msgid "FAQ Section"
+msgstr ""
+
+#: patterns/faq-section.php:9
+msgid "Starter FAQ layout using headings and paragraphs."
+msgstr ""
+
+#: patterns/faq-section.php:35
+msgid "Frequently asked questions"
+msgstr ""
+
+#: patterns/faq-section.php:36
+msgid "How should this evolve?"
+msgstr ""
+
+#: patterns/faq-section.php:37
+msgid "Add or remove entries as needed, or replace this with a richer future block pattern."
+msgstr ""
+
+#: patterns/faq-section.php:38
+msgid "Why keep it simple?"
+msgstr ""
+
+#: patterns/faq-section.php:39
+msgid "The boilerplate should model structure and rhythm without locking final UX decisions too early."
+msgstr ""
+
+#: patterns/feature-grid.php:8
+msgid "Feature Grid"
+msgstr ""
+
+#: patterns/feature-grid.php:9
+msgid "Three-column feature overview."
+msgstr ""
+
+#: patterns/feature-grid.php:51
+msgid "Feature grid"
+msgstr ""
+
+#: patterns/feature-grid.php:52
+msgid "Composable"
+msgstr ""
+
+#: patterns/feature-grid.php:53
+msgid "Build sections with patterns and keep structure editorially flexible."
+msgstr ""
+
+#: patterns/feature-grid.php:54
+msgid "Lean"
+msgstr ""
+
+#: patterns/feature-grid.php:55
+msgid "Use minimal glue code and keep frontend logic modular."
+msgstr ""
+
+#: patterns/feature-grid.php:56
+msgid "Extendable"
+msgstr ""
+
+#: patterns/feature-grid.php:57
+msgid "Add more patterns or JS modules without changing the theme core."
+msgstr ""
+
+#: patterns/hero.php:8
+msgid "Hero"
+msgstr ""
+
+#: patterns/hero.php:9
+msgid "Intro section with heading, copy, and primary CTA."
+msgstr ""
+
+#: patterns/hero.php:43
+msgid "Starter label"
+msgstr ""
+
+#: patterns/hero.php:44
+msgid "Use this hero as a clean starting point."
+msgstr ""
+
+#: patterns/hero.php:45
+msgid "Replace content and media, keep the section rhythm and block structure."
+msgstr ""
+
+#: patterns/hero.php:46
+msgid "Primary action"
+msgstr ""
+
+#: patterns/logo-cloud.php:8
+msgid "Logo Cloud"
+msgstr ""
+
+#: patterns/logo-cloud.php:9
+msgid "Simple logo placeholder row."
+msgstr ""
+
+#: patterns/logo-cloud.php:45
+msgid "Trusted by teams, studios, or partners."
+msgstr ""
+
+#: patterns/logo-cloud.php:46
+msgid "Logo One"
+msgstr ""
+
+#: patterns/logo-cloud.php:47
+msgid "Logo Two"
+msgstr ""
+
+#: patterns/logo-cloud.php:48
+msgid "Logo Three"
+msgstr ""
+
+#: patterns/logo-cloud.php:49
+msgid "Logo Four"
+msgstr ""
+
+#: patterns/media-content.php:8
+msgid "Media Content"
+msgstr ""
+
+#: patterns/media-content.php:9
+msgid "Text and media split layout."
+msgstr ""
+
+#: patterns/media-content.php:37
+msgid "Pair media with a clear content block."
+msgstr ""
+
+#: patterns/media-content.php:38
+msgid "Use this starter for editorial storytelling, product content, or feature callouts."
+msgstr ""
+
+#: patterns/media-content.php:39
+msgid "Keep copy short"
+msgstr ""
+
+#: patterns/media-content.php:40
+msgid "Let imagery support hierarchy"
+msgstr ""
+
+#: patterns/media-content.php:41
+msgid "Prefer block-native controls"
+msgstr ""
+
+#: patterns/page-heading.php:8
+msgid "Page Heading"
+msgstr ""
+
+#: patterns/page-heading.php:9
+msgid "Intro heading section for generic pages."
+msgstr ""
+
+#: patterns/page-heading.php:27
+msgid "Section label"
+msgstr ""
+
+#: patterns/page-heading.php:28
+msgid "Page heading starter"
+msgstr ""
+
+#: patterns/page-heading.php:29
+msgid "Use this at the top of pages that need a lightweight intro block before the main content."
+msgstr ""
+
+#: patterns/site-footer.php:8
+msgid "Site Footer"
+msgstr ""
+
+#: patterns/site-footer.php:9
+msgid "Footer layout with site title, supporting copy, and navigation."
+msgstr ""
+
+#: patterns/site-footer.php:26
+msgid "Minimal footer starter for future navigation, legal copy, or contact details."
+msgstr ""
+
+#: patterns/site-hero-part.php:8
+msgid "Site Hero Part"
+msgstr ""
+
+#: patterns/site-hero-part.php:9
+msgid "Shared hero template part with translatable starter copy."
+msgstr ""
+
+#: patterns/site-hero-part.php:46
+msgid "Starter boilerplate"
+msgstr ""
+
+#: patterns/site-hero-part.php:47
+msgid "Build landing pages with core blocks, patterns, and a lean frontend pipeline."
+msgstr ""
+
+#: patterns/site-hero-part.php:48
+msgid "This hero stays generic on purpose: it defines structure, not branding."
+msgstr ""
+
+#: patterns/site-hero-part.php:49
+msgid "Explore sections"
+msgstr ""
+
+#: patterns/site-hero-part.php:50
+msgid "Reserved visual slot for future imagery, motion, or editorial messaging."
+msgstr ""
+
+#: patterns/template-404.php:8
+msgid "404 Content"
+msgstr ""
+
+#: patterns/template-404.php:9
+msgid "Not found template content with CTA and search."
+msgstr ""
+
+#: patterns/template-404.php:32
+msgid "Page not found"
+msgstr ""
+
+#: patterns/template-404.php:33
+msgid "The page you requested could not be found. Try searching or continue browsing from the homepage."
+msgstr ""
+
+#: patterns/template-404.php:35
+msgid "Back home"
+msgstr ""
+
+#: patterns/testimonial-section.php:8
+msgid "Testimonial Section"
+msgstr ""
+
+#: patterns/testimonial-section.php:9
+msgid "Minimal quote-led social proof section."
+msgstr ""
+
+#: patterns/testimonial-section.php:37
+msgid "What people say"
+msgstr ""
+
+#: patterns/testimonial-section.php:38
+msgid "\"Keep testimonials brief, direct, and easy to swap.\""
+msgstr ""
+
+#: patterns/testimonial-section.php:39
+msgid "Person name, role"
+msgstr ""
+
+#: patterns/testimonial-section.php:40
+msgid "Add a second quote or replace this column with metrics, logos, or additional context."
+msgstr ""
+
+#: src/js/blocks/breadcrumbs/editor.js:11
+msgid "Breadcrumbs"
+msgstr ""
+
+#: src/js/blocks/breadcrumbs/editor.js:12
+msgid "Contextual navigation trail for the current view."
+msgstr ""
+
+#: src/js/blocks/breadcrumbs/editor.js:37
+#: src/js/blocks/social-share/editor.js:38
+msgid "Settings"
+msgstr ""
+
+#: src/js/blocks/breadcrumbs/editor.js:41
+msgid "Show current page"
+msgstr ""
+
+#: src/js/blocks/breadcrumbs/editor.js:48
+msgid "Separator"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:13
+msgid "Social Share"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:14
+msgid "Social sharing buttons for the current content."
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:42
+msgid "Color"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:45
+msgid "Default"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:46
+msgid "Accent"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:47
+msgid "Foreground"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:48
+msgid "Muted"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:49
+msgid "Canvas"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:50
+msgid "Custom hex color"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:63
+msgid "Hex color"
+msgstr ""
+
+#: src/js/blocks/social-share/editor.js:64
+msgid "Use values like #b85c38 or #11223344."
+msgstr ""
+
+#: src/js/blocks/social-share/view.js:5
+msgid "Your Mastodon server (for example mastodon.social):"
+msgstr ""
+
+#: src/js/blocks/social-share/view.js:26
+msgid "Link copied."
+msgstr ""
+
+#: src/js/blocks/social-share/view.js:29
+msgid "Copy manually:"
+msgstr ""
+
+#: src/js/editor-seo.js:135
+msgid "SEO title"
+msgstr ""
+
+#: src/js/editor-seo.js:136
+msgid "If empty, the post title and site name are used."
+msgstr ""
+
+#: src/js/editor-seo.js:141
+msgid "Meta description"
+msgstr ""
+
+#: src/js/editor-seo.js:142
+msgid "If empty, the excerpt or content summary is used."
+msgstr ""
+
+#: src/js/editor-seo.js:147
+msgid "Noindex"
+msgstr ""
+
+#: src/js/editor-seo.js:152
+msgid "Nofollow"
+msgstr ""
+
+#: src/js/editor-seo.js:168
+msgid "Global robots and sitemap settings remain available in Settings > SEO."
+msgstr ""
+
+#: src/js/editor-seo.js:173
+msgid "Open SEO settings"
+msgstr ""
+
+#: blocks/breadcrumbs/block.json
+msgctxt "block title"
+msgid "Breadcrumbs"
+msgstr ""
+
+#: blocks/breadcrumbs/block.json
+msgctxt "block description"
+msgid "Contextual navigation trail for the current view."
+msgstr ""
+
+#: blocks/social-share/block.json
+msgctxt "block title"
+msgid "Social Share"
+msgstr ""
+
+#: blocks/social-share/block.json
+msgctxt "block description"
+msgid "Social sharing buttons for the current content."
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Canvas"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Foreground"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Accent"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Muted"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "XS"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "SM"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "MD"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "LG"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "XL"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Sans"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Display"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Small"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Base"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Large"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "XL"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Header"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Hero"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Page Heading"
+msgstr ""
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Footer"
+msgstr ""

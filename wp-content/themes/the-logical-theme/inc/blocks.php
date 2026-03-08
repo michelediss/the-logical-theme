@@ -55,8 +55,9 @@ function the_logical_theme_register_block_assets(): void
     the_logical_theme_register_vite_script(
         'the-logical-theme-blocks-view',
         'src/js/blocks/view.js',
-        []
+        ['wp-i18n']
     );
+    the_logical_theme_set_script_translations('the-logical-theme-blocks-view');
 
     the_logical_theme_register_vite_script(
         'the-logical-theme-blocks-editor',
@@ -70,6 +71,7 @@ function the_logical_theme_register_block_assets(): void
             'wp-server-side-render',
         ]
     );
+    the_logical_theme_set_script_translations('the-logical-theme-blocks-editor');
 }
 add_action('init', 'the_logical_theme_register_block_assets');
 

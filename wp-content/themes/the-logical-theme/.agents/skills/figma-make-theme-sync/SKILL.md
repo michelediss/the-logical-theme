@@ -326,14 +326,14 @@ Return valid `theme.json` fragments or a full replacement only if the user expli
 
 ### `patterns/*.php`
 
-Generate block patterns using `register_block_pattern(...)` and heredoc `content`.
+Generate native `patterns/*.php` files with the standard WordPress pattern header comment (`Title`, `Slug`, `Categories`, optional `Inserter`) followed by block markup and minimal PHP only for translatable strings or dynamic URLs.
 
 Rules:
 
 - use the theme category `the-logical-theme`
 - use the textdomain `the-logical-theme`
 - keep PHP minimal
-- generate static block markup inside the `content` string
+- write static block markup directly in the file body after the header comment
 - align naming with existing pattern files
 
 ### `parts/*.html`

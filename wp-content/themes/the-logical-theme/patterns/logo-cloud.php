@@ -1,45 +1,39 @@
 <?php
-
-declare(strict_types=1);
-
-register_block_pattern(
-    'the-logical-theme/logo-cloud',
-    [
-        'title'       => __('Logo Cloud', 'the-logical-theme'),
-        'description' => __('Simple logo placeholder row.', 'the-logical-theme'),
-        'categories'  => ['the-logical-theme'],
-        'content'     => <<<'HTML'
+/**
+ * Title: Logo Cloud
+ * Slug: the-logical-theme/logo-cloud
+ * Categories: the-logical-theme
+ * Description: Simple logo placeholder row.
+ */
+?>
 <!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"fontSize":"sm"} -->
-<p class="has-sm-font-size">Trusted by teams, studios, or partners.</p>
+<p class="has-sm-font-size"><?php esc_html_e('Trusted by teams, studios, or partners.', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:columns -->
 <div class="wp-block-columns"><!-- wp:column -->
 <div class="wp-block-column"><!-- wp:paragraph -->
-<p>Logo One</p>
+<p><?php esc_html_e('Logo One', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
 <div class="wp-block-column"><!-- wp:paragraph -->
-<p>Logo Two</p>
+<p><?php esc_html_e('Logo Two', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
 <div class="wp-block-column"><!-- wp:paragraph -->
-<p>Logo Three</p>
+<p><?php esc_html_e('Logo Three', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
 <div class="wp-block-column"><!-- wp:paragraph -->
-<p>Logo Four</p>
+<p><?php esc_html_e('Logo Four', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>
 <!-- /wp:group -->
-HTML,
-    ]
-);

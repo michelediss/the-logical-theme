@@ -51,27 +51,27 @@ $links = [
     [
         'key' => 'facebook',
         'href' => sprintf('https://www.facebook.com/sharer/sharer.php?u=%s', $share_url),
-        'label' => __('Condividi su Facebook', 'the-logical-theme'),
+        'label' => __('Share on Facebook', 'the-logical-theme'),
     ],
     [
         'key' => 'twitter',
         'href' => sprintf('https://twitter.com/intent/tweet?url=%s&text=%s', $share_url, $share_title),
-        'label' => __('Condividi su X', 'the-logical-theme'),
+        'label' => __('Share on X', 'the-logical-theme'),
     ],
     [
         'key' => 'whatsapp',
         'href' => sprintf('https://api.whatsapp.com/send?text=%s%%20%s', $share_title, $share_url),
-        'label' => __('Condividi su WhatsApp', 'the-logical-theme'),
+        'label' => __('Share on WhatsApp', 'the-logical-theme'),
     ],
     [
         'key' => 'telegram',
         'href' => sprintf('https://t.me/share/url?url=%s&text=%s', $share_url, $share_title),
-        'label' => __('Condividi su Telegram', 'the-logical-theme'),
+        'label' => __('Share on Telegram', 'the-logical-theme'),
     ],
     [
         'key' => 'linkedin',
         'href' => sprintf('https://www.linkedin.com/sharing/share-offsite/?url=%s', $share_url),
-        'label' => __('Condividi su LinkedIn', 'the-logical-theme'),
+        'label' => __('Share on LinkedIn', 'the-logical-theme'),
     ],
 ];
 
@@ -101,17 +101,17 @@ $wrapper_attributes = get_block_wrapper_attributes([
             data-social-action="mastodon"
             data-social-title="<?php echo esc_attr($title_text); ?>"
             data-social-url="<?php echo esc_url($url_raw); ?>"
-            aria-label="<?php esc_attr_e('Condividi su Mastodon', 'the-logical-theme'); ?>"
-            title="<?php esc_attr_e('Condividi su Mastodon', 'the-logical-theme'); ?>"
+            aria-label="<?php esc_attr_e('Share on Mastodon', 'the-logical-theme'); ?>"
+            title="<?php esc_attr_e('Share on Mastodon', 'the-logical-theme'); ?>"
         >
             <?php echo $icons['mastodon']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </button>
 
         <a
             class="social-share__button social-share__button--email"
-            href="<?php echo esc_url(sprintf('mailto:?subject=%s&body=Guarda%%20questo:%%20%s', $share_title, $share_url)); ?>"
-            aria-label="<?php esc_attr_e('Condividi via email', 'the-logical-theme'); ?>"
-            title="<?php esc_attr_e('Condividi via email', 'the-logical-theme'); ?>"
+            href="<?php echo esc_url(sprintf('mailto:?subject=%s&body=%s%%20%s', $share_title, rawurlencode(__('Take a look at this:', 'the-logical-theme')), $share_url)); ?>"
+            aria-label="<?php esc_attr_e('Share by email', 'the-logical-theme'); ?>"
+            title="<?php esc_attr_e('Share by email', 'the-logical-theme'); ?>"
         >
             <?php echo $icons['email']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </a>
@@ -121,8 +121,8 @@ $wrapper_attributes = get_block_wrapper_attributes([
             class="social-share__button social-share__button--copy social-share__action"
             data-social-action="copy"
             data-social-url="<?php echo esc_url($url_raw); ?>"
-            aria-label="<?php esc_attr_e('Copia il link', 'the-logical-theme'); ?>"
-            title="<?php esc_attr_e('Copia il link', 'the-logical-theme'); ?>"
+            aria-label="<?php esc_attr_e('Copy link', 'the-logical-theme'); ?>"
+            title="<?php esc_attr_e('Copy link', 'the-logical-theme'); ?>"
         >
             <?php echo $icons['copy']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </button>

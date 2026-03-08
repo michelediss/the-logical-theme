@@ -45,6 +45,7 @@ function the_logical_theme_seo_enqueue_editor_assets(): void
         $version,
         true
     );
+    the_logical_theme_set_script_translations($script_handle);
 
     wp_add_inline_script(
         $script_handle,

@@ -120,14 +120,14 @@ function the_logical_theme_seo_render_settings_page(): void
             <h2><?php esc_html_e('XML Sitemap', 'the-logical-theme'); ?></h2>
             <?php if ($sitemap_exists) : ?>
                 <p>
-                    <?php esc_html_e('Sitemap disponibile a:', 'the-logical-theme'); ?>
+                    <?php esc_html_e('Sitemap available at:', 'the-logical-theme'); ?>
                     <a href="<?php echo esc_url($sitemap_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($sitemap_url); ?></a>
                 </p>
             <?php else : ?>
-                <p><strong><?php esc_html_e('Sitemap non ancora presente.', 'the-logical-theme'); ?></strong></p>
+                <p><strong><?php esc_html_e('Sitemap not generated yet.', 'the-logical-theme'); ?></strong></p>
             <?php endif; ?>
             <p>
-                <label><input type="checkbox" name="regenerate_sitemap" value="1"> <?php esc_html_e('Rigenera sitemap adesso', 'the-logical-theme'); ?></label>
+                <label><input type="checkbox" name="regenerate_sitemap" value="1"> <?php esc_html_e('Regenerate sitemap now', 'the-logical-theme'); ?></label>
             </p>
 
             <?php wp_nonce_field('the_logical_theme_seo_save_settings', 'the_logical_theme_seo_settings_nonce'); ?>

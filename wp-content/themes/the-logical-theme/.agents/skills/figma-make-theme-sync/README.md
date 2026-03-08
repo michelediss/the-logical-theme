@@ -13,7 +13,7 @@ The skill is repository-local on purpose and should derive runtime facts from th
 - exports the visual QA viewport configuration used by the capture scripts
 - retrieves Figma Make context through MCP, using Make source inspection to understand what should be converted
 - generates or updates `theme.json`, patterns, template parts, and templates
-- for page-oriented tasks, builds `theme.json` first, then patterns/parts, then `templates/*.html`
+- for page-oriented tasks, builds `theme.json` first, then native WordPress `patterns/*.php` and parts, then `templates/*.html`
 - uses Playwright-based capture scripts to collect input/output screenshots and prepare a structured comparison report
 
 ## Verified Tool Split
@@ -179,7 +179,7 @@ Semantic review still evaluates at least:
 3. Export allowed blocks and visual QA config from the repository, and inspect the current `theme.json` only if the task is updating existing theme tokens.
 4. Retrieve Figma Make context through MCP, starting from `get_design_context`.
 5. Generate `theme.json` tokens and defaults from the design intent.
-6. Build section-level `patterns/*.php` using only allowed blocks.
+6. Build section-level native WordPress `patterns/*.php` using only allowed blocks and file headers with `Title` and `Slug`.
 7. Build shared `parts/*.html` when the page needs reusable structural regions.
 8. Compose `templates/*.html` from patterns and parts instead of writing monolithic template markup.
 9. Choose a shared `run_id` for the full visual QA iteration.

@@ -11,7 +11,7 @@ const PRESET_VALUES = ['', 'accent', 'foreground', 'muted', 'canvas'];
 
 registerBlockType('custom/social-share', {
   title: __('Social Share', 'the-logical-theme'),
-  description: __('Pulsanti social di condivisione per il contenuto corrente.', 'the-logical-theme'),
+  description: __('Social sharing buttons for the current content.', 'the-logical-theme'),
   category: 'widgets',
   icon: 'share',
   attributes: {

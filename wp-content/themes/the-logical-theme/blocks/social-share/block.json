@@ -6,7 +6,7 @@
   "title": "Social Share",
   "category": "widgets",
   "icon": "share",
-  "description": "Pulsanti social di condivisione per il contenuto corrente.",
+  "description": "Social sharing buttons for the current content.",
   "textdomain": "the-logical-theme",
   "attributes": {
     "color": {

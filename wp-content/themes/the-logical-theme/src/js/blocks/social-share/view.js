@@ -1,6 +1,8 @@
+const { __ } = window.wp.i18n;
+
 function handleMastodonShare(trigger) {
   const instance = window.prompt(
-    'Tuo server Mastodon (es. mastodon.social):',
+    __('Your Mastodon server (for example mastodon.social):', 'the-logical-theme'),
     'mastodon.social'
   );
 
@@ -21,10 +23,10 @@ function handleCopy(trigger) {
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      window.alert('Link copiato!');
+      window.alert(__('Link copied.', 'the-logical-theme'));
     })
     .catch(() => {
-      window.prompt('Copia manualmente:', url);
+      window.prompt(__('Copy manually:', 'the-logical-theme'), url);
     });
 }
 

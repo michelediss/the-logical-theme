@@ -143,6 +143,18 @@ function the_logical_theme_register_vite_script(string $handle, string $entry, a
 }
 
 /**
+ * Associates a registered theme script with translation JSON files.
+ */
+function the_logical_theme_set_script_translations(string $handle): void
+{
+    if (! function_exists('wp_set_script_translations')) {
+        return;
+    }
+
+    wp_set_script_translations($handle, 'the-logical-theme', the_logical_theme_languages_path());
+}
+
+/**
  * Registers a Vite-driven style handle for later enqueueing.
  */
 function the_logical_theme_register_vite_style(string $handle, string $entry, array $dependencies = []): void

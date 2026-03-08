@@ -1,51 +1,45 @@
 <?php
-
-declare(strict_types=1);
-
-register_block_pattern(
-    'the-logical-theme/feature-grid',
-    [
-        'title'       => __('Feature Grid', 'the-logical-theme'),
-        'description' => __('Three-column feature overview.', 'the-logical-theme'),
-        'categories'  => ['the-logical-theme'],
-        'content'     => <<<'HTML'
+/**
+ * Title: Feature Grid
+ * Slug: the-logical-theme/feature-grid
+ * Categories: the-logical-theme
+ * Description: Three-column feature overview.
+ */
+?>
 <!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} -->
 <div class="wp-block-group"><!-- wp:heading {"level":2} -->
-<h2>Feature grid</h2>
+<h2><?php esc_html_e('Feature grid', 'the-logical-theme'); ?></h2>
 <!-- /wp:heading -->
 
 <!-- wp:columns -->
 <div class="wp-block-columns"><!-- wp:column -->
 <div class="wp-block-column"><!-- wp:heading {"level":3} -->
-<h3>Composable</h3>
+<h3><?php esc_html_e('Composable', 'the-logical-theme'); ?></h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Build sections with patterns and keep structure editorially flexible.</p>
+<p><?php esc_html_e('Build sections with patterns and keep structure editorially flexible.', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
 <div class="wp-block-column"><!-- wp:heading {"level":3} -->
-<h3>Lean</h3>
+<h3><?php esc_html_e('Lean', 'the-logical-theme'); ?></h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Use minimal glue code and keep frontend logic modular.</p>
+<p><?php esc_html_e('Use minimal glue code and keep frontend logic modular.', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
 <div class="wp-block-column"><!-- wp:heading {"level":3} -->
-<h3>Extendable</h3>
+<h3><?php esc_html_e('Extendable', 'the-logical-theme'); ?></h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Add more patterns or JS modules without changing the theme core.</p>
+<p><?php esc_html_e('Add more patterns or JS modules without changing the theme core.', 'the-logical-theme'); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>
 <!-- /wp:group -->
-HTML,
-    ]
-);

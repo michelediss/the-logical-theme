@@ -1,0 +1,690 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: The Logical Theme 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/the-logical-theme\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-08T16:13:51+00:00\n"
+"PO-Revision-Date: 2026-03-08T16:13:51+00:00\n"
+"Language: it\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: the-logical-theme\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Theme Name of the theme
+#. Author of the theme
+#: style.css
+#: inc/patterns.php:20
+msgid "The Logical Theme"
+msgstr "The Logical Theme"
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://example.com/the-logical-theme"
+msgstr "https://example.com/the-logical-theme"
+
+#. Description of the theme
+#: style.css
+msgid "Minimal Gutenberg-first block theme boilerplate powered by Vite and Tailwind CSS."
+msgstr "Boilerplate minimale per temi a blocchi Gutenberg-first basato su Vite e Tailwind CSS."
+
+#. Author URI of the theme
+#: style.css
+msgid "https://michelepaolino.com"
+msgstr "https://michelepaolino.com"
+
+#: blocks/breadcrumbs/render.php:20
+msgid "Home"
+msgstr "Home"
+
+#: blocks/breadcrumbs/render.php:50
+msgid "Blog"
+msgstr "Blog"
+
+#. translators: %s: search query.
+#: blocks/breadcrumbs/render.php:153
+#, php-format
+msgid "Search results for \"%s\""
+msgstr "Risultati di ricerca per \"%s\""
+
+#: blocks/breadcrumbs/render.php:162
+msgid "Not found"
+msgstr "Non trovato"
+
+#: blocks/breadcrumbs/render.php:185
+msgid "Breadcrumb"
+msgstr "Percorso di navigazione"
+
+#: blocks/social-share/render.php:54
+msgid "Share on Facebook"
+msgstr "Condividi su Facebook"
+
+#: blocks/social-share/render.php:59
+msgid "Share on X"
+msgstr "Condividi su X"
+
+#: blocks/social-share/render.php:64
+msgid "Share on WhatsApp"
+msgstr "Condividi su WhatsApp"
+
+#: blocks/social-share/render.php:69
+msgid "Share on Telegram"
+msgstr "Condividi su Telegram"
+
+#: blocks/social-share/render.php:74
+msgid "Share on LinkedIn"
+msgstr "Condividi su LinkedIn"
+
+#: blocks/social-share/render.php:104
+#: blocks/social-share/render.php:105
+msgid "Share on Mastodon"
+msgstr "Condividi su Mastodon"
+
+#: blocks/social-share/render.php:112
+msgid "Take a look at this:"
+msgstr "Dai un'occhiata a questo:"
+
+#: blocks/social-share/render.php:113
+#: blocks/social-share/render.php:114
+msgid "Share by email"
+msgstr "Condividi via email"
+
+#: blocks/social-share/render.php:124
+#: blocks/social-share/render.php:125
+msgid "Copy link"
+msgstr "Copia link"
+
+#: functions.php:38
+msgid "Primary Navigation"
+msgstr "Navigazione principale"
+
+#: functions.php:39
+msgid "Footer Navigation"
+msgstr "Navigazione footer"
+
+#: inc/seo/admin.php:15
+#: inc/seo/admin.php:106
+msgid "SEO Settings"
+msgstr "Impostazioni SEO"
+
+#: inc/seo/admin.php:16
+#: src/js/editor-seo.js:73
+msgid "SEO"
+msgstr "SEO"
+
+#: inc/seo/admin.php:79
+msgid "SEO settings saved."
+msgstr "Impostazioni SEO salvate."
+
+#: inc/seo/admin.php:109
+msgid "Robots.txt"
+msgstr "Robots.txt"
+
+#: inc/seo/admin.php:112
+msgid "Global Robots Meta"
+msgstr "Meta robots globali"
+
+#: inc/seo/admin.php:114
+msgid "Set entire site to noindex"
+msgstr "Imposta l'intero sito come noindex"
+
+#: inc/seo/admin.php:117
+msgid "Set entire site to nofollow"
+msgstr "Imposta l'intero sito come nofollow"
+
+#: inc/seo/admin.php:120
+msgid "XML Sitemap"
+msgstr "Sitemap XML"
+
+#: inc/seo/admin.php:123
+msgid "Sitemap available at:"
+msgstr "Sitemap disponibile su:"
+
+#: inc/seo/admin.php:127
+msgid "Sitemap not generated yet."
+msgstr "Sitemap non ancora generata."
+
+#: inc/seo/admin.php:130
+msgid "Regenerate sitemap now"
+msgstr "Rigenera la sitemap adesso"
+
+#: inc/seo/admin.php:134
+msgid "Save SEO Settings"
+msgstr "Salva impostazioni SEO"
+
+#: partials/default-featured-image.php:85
+#: partials/default-featured-image.php:86
+msgid "Default Featured Image"
+msgstr "Immagine in evidenza predefinita"
+
+#: partials/default-featured-image.php:120
+msgid "Select the default featured image"
+msgstr "Seleziona l'immagine in evidenza predefinita"
+
+#: partials/default-featured-image.php:121
+msgid "Use this image"
+msgstr "Usa questa immagine"
+
+#: partials/default-featured-image.php:122
+msgid "Remove the default featured image?"
+msgstr "Rimuovere l'immagine in evidenza predefinita?"
+
+#: partials/default-featured-image.php:123
+#: partials/default-featured-image.php:160
+msgid "No image selected"
+msgstr "Nessuna immagine selezionata"
+
+#: partials/default-featured-image.php:148
+msgid "Default featured image"
+msgstr "Immagine in evidenza predefinita"
+
+#: partials/default-featured-image.php:149
+msgid "Used automatically for posts and pages that are saved without a featured image."
+msgstr "Usata automaticamente per articoli e pagine salvati senza un'immagine in evidenza."
+
+#: partials/default-featured-image.php:176
+msgid "Choose from media library"
+msgstr "Scegli dalla libreria media"
+
+#: partials/default-featured-image.php:179
+msgid "Remove"
+msgstr "Rimuovi"
+
+#: partials/default-featured-image.php:185
+msgid "Save image"
+msgstr "Salva immagine"
+
+#: patterns/cta-band.php:8
+msgid "CTA Band"
+msgstr "Banda CTA"
+
+#: patterns/cta-band.php:9
+msgid "Simple full-width call to action."
+msgstr "Call to action semplice a tutta larghezza."
+
+#: patterns/cta-band.php:29
+msgid "Ready for your next section or conversion moment."
+msgstr "Pronto per la tua prossima sezione o momento di conversione."
+
+#: patterns/cta-band.php:30
+msgid "Drop this band between editorial sections to create rhythm and directional intent."
+msgstr "Inserisci questa banda tra sezioni editoriali per creare ritmo e direzione."
+
+#: patterns/cta-band.php:31
+msgid "Call to action"
+msgstr "Call to action"
+
+#: patterns/faq-section.php:8
+msgid "FAQ Section"
+msgstr "Sezione FAQ"
+
+#: patterns/faq-section.php:9
+msgid "Starter FAQ layout using headings and paragraphs."
+msgstr "Layout FAQ iniziale con titoli e paragrafi."
+
+#: patterns/faq-section.php:35
+msgid "Frequently asked questions"
+msgstr "Domande frequenti"
+
+#: patterns/faq-section.php:36
+msgid "How should this evolve?"
+msgstr "Come dovrebbe evolvere?"
+
+#: patterns/faq-section.php:37
+msgid "Add or remove entries as needed, or replace this with a richer future block pattern."
+msgstr "Aggiungi o rimuovi voci secondo necessità, oppure sostituiscilo con un pattern futuro più ricco."
+
+#: patterns/faq-section.php:38
+msgid "Why keep it simple?"
+msgstr "Perché mantenerlo semplice?"
+
+#: patterns/faq-section.php:39
+msgid "The boilerplate should model structure and rhythm without locking final UX decisions too early."
+msgstr "Il boilerplate dovrebbe definire struttura e ritmo senza bloccare troppo presto le decisioni finali di UX."
+
+#: patterns/feature-grid.php:8
+msgid "Feature Grid"
+msgstr "Griglia funzionalità"
+
+#: patterns/feature-grid.php:9
+msgid "Three-column feature overview."
+msgstr "Panoramica funzionalità su tre colonne."
+
+#: patterns/feature-grid.php:51
+msgid "Feature grid"
+msgstr "Griglia funzionalità"
+
+#: patterns/feature-grid.php:52
+msgid "Composable"
+msgstr "Componibile"
+
+#: patterns/feature-grid.php:53
+msgid "Build sections with patterns and keep structure editorially flexible."
+msgstr "Costruisci sezioni con i pattern e mantieni la struttura flessibile dal punto di vista editoriale."
+
+#: patterns/feature-grid.php:54
+msgid "Lean"
+msgstr "Essenziale"
+
+#: patterns/feature-grid.php:55
+msgid "Use minimal glue code and keep frontend logic modular."
+msgstr "Usa il minimo codice di collegamento e mantieni modulare la logica frontend."
+
+#: patterns/feature-grid.php:56
+msgid "Extendable"
+msgstr "Estendibile"
+
+#: patterns/feature-grid.php:57
+msgid "Add more patterns or JS modules without changing the theme core."
+msgstr "Aggiungi altri pattern o moduli JS senza modificare il core del tema."
+
+#: patterns/hero.php:8
+msgid "Hero"
+msgstr "Hero"
+
+#: patterns/hero.php:9
+msgid "Intro section with heading, copy, and primary CTA."
+msgstr "Sezione introduttiva con titolo, testo e CTA primaria."
+
+#: patterns/hero.php:43
+msgid "Starter label"
+msgstr "Etichetta iniziale"
+
+#: patterns/hero.php:44
+msgid "Use this hero as a clean starting point."
+msgstr "Usa questa hero come punto di partenza pulito."
+
+#: patterns/hero.php:45
+msgid "Replace content and media, keep the section rhythm and block structure."
+msgstr "Sostituisci contenuti e media, mantenendo il ritmo della sezione e la struttura a blocchi."
+
+#: patterns/hero.php:46
+msgid "Primary action"
+msgstr "Azione primaria"
+
+#: patterns/logo-cloud.php:8
+msgid "Logo Cloud"
+msgstr "Logo cloud"
+
+#: patterns/logo-cloud.php:9
+msgid "Simple logo placeholder row."
+msgstr "Riga semplice di placeholder per loghi."
+
+#: patterns/logo-cloud.php:45
+msgid "Trusted by teams, studios, or partners."
+msgstr "Scelto da team, studi o partner."
+
+#: patterns/logo-cloud.php:46
+msgid "Logo One"
+msgstr "Logo uno"
+
+#: patterns/logo-cloud.php:47
+msgid "Logo Two"
+msgstr "Logo due"
+
+#: patterns/logo-cloud.php:48
+msgid "Logo Three"
+msgstr "Logo tre"
+
+#: patterns/logo-cloud.php:49
+msgid "Logo Four"
+msgstr "Logo quattro"
+
+#: patterns/media-content.php:8
+msgid "Media Content"
+msgstr "Contenuto media"
+
+#: patterns/media-content.php:9
+msgid "Text and media split layout."
+msgstr "Layout diviso tra testo e media."
+
+#: patterns/media-content.php:37
+msgid "Pair media with a clear content block."
+msgstr "Abbina i media a un blocco contenuto chiaro."
+
+#: patterns/media-content.php:38
+msgid "Use this starter for editorial storytelling, product content, or feature callouts."
+msgstr "Usa questo starter per storytelling editoriale, contenuti di prodotto o callout di funzionalità."
+
+#: patterns/media-content.php:39
+msgid "Keep copy short"
+msgstr "Mantieni il testo breve"
+
+#: patterns/media-content.php:40
+msgid "Let imagery support hierarchy"
+msgstr "Lascia che le immagini supportino la gerarchia"
+
+#: patterns/media-content.php:41
+msgid "Prefer block-native controls"
+msgstr "Preferisci controlli nativi dei blocchi"
+
+#: patterns/page-heading.php:8
+msgid "Page Heading"
+msgstr "Intestazione pagina"
+
+#: patterns/page-heading.php:9
+msgid "Intro heading section for generic pages."
+msgstr "Sezione introduttiva con heading per pagine generiche."
+
+#: patterns/page-heading.php:27
+msgid "Section label"
+msgstr "Etichetta sezione"
+
+#: patterns/page-heading.php:28
+msgid "Page heading starter"
+msgstr "Intestazione pagina iniziale"
+
+#: patterns/page-heading.php:29
+msgid "Use this at the top of pages that need a lightweight intro block before the main content."
+msgstr "Usalo in cima alle pagine che richiedono un blocco introduttivo leggero prima del contenuto principale."
+
+#: patterns/site-footer.php:8
+msgid "Site Footer"
+msgstr "Footer sito"
+
+#: patterns/site-footer.php:9
+msgid "Footer layout with site title, supporting copy, and navigation."
+msgstr "Layout footer con titolo sito, testo di supporto e navigazione."
+
+#: patterns/site-footer.php:26
+msgid "Minimal footer starter for future navigation, legal copy, or contact details."
+msgstr "Footer iniziale minimale per futura navigazione, note legali o dettagli di contatto."
+
+#: patterns/site-hero-part.php:8
+msgid "Site Hero Part"
+msgstr "Parte hero sito"
+
+#: patterns/site-hero-part.php:9
+msgid "Shared hero template part with translatable starter copy."
+msgstr "Template part hero condivisa con testo iniziale traducibile."
+
+#: patterns/site-hero-part.php:46
+msgid "Starter boilerplate"
+msgstr "Boilerplate iniziale"
+
+#: patterns/site-hero-part.php:47
+msgid "Build landing pages with core blocks, patterns, and a lean frontend pipeline."
+msgstr "Crea landing page con blocchi core, pattern e una pipeline frontend snella."
+
+#: patterns/site-hero-part.php:48
+msgid "This hero stays generic on purpose: it defines structure, not branding."
+msgstr "Questa hero resta volutamente generica: definisce la struttura, non il branding."
+
+#: patterns/site-hero-part.php:49
+msgid "Explore sections"
+msgstr "Esplora le sezioni"
+
+#: patterns/site-hero-part.php:50
+msgid "Reserved visual slot for future imagery, motion, or editorial messaging."
+msgstr "Spazio visivo riservato per immagini future, motion o messaggi editoriali."
+
+#: patterns/template-404.php:8
+msgid "404 Content"
+msgstr "Contenuto 404"
+
+#: patterns/template-404.php:9
+msgid "Not found template content with CTA and search."
+msgstr "Contenuto del template not found con CTA e ricerca."
+
+#: patterns/template-404.php:32
+msgid "Page not found"
+msgstr "Pagina non trovata"
+
+#: patterns/template-404.php:33
+msgid "The page you requested could not be found. Try searching or continue browsing from the homepage."
+msgstr "La pagina richiesta non è stata trovata. Prova a cercare oppure continua la navigazione dalla homepage."
+
+#: patterns/template-404.php:35
+msgid "Back home"
+msgstr "Torna alla home"
+
+#: patterns/testimonial-section.php:8
+msgid "Testimonial Section"
+msgstr "Sezione testimonianze"
+
+#: patterns/testimonial-section.php:9
+msgid "Minimal quote-led social proof section."
+msgstr "Sezione di social proof minimale guidata da citazioni."
+
+#: patterns/testimonial-section.php:37
+msgid "What people say"
+msgstr "Cosa dicono le persone"
+
+#: patterns/testimonial-section.php:38
+msgid "\"Keep testimonials brief, direct, and easy to swap.\""
+msgstr "\"Mantieni le testimonianze brevi, dirette e facili da sostituire.\""
+
+#: patterns/testimonial-section.php:39
+msgid "Person name, role"
+msgstr "Nome persona, ruolo"
+
+#: patterns/testimonial-section.php:40
+msgid "Add a second quote or replace this column with metrics, logos, or additional context."
+msgstr "Aggiungi una seconda citazione oppure sostituisci questa colonna con metriche, loghi o contesto aggiuntivo."
+
+#: src/js/blocks/breadcrumbs/editor.js:11
+msgid "Breadcrumbs"
+msgstr "Breadcrumb"
+
+#: src/js/blocks/breadcrumbs/editor.js:12
+msgid "Contextual navigation trail for the current view."
+msgstr "Percorso di navigazione contestuale per la vista corrente."
+
+#: src/js/blocks/breadcrumbs/editor.js:37
+#: src/js/blocks/social-share/editor.js:38
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: src/js/blocks/breadcrumbs/editor.js:41
+msgid "Show current page"
+msgstr "Mostra la pagina corrente"
+
+#: src/js/blocks/breadcrumbs/editor.js:48
+msgid "Separator"
+msgstr "Separatore"
+
+#: src/js/blocks/social-share/editor.js:13
+msgid "Social Share"
+msgstr "Condivisione social"
+
+#: src/js/blocks/social-share/editor.js:14
+msgid "Social sharing buttons for the current content."
+msgstr "Pulsanti di condivisione social per il contenuto corrente."
+
+#: src/js/blocks/social-share/editor.js:42
+msgid "Color"
+msgstr "Colore"
+
+#: src/js/blocks/social-share/editor.js:45
+msgid "Default"
+msgstr "Predefinito"
+
+#: src/js/blocks/social-share/editor.js:46
+msgid "Accent"
+msgstr "Accento"
+
+#: src/js/blocks/social-share/editor.js:47
+msgid "Foreground"
+msgstr "Primo piano"
+
+#: src/js/blocks/social-share/editor.js:48
+msgid "Muted"
+msgstr "Attenuato"
+
+#: src/js/blocks/social-share/editor.js:49
+msgid "Canvas"
+msgstr "Sfondo"
+
+#: src/js/blocks/social-share/editor.js:50
+msgid "Custom hex color"
+msgstr "Colore hex personalizzato"
+
+#: src/js/blocks/social-share/editor.js:63
+msgid "Hex color"
+msgstr "Colore hex"
+
+#: src/js/blocks/social-share/editor.js:64
+msgid "Use values like #b85c38 or #11223344."
+msgstr "Usa valori come #b85c38 o #11223344."
+
+#: src/js/blocks/social-share/view.js:5
+msgid "Your Mastodon server (for example mastodon.social):"
+msgstr "Il tuo server Mastodon (per esempio mastodon.social):"
+
+#: src/js/blocks/social-share/view.js:26
+msgid "Link copied."
+msgstr "Link copiato."
+
+#: src/js/blocks/social-share/view.js:29
+msgid "Copy manually:"
+msgstr "Copia manualmente:"
+
+#: src/js/editor-seo.js:135
+msgid "SEO title"
+msgstr "Titolo SEO"
+
+#: src/js/editor-seo.js:136
+msgid "If empty, the post title and site name are used."
+msgstr "Se vuoto, vengono usati il titolo del contenuto e il nome del sito."
+
+#: src/js/editor-seo.js:141
+msgid "Meta description"
+msgstr "Meta description"
+
+#: src/js/editor-seo.js:142
+msgid "If empty, the excerpt or content summary is used."
+msgstr "Se vuoto, viene usato l'estratto o il riepilogo del contenuto."
+
+#: src/js/editor-seo.js:147
+msgid "Noindex"
+msgstr "Noindex"
+
+#: src/js/editor-seo.js:152
+msgid "Nofollow"
+msgstr "Nofollow"
+
+#: src/js/editor-seo.js:168
+msgid "Global robots and sitemap settings remain available in Settings > SEO."
+msgstr "Le impostazioni globali di robots e sitemap restano disponibili in Impostazioni > SEO."
+
+#: src/js/editor-seo.js:173
+msgid "Open SEO settings"
+msgstr "Apri impostazioni SEO"
+
+#: blocks/breadcrumbs/block.json
+msgctxt "block title"
+msgid "Breadcrumbs"
+msgstr "Breadcrumb"
+
+#: blocks/breadcrumbs/block.json
+msgctxt "block description"
+msgid "Contextual navigation trail for the current view."
+msgstr "Percorso di navigazione contestuale per la vista corrente."
+
+#: blocks/social-share/block.json
+msgctxt "block title"
+msgid "Social Share"
+msgstr "Condivisione social"
+
+#: blocks/social-share/block.json
+msgctxt "block description"
+msgid "Social sharing buttons for the current content."
+msgstr "Pulsanti di condivisione social per il contenuto corrente."
+
+#: theme.json
+msgctxt "Color name"
+msgid "Canvas"
+msgstr "Sfondo"
+
+#: theme.json
+msgctxt "Color name"
+msgid "Foreground"
+msgstr "Primo piano"
+
+#: theme.json
+msgctxt "Color name"
+msgid "Accent"
+msgstr "Accento"
+
+#: theme.json
+msgctxt "Color name"
+msgid "Muted"
+msgstr "Attenuato"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "XS"
+msgstr "XS"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "SM"
+msgstr "SM"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "MD"
+msgstr "MD"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "LG"
+msgstr "LG"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "XL"
+msgstr "XL"
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Sans"
+msgstr "Sans"
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Display"
+msgstr "Display"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Small"
+msgstr "Piccolo"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Base"
+msgstr "Base"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Large"
+msgstr "Grande"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "XL"
+msgstr "XL"
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Header"
+msgstr "Header"
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Hero"
+msgstr "Hero"
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Page Heading"
+msgstr "Intestazione pagina"
+
+#: theme.json
+msgctxt "Template part name"
+msgid "Footer"
+msgstr "Footer"

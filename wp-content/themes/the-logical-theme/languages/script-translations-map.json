@@ -1,0 +1,6 @@
+{
+  "src/js/blocks/breadcrumbs/editor.js": "assets/js/blockEditor.js",
+  "src/js/blocks/social-share/editor.js": "assets/js/blockEditor.js",
+  "src/js/blocks/social-share/view.js": "assets/js/blockView.js",
+  "src/js/editor-seo.js": "assets/js/editorSeo.js"
+}

@@ -52,6 +52,8 @@ src/css/blocks.css
 - Block attributes must be declared in `block.json`.
 - Editor JS may redefine metadata useful at runtime, but the slug must match `block.json`.
 - Prefer `window.wp.*` in editor modules, consistently with the theme's current pipeline.
+- Any user-facing label, description, help text, or placeholder in block metadata, editor JS, render PHP, or front-end JS must be wrapped with the `the-logical-theme` text domain so it can be extracted into `languages/`.
+- If a front-end block script uses `wp.i18n`, ensure its registered script handle receives `wp_set_script_translations()`.
 
 ## Registration And Whitelist
 
