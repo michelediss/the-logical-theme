@@ -9,6 +9,7 @@
 - `inc/blocks.php` discovers and registers custom theme blocks from `blocks/*/block.json`.
 - `inc/patterns.php` registers the custom block pattern category, while WordPress auto-discovers native pattern files from `patterns/`.
 - `templates/` and `parts/` contain the block theme HTML templates used by the Site Editor.
+- `parts/cookie-banner.html` mounts the plugin-owned `simple-cookie-consent/banner` block so cookie consent layout is controlled from the Site Editor instead of plugin PHP hooks.
 - `src/js/` and `src/css/` contain the authored source files; built output is written to `assets/`.
 - `theme.json` defines the source-of-truth design tokens and editorial defaults that Gutenberg must know natively, while Tailwind consumes those same tokens as a bridge instead of defining a second design system.
 
@@ -45,9 +46,11 @@
   - `fade-in.js` reveals eligible front-end sections on scroll with GSAP and `ScrollTrigger`. It only targets managed elements, skips nodes marked with `.no-fadein`, and shows content immediately when the user prefers reduced motion. Use `.no-fadein` consistently on sections that can appear above the fold so primary content does not load in a hidden state.
   - `menu.js` keeps the theme-level `.menu-is-open` state on `<html>` synchronized with the core Navigation block responsive overlay, so scroll locking reflects the real open or closed state of the mobile menu.
   - `page-transitions.js` handles subtle page entry animation and intercepts eligible same-origin links to run a short exit transition before navigation. External links, modified clicks, downloads, admin routes, and same-page hash jumps are ignored.
+  - `simple-cookie-consent-banner.js` owns frontend motion for the plugin-rendered cookie banner, including GSAP entry/exit and settings-panel reveal coordination.
 - `src/js/blocks/` contains editor and front-end scripts for custom blocks. Shared entrypoints (`editor.js` and `view.js`) import block-specific modules so Vite can bundle them into the assets consumed by WordPress.
 - `src/js/patterns/` contains lightweight hooks for pattern-level DOM behavior. These hooks should stay optional and should not become a second application bootstrap layer.
 - Keep JavaScript as progressive enhancement. Theme templates, patterns, and custom blocks must remain usable without client-side JS.
+- Theme-authored frontend presentation for the plugin cookie banner lives in `src/css/blocks/simple-cookie-consent-banner.css`, while the plugin remains responsible for markup and consent logic.
 
 ## Vite Asset Flow
 

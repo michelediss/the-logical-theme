@@ -60,7 +60,7 @@ jobs:
 
             TAGS=(
               "theme-logical-theme-v${BASE_VERSION}"
-              "plugin-logical-cookie-consent-v${BASE_VERSION}"
+              "plugin-simple-cookie-consent-v${BASE_VERSION}"
               "plugin-logical-default-featured-image-v${BASE_VERSION}"
               "plugin-logical-design-system-v${BASE_VERSION}"
               "plugin-logical-design-system-preview-v${BASE_VERSION}"
@@ -116,11 +116,11 @@ jobs:
               VERSION="${TAG#theme-logical-theme-v}"
               SOURCE_PATH="wp-content/themes/the-logical-theme"
               ;;
-            plugin-logical-cookie-consent-v*)
-              SLUG="logical-cookie-consent"
+            plugin-simple-cookie-consent-v*)
+              SLUG="simple-cookie-consent"
               TYPE="plugin"
-              VERSION="${TAG#plugin-logical-cookie-consent-v}"
-              SOURCE_PATH="wp-content/plugins/logical-cookie-consent"
+              VERSION="${TAG#plugin-simple-cookie-consent-v}"
+              SOURCE_PATH="wp-content/plugins/simple-cookie-consent"
               ;;
             plugin-logical-default-featured-image-v*)
               SLUG="logical-default-featured-image"

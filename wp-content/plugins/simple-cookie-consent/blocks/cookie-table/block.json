@@ -1,0 +1,30 @@
+{
+  "apiVersion": 3,
+  "name": "simple-cookie-consent/cookie-table",
+  "title": "Cookie Table",
+  "category": "widgets",
+  "icon": "table-col-after",
+  "description": "Displays the registered cookies as a table or card list.",
+  "keywords": ["cookie", "table", "privacy"],
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "layout": {
+      "type": "string",
+      "default": "table"
+    },
+    "category": {
+      "type": "string",
+      "default": ""
+    },
+    "showCategory": {
+      "type": "boolean",
+      "default": true
+    },
+    "showDuration": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
