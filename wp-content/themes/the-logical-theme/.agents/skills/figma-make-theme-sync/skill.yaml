@@ -80,6 +80,23 @@ input_schema:
         figma_capture_url:
           type: string
           description: Optional explicit Figma Make URL to capture if it differs from figma.app_url.
+    performance_audit:
+      type: object
+      description: Lighthouse-based performance audit configuration for generated WordPress pages.
+      properties:
+        enabled:
+          type: boolean
+          description: Enables the Lighthouse audit step. Page-oriented tasks should treat this as true by default.
+        max_iterations:
+          type: integer
+          minimum: 1
+          maximum: 3
+          description: Shared correction-loop limit for visual and performance QA. Defaults to 3.
+        applied_fixes:
+          type: array
+          items:
+            type: string
+          description: Low-risk remediations already applied during the current iteration.
   additionalProperties: true
   required:
     - task
@@ -102,6 +119,13 @@ output_schema:
         - pass
         - max_iterations_reached
         - skipped
+    performance_audit_status:
+      type: string
+      enum:
+        - pass
+        - warning
+        - error
+        - max_iterations_reached
     artifact_root:
       type: string
     reports:
@@ -117,7 +141,10 @@ safety_rules:
   - Validate figma.pages mappings when provided, and stop on the exact invalid key.
   - Never invent node ids, frame ids, or alternate Figma URLs.
   - Respect the existing block-theme conventions before writing code.
-  - For page-oriented tasks, do not finish without theme.json output or update suggestions, reusable patterns or parts, screenshot capture, a shared run_id, and a visual QA report.
+  - For page-oriented tasks, do not finish without theme.json output or update suggestions, reusable patterns or parts, screenshot capture, a shared run_id, a visual QA report, and a Lighthouse performance report.
+  - Run Lighthouse on the generated WordPress page URL, not on Figma Make.
+  - Treat Lighthouse as lab-data validation and keep performance as a soft gate.
+  - Limit auto-remediation to low-risk fixes directly tied to generated output and local asset loading.
 runtime_notes:
   preferred_files:
     - figma.json
@@ -137,6 +164,7 @@ runtime_notes:
       - For Figma Make files, use MCP to inspect source structure and asset references.
       - Use MCP screenshots as required visual context for the same Make app under review.
       - Use the repository Playwright scripts for the visual QA loop and output capture.
+      - Use the repository Lighthouse script for performance scoring and lab-data Web Core Vitals on the generated WordPress page.
       - get_metadata is not the primary inspection path for Figma Make.
   resolver_scripts:
     blocks: .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php
@@ -170,4 +198,15 @@ runtime_notes:
     scripts:
       figma_capture: .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs
       wp_capture: .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs
+      lighthouse_audit: .agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs
       report: .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs
+  performance_audit:
+    provider: lighthouse
+    gate: soft
+    authoritative_profile: mobile
+    max_iterations: 3
+    thresholds:
+      performance_score: 0.75
+      lcp_ms: 2500
+      cls: 0.1
+      inp_ms: 200

@@ -21,7 +21,7 @@ Use this skill when the user wants Gutenberg-compatible code for `the-logical-th
 - read theme runtime facts from the repository instead of restating them from memory
 - inspect the Make app through MCP before generating Gutenberg output
 - generate or update `theme.json`, patterns, parts, and templates in the smallest shape that matches the design intent
-- finish page-oriented work with the repository visual QA loop
+- finish page-oriented work with the repository visual QA loop and Lighthouse performance audit
 
 ## Required Preconditions
 
@@ -49,6 +49,7 @@ Read runtime facts from these sources before generating code:
 - `.agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh`
 - `.agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs`
 - `.agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs`
+- `.agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs`
 - `.agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs`
 
 During development, always read:
@@ -73,7 +74,10 @@ When the task depends on the Make app implementation, read `references/figma-mak
 10. Build reusable `patterns/*.php` before composing templates.
 11. Build `parts/*.html` when the page needs shared structural regions.
 12. Compose `templates/*.html` from patterns and parts instead of writing monolithic markup.
-13. Finish page-oriented work with the visual QA loop using the repository capture and report scripts.
+13. Run WordPress screenshot capture for the current iteration.
+14. Run Lighthouse against the same WordPress URL for the current iteration.
+15. If Lighthouse is below threshold, apply low-risk remediation to the generated code, then repeat WordPress capture and Lighthouse until the page passes or the 3-iteration limit is reached.
+16. Finish page-oriented work with the visual QA and performance reports.
 
 ## Hard Rules
 
@@ -87,4 +91,7 @@ When the task depends on the Make app implementation, read `references/figma-mak
 - `theme.json` is only for stable global tokens and Gutenberg-facing defaults.
 - Keep `settings.layout` in `theme.json`.
 - Prefer Gutenberg presets and block supports over copied Tailwind utility classes.
-- For page-oriented work, do not finish without `theme.json` output or update guidance, at least one reusable pattern or part, at least one named template artifact, screenshot capture, a shared `run_id`, and a visual QA report.
+- For page-oriented work, do not finish without `theme.json` output or update guidance, at least one reusable pattern or part, at least one named template artifact, screenshot capture, a shared `run_id`, a visual QA report, and a Lighthouse performance report.
+- Treat Lighthouse as lab-data validation of the generated WordPress page, not as field data or as a Figma Make audit.
+- Use a soft gate for performance: do not claim a full pass while mobile Lighthouse remains below threshold, but prefer warning or max-iterations status over destructive layout changes.
+- Auto-remediation is allowed only for low-risk fixes such as image loading hints, preload/preconnect, asset deferral, missing dimensions, or similarly local changes tied to the generated output.

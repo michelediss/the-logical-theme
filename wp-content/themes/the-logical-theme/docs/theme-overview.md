@@ -29,7 +29,7 @@
 - `inc/patterns.php`: custom block pattern category registration.
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
-- `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, and visual QA tooling for Figma Make to Gutenberg workflows.
+- `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, visual QA tooling, and Lighthouse performance audit tooling for Figma Make to Gutenberg workflows.
 - `tailwind.config.js`: token bridge that maps WordPress CSS variables into Tailwind utilities for theme-authored CSS and markup.
 - `src/js/app.js`: front-end bootstrap entrypoint.
 - `src/js/blocks/editor.js`: shared editor entry for custom blocks.
@@ -78,4 +78,4 @@
 - When updating tokens or layout defaults, change `theme.json` first and let Tailwind keep consuming the generated CSS variables rather than redefining the values in `tailwind.config.js`.
 - Keep Contact Form 7 manifests under `wp-content/themes/the-logical-theme/cf7-forms` so they are versioned with the theme; the local `cf7-sync` WP-CLI command reads from that path by default.
 - When adding a new custom block, update both `docs/custom-blocks.md` and `docs/allowed-blocks.md` if the block should be available to AI-assisted template generation.
-- The `figma-make-theme-sync` skill must read `docs/` during development, but runtime facts for blocks, tokens, and visual QA must come from theme code and its resolver scripts.
+- The `figma-make-theme-sync` skill must read `docs/` during development, but runtime facts for blocks, tokens, visual QA, and performance audit thresholds must come from theme code and its resolver scripts.

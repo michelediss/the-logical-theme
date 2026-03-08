@@ -128,6 +128,40 @@ function readManifestStatus(filePath) {
   }
 }
 
+function readJsonFile(filePath) {
+  if (!fileExists(filePath)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function buildPerformanceMarkdownSection(summary) {
+  if (!summary) {
+    return [];
+  }
+
+  return [
+    '## Performance Audit',
+    '',
+    `- Status: \`${summary.status}\``,
+    `- URL: \`${summary.url}\``,
+    `- Mobile score: \`${summary.mobile?.score ?? null}\``,
+    `- Desktop score: \`${summary.desktop?.score ?? null}\``,
+    `- Mobile LCP: \`${summary.mobile?.web_vitals?.lcp ?? null}\` ms`,
+    `- Mobile CLS: \`${summary.mobile?.web_vitals?.cls ?? null}\``,
+    `- Mobile INP: \`${summary.mobile?.web_vitals?.inp ?? null}\` ms`,
+    `- Applied fixes: ${Array.isArray(summary.applied_fixes) && summary.applied_fixes.length > 0 ? summary.applied_fixes.join('; ') : 'none recorded'}`,
+    `- Remaining failures: ${Array.isArray(summary.remaining_failures) && summary.remaining_failures.length > 0 ? summary.remaining_failures.map((failure) => failure.metric).join('; ') : 'none'}`,
+    '- Note: Lighthouse metrics are lab data, not field data or CrUX.',
+    '',
+  ];
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   const targetName = requireCanonicalArg(args, 'target-name', ['targetName', 'target_name']);
@@ -144,6 +178,8 @@ async function main() {
   const runRoot = getRunRoot(targetName, runId, artifactRoot);
   const reportDir = ensureDir(path.join(runRoot, 'reports'));
   const diffDir = ensureDir(path.join(runRoot, 'diff', `iter-${iteration}`));
+  const performanceSummaryPath = path.join(runRoot, 'performance', `iter-${iteration}`, 'summary.json');
+  const performanceSummary = readJsonFile(performanceSummaryPath);
   const entries = breakpoints.map((breakpoint) => {
     const inputPath = path.join(runRoot, 'input', `${breakpoint}.png`);
     const outputPath = path.join(runRoot, 'output', `iter-${iteration}`, `${breakpoint}.png`);
@@ -186,6 +222,7 @@ async function main() {
     status: entries.some((entry) => entry.review_status === 'blocked') ? 'blocked' : 'pending_review',
     finalStatus,
     compare_mode: 'llm_screenshot_review_with_metrics',
+    performance_audit: performanceSummary,
     entries,
   };
 
@@ -193,10 +230,10 @@ async function main() {
   const markdownPath = path.join(reportDir, `iter-${iteration}.md`);
 
   writeJson(jsonPath, report);
-  writeText(markdownPath, buildMarkdown(report));
+  writeText(markdownPath, `${buildMarkdown(report)}${buildPerformanceMarkdownSection(performanceSummary).join('\n')}`);
   writeText(
     path.join(reportDir, 'final-summary.md'),
-    buildFinalSummary(targetName, runRoot, finalStatus, iteration),
+    `${buildFinalSummary(targetName, runRoot, finalStatus, iteration)}${buildPerformanceMarkdownSection(performanceSummary).join('\n')}`,
   );
 
   process.stdout.write(`${jsonPath}\n`);

@@ -1,6 +1,6 @@
 # figma-make-theme-sync
 
-Local skill for `the-logical-theme` that generates Gutenberg code from `figma.json` using Figma Make as the source and validates the result with responsive screenshots.
+Local skill for `the-logical-theme` that generates Gutenberg code from `figma.json` using Figma Make as the source and validates the result with responsive screenshots plus Lighthouse performance audits.
 
 The skill is repository-local on purpose and should derive runtime facts from the theme itself, not from duplicated markdown lists.
 
@@ -15,11 +15,13 @@ The skill is repository-local on purpose and should derive runtime facts from th
 - generates or updates `theme.json`, patterns, template parts, and templates
 - for page-oriented tasks, builds `theme.json` first, then native WordPress `patterns/*.php` and parts, then `templates/*.html`
 - uses Playwright-based capture scripts to collect input/output screenshots and prepare a structured comparison report
+- runs Lighthouse against the generated WordPress page, stores mobile and desktop reports, and feeds those metrics into the same iterative QA loop
 
 ## Verified Tool Split
 
 - `Figma MCP` is the source-inspection layer for Figma Make. Use `get_design_context` to inspect source files, stack, section structure, and asset references.
 - `Playwright` is the screenshot layer. Use the repository capture scripts for Figma reference captures, WordPress output captures, and visual QA reports.
+- `Lighthouse` is the performance layer. Use the repository audit script for lab-data Web Core Vitals and performance scoring on the WordPress output URL.
 
 This distinction matters for Figma Make:
 
@@ -124,6 +126,7 @@ For Figma screenshots:
 - `scripts/export-visual-qa-config.mjs`
 - `scripts/capture-figma-make-screenshots.mjs`
 - `scripts/capture-wp-screenshots.mjs`
+- `scripts/run-lighthouse-audit.mjs`
 - `scripts/prepare-visual-qa-report.mjs`
 
 Theme npm scripts:
@@ -134,6 +137,7 @@ npm run skill:export-tokens
 npm run skill:export-visual-qa
 npm run visual-qa:figma -- --page-key home --target-name front-page --run-id home-qa-1
 npm run visual-qa:wp -- --page-key home --target-name front-page --run-id home-qa-1 --iteration 1
+npm run visual-qa:lighthouse -- --page-key home --target-name front-page --run-id home-qa-1 --iteration 1
 npm run visual-qa:report -- --target-name front-page --run-id home-qa-1 --iteration 1
 ./.agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh --field site_url --page-key home
 ```
@@ -172,6 +176,34 @@ Semantic review still evaluates at least:
 - `media_crop_or_size`
 - `cta_navigation_placement`
 
+## Performance Audit
+
+Use Lighthouse on the same WordPress URL captured by `visual-qa:wp`.
+
+Artifacts:
+
+- `.artifacts/visual-qa/<target-name>/<run-id>/performance/iter-N/mobile.json`
+- `.artifacts/visual-qa/<target-name>/<run-id>/performance/iter-N/mobile.html`
+- `.artifacts/visual-qa/<target-name>/<run-id>/performance/iter-N/desktop.json`
+- `.artifacts/visual-qa/<target-name>/<run-id>/performance/iter-N/desktop.html`
+- `.artifacts/visual-qa/<target-name>/<run-id>/performance/iter-N/summary.json`
+- `.artifacts/visual-qa/<target-name>/<run-id>/reports/performance-iter-N.md`
+
+Default thresholds:
+
+- mobile performance score `>= 0.75`
+- LCP `<= 2500 ms`
+- CLS `<= 0.10`
+- INP `<= 200 ms`
+
+Policy:
+
+- `mobile` is authoritative for pass or warning status
+- `desktop` is informative
+- results are lab data, not CrUX
+- failed Lighthouse audits should trigger low-risk remediation on the generated code, then rerun WordPress capture plus Lighthouse
+- the loop stops after 3 iterations even if performance remains below threshold
+
 ## Workflow Summary
 
 1. Read the theme structure and required docs context.
@@ -185,9 +217,10 @@ Semantic review still evaluates at least:
 9. Choose a shared `run_id` for the full visual QA iteration.
 10. Capture reference screenshots through the Playwright-based Figma capture script.
 11. Capture WordPress screenshots for the composed result through the Playwright-based WordPress capture script.
-12. Produce a comparison report with objective metrics.
-13. Use AI only for layout mapping and semantic mismatch analysis.
-14. Correct and repeat until the result is satisfactory or the 3-iteration limit is reached.
+12. Run Lighthouse on the generated WordPress page and store mobile plus desktop reports.
+13. Produce a comparison report with objective metrics and performance summary.
+14. Use AI only for layout mapping, semantic mismatch analysis, and low-risk performance remediation.
+15. Correct and repeat until the result is satisfactory or the 3-iteration limit is reached.
 
 For `theme.json` generation, use this decision order:
 
@@ -208,6 +241,7 @@ For `theme.json` generation, use this decision order:
 ## Notes
 
 - The skill does not use node IDs persisted in the repository.
-- For page-oriented tasks it cannot declare success without a final visual QA report and a composed output that includes theme tokens plus reusable pattern/part building blocks.
+- For page-oriented tasks it cannot declare success without a final visual QA report, a Lighthouse report, and a composed output that includes theme tokens plus reusable pattern/part building blocks.
 - Running the browser scripts requires Playwright to be installed in the theme.
+- Running the performance audit requires `lighthouse` and `chrome-launcher` to be installed in the theme.
 - If `page_key` exists, the skill uses the mappings configured in `figma.json` for Figma screenshots and site preview.
