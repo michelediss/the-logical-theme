@@ -1,0 +1,12 @@
+name: theme-docs-context
+description: Use this skill when a task depends on the canonical Markdown documentation of the-logical-theme. It must include and rely on all files in docs/: docs/theme-overview.md, docs/allowed-blocks.md, and docs/custom-blocks.md.
+context:
+  platform: wordpress
+  theme: the-logical-theme
+  workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+  theme_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/themes/the-logical-theme
+runtime_notes:
+  preferred_files:
+    - docs/theme-overview.md
+    - docs/allowed-blocks.md
+    - docs/custom-blocks.md
