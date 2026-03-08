@@ -7,6 +7,8 @@ description: Generate Gutenberg-compatible theme.json suggestions, block pattern
 
 Use this skill when the user wants Gutenberg-compatible code for `the-logical-theme` based on Figma Make.
 
+This skill is template-first and includes an iterative visual QA loop driven by screenshots. When the task is page-oriented, the minimum acceptable output is at least one working file in `templates/` plus a matching visual validation pass.
+
 This skill is repository-local on purpose. It must read the theme's real files before generating anything:
 
 - `figma.json`
@@ -17,6 +19,8 @@ This skill is repository-local on purpose. It must read the theme's real files b
 - `templates/*.html`
 - `ai-rules/THEME_SUMMARY.md`
 - `ai-rules/AI_AVAILABLE_BLOCKS.md`
+- `.artifacts/visual-qa/` when the task includes validation history
+- page mappings in `figma.json` when page-specific Figma/site URL relationships are configured
 
 ## Repository assumptions
 
@@ -51,16 +55,33 @@ Do not use this skill for generic React exports, custom block development, or pl
 3. Resolve the Figma Make URL by running `scripts/get-figma-app-url.sh`.
 4. Validate that `figma.json` contains:
    - `figma.source` equal to `make`
-   - `figma.app_url` as the only Figma context source
+   - `figma.app_url` as the global Make app source
+   - optional `figma.pages` mappings for page-specific Figma/site URL relationships
 5. Parse the Make app/file identifier from `figma.app_url`.
 6. Retrieve Figma context through MCP using the Make app as the source of truth.
-7. Generate only one of these target types unless the user explicitly asks for multiple:
+7. Capture reference screenshots from Figma Make for all five Tailwind breakpoints before finalizing code.
+8. Generate only one of these target types unless the user explicitly asks for multiple:
    - `theme.json` suggestions
    - `patterns/*.php`
    - `parts/*.html`
    - `templates/*.html`
-8. Before writing code, compare the generated structure against the theme's existing conventions and the Gutenberg block whitelist below.
-9. Prefer the smallest change that matches the design intent.
+9. When the task is page-oriented, always finish with at least one concrete `templates/*.html` artifact named by the user.
+10. Before writing code, compare the generated structure against the theme's existing conventions and the Gutenberg block whitelist below.
+11. Prefer the smallest change that matches the design intent.
+12. Capture output screenshots from WordPress, compare them against the Figma reference set, then iterate on the generated code until the comparison is satisfactory or the loop reaches the hard stop.
+
+## Required task inputs
+
+Use these inputs when the skill is invoked:
+
+- `task`: natural-language generation request
+- `target_type`: one of `theme.json`, `pattern`, `part`, or `template`
+- `target_name`: required for template work; the user explicitly names the template to generate, for example `page`, `front-page`, or a custom page template slug
+- `page_key`: optional logical key that resolves a configured pair of `figma_url` and `site_url` from `figma.json`
+- `output_path`: optional explicit destination path inside the theme
+- `preview_url`: optional override for the WordPress page URL used for output screenshots; it wins over any configured site mapping
+
+Do not assume a default page template. If the user says "sviluppa il template X", treat `X` as mandatory input and generate that template.
 
 ## Configuration rules
 
@@ -70,7 +91,15 @@ Expected config:
 {
   "figma": {
     "source": "make",
-    "app_url": "https://www.figma.com/make/APP_ID"
+    "app_url": "https://www.figma.com/make/APP_ID",
+    "pages": {
+      "home": {
+        "label": "Home page",
+        "target_name": "front-page",
+        "figma_url": "https://www.figma.com/make/APP_ID?screen=home",
+        "site_url": "http://thelogicaltheme.localhost/"
+      }
+    }
   }
 }
 ```
@@ -82,17 +111,21 @@ Validation rules:
 - `figma` must be an object
 - `figma.source` must equal `"make"`
 - `figma.app_url` must be a non-empty `https://www.figma.com/make/...` URL
+- if `figma.pages` is provided, it must be an object keyed by logical page names
+- each `figma.pages.<key>` entry must provide non-empty `figma_url` and `site_url`
+- each mapped `figma_url` and `site_url` must be a valid HTTP/HTTPS URL
 
 Error handling:
 
 - If `figma.json` is missing, stop and tell the user to create it in the repository root.
 - If `figma.source` is missing or not `make`, stop and say this skill only supports Figma Make.
 - If `figma.app_url` is missing or malformed, stop and show the expected URL shape.
+- If `figma.pages` is malformed, stop and report the exact invalid key.
 - Never fall back to node ids, frame URLs, or view URLs.
 
 ## MCP integration
 
-Use `figma.app_url` as the only configuration input.
+Use `figma.app_url` as the global MCP configuration input.
 
 Preferred MCP sequence:
 
@@ -114,6 +147,110 @@ Rules:
 - Never require frame selection from repository config.
 - Always start from `figma.app_url`.
 - If MCP cannot provide usable context from the Make app URL alone, stop with a clear explanation instead of inventing missing identifiers.
+
+## Page URL mappings
+
+`figma.json` can persist logical relationships between a Figma Make page URL and a site page URL.
+
+Use named mappings under `figma.pages`, for example:
+
+- `home`
+- `about`
+- `pricing`
+
+Each mapping may include:
+
+- `figma_url`: page-specific Figma Make URL for screenshot capture
+- `site_url`: page-specific WordPress URL for output capture
+- `target_name`: optional template slug hint
+- `label`: optional human-readable label
+
+Resolution priority:
+
+1. `preview_url` from the task overrides the mapped site URL
+2. if `page_key` is present, use `figma.pages.<page_key>.figma_url` and `figma.pages.<page_key>.site_url`
+3. if no `page_key` exists, use `figma.app_url` for Figma capture
+4. if no site URL can be resolved, stop and ask for an explicit preview URL or a valid mapping
+
+When a page mapping exists, prefer it for screenshot-based visual QA rather than making the user repeat raw URLs in every prompt.
+
+## Visual QA loop
+
+The skill must validate generated code visually before considering the task complete.
+
+### Breakpoints
+
+Use exactly these five Tailwind breakpoints for every capture set:
+
+- `sm`: width `640`
+- `md`: width `768`
+- `lg`: width `1024`
+- `xl`: width `1280`
+- `2xl`: width `1536`
+
+Use a consistent browser height of `1600` and save full-page screenshots.
+
+### Artifact location
+
+Store every visual QA artifact under:
+
+- `wp-content/themes/the-logical-theme/.artifacts/visual-qa/<target-name>/<timestamp>/`
+
+Expected structure:
+
+- `input/<breakpoint>.png`
+- `output/iter-1/<breakpoint>.png`
+- `output/iter-2/<breakpoint>.png`
+- `output/iter-3/<breakpoint>.png`
+- `diff/iter-N/`
+- `reports/iter-N.json`
+- `reports/iter-N.md`
+- `reports/final-summary.md`
+
+### Capture tooling
+
+Use the bundled Playwright scripts:
+
+- `scripts/capture-figma-make-screenshots.mjs`
+- `scripts/capture-wp-screenshots.mjs`
+- `scripts/prepare-visual-qa-report.mjs`
+- `scripts/get-figma-app-url.sh --field app_url|figma_url|site_url [--page-key KEY]`
+
+Run them from the theme root so their relative paths resolve correctly.
+
+### Loop rules
+
+Follow this loop for template-oriented tasks:
+
+1. Capture Figma Make reference screenshots for the five breakpoints.
+2. Generate or update the target template and any supporting patterns, parts, or `theme.json` values required to match the design.
+3. Capture WordPress screenshots for the same five breakpoints.
+4. Prepare a comparison report for the current iteration.
+5. Compare input and output screenshots and identify concrete mismatches in structure, spacing, typography scale, media treatment, and CTA placement.
+6. If the result is satisfactory, stop and preserve the final screenshots and report.
+7. Otherwise, revise the generated code and repeat the cycle.
+
+Hard stop:
+
+- maximum `3` iterations
+
+Completion rule:
+
+- the task is complete only when the loop reaches a satisfactory comparison or the third iteration finishes with an explicit report of residual mismatches
+
+### Comparison policy
+
+The comparison is LLM-guided, not pixel-perfect.
+
+When reviewing screenshots, classify issues at minimum as:
+
+- `layout_spacing`
+- `content_hierarchy`
+- `typography_scale`
+- `media_crop_or_size`
+- `cta_navigation_placement`
+
+Treat the result as satisfactory only when no structural or obviously responsive mismatch remains.
 
 ## Code generation targets
 
@@ -161,6 +298,7 @@ Rules:
 - prefer `core/template-part` for shared areas
 - use dynamic blocks only for archive, single, search, or other WordPress-driven content
 - keep the template compatible with Site Editor conventions
+- for page-oriented tasks, this is the minimum required final artifact
 
 ## Theme constraints
 
@@ -272,6 +410,9 @@ If the current theme contains blocks outside this list, do not copy them forward
 - `propose theme.json tokens based on figma UI`
 - `create a footer template part from the figma make app using only allowed blocks`
 - `turn the current figma make layout into a reusable CTA pattern for this theme`
+- `sviluppa il template page usando il contesto figma make e valida il risultato con screenshot responsive`
+- `generate front-page.html, capture figma and wordpress screenshots, then iterate until visual QA is satisfactory`
+- `sviluppa il template front-page usando la page_key home definita in figma.json`
 
 ## Safety rules
 
@@ -280,3 +421,6 @@ If the current theme contains blocks outside this list, do not copy them forward
 - Always use `figma.app_url`.
 - Never generate custom Gutenberg blocks unless explicitly requested.
 - Prefer patterns and block composition over custom PHP rendering.
+- Never skip screenshot capture and comparison for template-oriented tasks.
+- Never declare success without a final visual QA report.
+- Never ignore an explicit `preview_url`; it has higher priority than a mapped site URL.

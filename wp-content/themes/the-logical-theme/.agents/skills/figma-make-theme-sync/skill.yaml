@@ -1,0 +1,139 @@
+name: figma-make-theme-sync
+description: Generate Gutenberg-compatible theme.json suggestions, block patterns, template parts, and templates for the-logical-theme from a repository-local figma.json that points to a Figma Make app URL.
+context:
+  platform: wordpress
+  theme: the-logical-theme
+  figma_source: make
+  workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+  theme_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/themes/the-logical-theme
+  visual_qa_artifacts_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/themes/the-logical-theme/.artifacts/visual-qa
+input_schema:
+  type: object
+  properties:
+    task:
+      type: string
+      description: Requested theme generation task, for example a pattern, template part, template, or theme.json suggestion.
+    target_type:
+      type: string
+      enum:
+        - theme.json
+        - pattern
+        - part
+        - template
+      description: Primary output type to generate.
+    target_name:
+      type: string
+      description: Destination name such as hero, header, archive, page, or a user-specified template slug.
+    page_key:
+      type: string
+      description: Optional logical key that resolves figma_url and site_url from figma.json mappings.
+    output_path:
+      type: string
+      description: Optional explicit destination path inside the theme.
+    preview_url:
+      type: string
+      description: Optional override URL used to capture WordPress screenshots for visual QA. This has priority over mapped site URLs.
+    visual_qa:
+      type: object
+      description: Visual QA configuration for screenshot capture and iterative validation.
+      properties:
+        enabled:
+          type: boolean
+          description: Enables the screenshot-based validation loop. Template work should treat this as true by default.
+        breakpoints:
+          type: array
+          items:
+            type: string
+            enum:
+              - sm
+              - md
+              - lg
+              - xl
+              - 2xl
+          description: Tailwind breakpoints used for capture. Defaults to all five breakpoints.
+        max_iterations:
+          type: integer
+          minimum: 1
+          maximum: 3
+          description: Hard stop for the correction loop. Defaults to 3.
+        figma_capture_url:
+          type: string
+          description: Optional explicit Figma Make URL to capture if it differs from figma.app_url.
+  additionalProperties: true
+  required:
+    - task
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+    files_touched:
+      type: array
+      items:
+        type: string
+    figma_source:
+      type: string
+      enum:
+        - make
+    visual_qa_status:
+      type: string
+      enum:
+        - pass
+        - max_iterations_reached
+        - skipped
+    artifact_root:
+      type: string
+    reports:
+      type: array
+      items:
+        type: string
+safety_rules:
+  - Read figma.json from the theme root as the only Figma configuration source.
+  - Stop if figma.source is not make or if figma.app_url is missing or malformed.
+  - Validate figma.pages mappings when provided, and stop on the exact invalid key.
+  - Never invent node ids, frame ids, or alternate Figma URLs.
+  - Respect the existing block-theme conventions before writing code.
+  - For template-oriented tasks, do not finish without screenshot capture and a visual QA report.
+runtime_notes:
+  preferred_files:
+    - figma.json
+    - theme.json
+    - inc/patterns.php
+    - patterns/
+    - parts/
+    - templates/
+    - ai-rules/THEME_SUMMARY.md
+    - ai-rules/AI_AVAILABLE_BLOCKS.md
+    - .artifacts/visual-qa/
+  page_mapping_resolution:
+    site_url_priority:
+      - preview_url
+      - figma.pages.<page_key>.site_url
+    figma_url_priority:
+      - explicit figma_capture_url
+      - figma.pages.<page_key>.figma_url
+      - figma.app_url
+  visual_qa:
+    breakpoints:
+      sm:
+        width: 640
+        height: 1600
+      md:
+        width: 768
+        height: 1600
+      lg:
+        width: 1024
+        height: 1600
+      xl:
+        width: 1280
+        height: 1600
+      2xl:
+        width: 1536
+        height: 1600
+    max_iterations: 3
+    compare_mode: llm_screenshot_review
+    scripts:
+      figma_capture: .agents/skills/figma-make-theme-sync/scripts/capture-figma-make-screenshots.mjs
+      wp_capture: .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs
+      report: .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs
+      config_resolver: .agents/skills/figma-make-theme-sync/scripts/get-figma-app-url.sh

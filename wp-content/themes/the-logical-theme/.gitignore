@@ -1,4 +1,5 @@
 node_modules/
+.artifacts/visual-qa/
 dist/
 assets/.vite/
 assets/css/*.map

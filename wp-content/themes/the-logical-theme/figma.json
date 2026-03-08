@@ -1,6 +1,20 @@
 {
   "figma": {
     "source": "make",
-    "app_url": "https://www.figma.com/make/APP_ID"
+    "app_url": "https://www.figma.com/make/APP_ID",
+    "pages": {
+      "home": {
+        "label": "Home page",
+        "target_name": "front-page",
+        "figma_url": "https://www.figma.com/make/APP_ID?screen=home",
+        "site_url": "http://thelogicaltheme.localhost/"
+      },
+      "about": {
+        "label": "About page",
+        "target_name": "page-about",
+        "figma_url": "https://www.figma.com/make/APP_ID?screen=about",
+        "site_url": "http://thelogicaltheme.localhost/about/"
+      }
+    }
   }
 }
