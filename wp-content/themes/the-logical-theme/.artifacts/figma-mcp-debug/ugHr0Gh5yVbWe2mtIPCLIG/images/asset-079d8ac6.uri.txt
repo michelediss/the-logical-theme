@@ -1,0 +1,3 @@
+uri: file://figma/make/image/ugHr0Gh5yVbWe2mtIPCLIG/079d8ac6b05a2b29f1647617585fa29aaac39824.png
+mimeType: image/png
+blobPrefix: /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQ...

@@ -11,10 +11,25 @@ The skill is repository-local on purpose and should derive runtime facts from th
 - exports runtime block availability from the theme
 - can inspect the current `theme.json` state when updating an existing theme
 - exports the visual QA viewport configuration used by the capture scripts
-- retrieves Figma Make context through MCP
+- retrieves Figma Make context through MCP, using Make source inspection to understand what should be converted
 - generates or updates `theme.json`, patterns, template parts, and templates
 - for page-oriented tasks, builds `theme.json` first, then patterns/parts, then `templates/*.html`
-- captures input/output screenshots and prepares a structured comparison report
+- uses Playwright-based capture scripts to collect input/output screenshots and prepare a structured comparison report
+
+## Verified Tool Split
+
+- `Figma MCP` is the source-inspection layer for Figma Make. Use `get_design_context` to inspect source files, stack, section structure, and asset references.
+- `Playwright` is the screenshot layer. Use the repository capture scripts for Figma reference captures, WordPress output captures, and visual QA reports.
+
+This distinction matters for Figma Make:
+
+- `get_metadata` is not the primary inspection path for Make files
+- `get_design_context` is the MCP tool that exposes the useful Make app structure
+- end-to-end visual validation should continue through Playwright
+
+Diagnostic note:
+
+- `.artifacts/figma-mcp-debug/` is debug-only and is not part of the normal Make-to-Gutenberg generation pipeline
 
 ## Required Development Context
 
@@ -152,14 +167,14 @@ Semantic review still evaluates at least:
 1. Read the theme structure and required docs context.
 2. Validate `figma.json`.
 3. Export allowed blocks and visual QA config from the repository, and inspect the current `theme.json` only if the task is updating existing theme tokens.
-4. Retrieve Figma Make context through MCP.
+4. Retrieve Figma Make context through MCP, starting from `get_design_context`.
 5. Generate `theme.json` tokens and defaults from the design intent.
 6. Build section-level `patterns/*.php` using only allowed blocks.
 7. Build shared `parts/*.html` when the page needs reusable structural regions.
 8. Compose `templates/*.html` from patterns and parts instead of writing monolithic template markup.
 9. Choose a shared `run_id` for the full visual QA iteration.
-10. Capture reference screenshots.
-11. Capture WordPress screenshots for the composed result.
+10. Capture reference screenshots through the Playwright-based Figma capture script.
+11. Capture WordPress screenshots for the composed result through the Playwright-based WordPress capture script.
 12. Produce a comparison report with objective metrics.
 13. Use AI only for layout mapping and semantic mismatch analysis.
 14. Correct and repeat until the result is satisfactory or the 3-iteration limit is reached.
@@ -168,6 +183,7 @@ Semantic review still evaluates at least:
 
 - WordPress capture can be validated end-to-end against `thelogicaltheme.localhost`.
 - Figma Make capture should use a real Make URL, not the placeholder `APP_ID` in sample config.
+- Figma Make code understanding should come from MCP source inspection, not from screenshot-only inference.
 - Figma capture is considered successful only when all configured breakpoints complete.
 - If Figma stalls on a specific breakpoint, the script should fail explicitly and preserve partial artifacts for diagnosis.
 

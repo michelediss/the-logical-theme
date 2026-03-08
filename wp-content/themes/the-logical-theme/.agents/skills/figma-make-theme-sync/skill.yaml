@@ -109,6 +109,13 @@ runtime_notes:
     - parts/
     - templates/
     - .artifacts/visual-qa/
+  verified_tool_split:
+    make_source_introspection: mcp__figma__get_design_context
+    make_visual_capture: playwright_scripts
+    notes:
+      - For Figma Make files, use MCP to inspect source structure and asset references.
+      - For screenshots and visual QA, use the repository Playwright scripts rather than relying on MCP screenshot-style tools.
+      - get_metadata is not the primary inspection path for Figma Make.
   resolver_scripts:
     blocks: .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php
     theme_tokens_state: .agents/skills/figma-make-theme-sync/scripts/export-theme-tokens.mjs
@@ -132,6 +139,7 @@ runtime_notes:
     max_iterations: 3
     compare_mode: llm_screenshot_review_with_metrics
     run_id_required: true
+    screenshot_backend: playwright
     page_pipeline_order:
       - theme.json
       - patterns

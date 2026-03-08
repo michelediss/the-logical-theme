@@ -49,6 +49,12 @@ Rule:
 - docs still must be read because they define theme conventions and maintenance expectations
 - if docs and runtime conflict, call out the mismatch explicitly
 
+When the task depends on understanding how a Figma Make app is implemented, also read:
+
+- `references/figma-make-architecture.md`
+
+Use it only after you have retrieved the Make source through MCP. It documents which parts of the Make stack are usually safe to translate directly into Gutenberg and which parts should be treated as implementation noise.
+
 ## Workflow
 
 1. Confirm the theme structure by checking `patterns/`, `parts/`, `templates/`, and `inc/`.
@@ -136,14 +142,14 @@ Preferred MCP sequence:
 
 1. Use the URL from `scripts/get-figma-app-url.sh`.
 2. Derive the Make file/app key from that URL.
-3. Request whole-app or document-level Figma context through MCP.
-4. If more structure is needed, use metadata, variables, or screenshots from the same Make app context.
+3. Request whole-app Figma Make context through `mcp__figma__get_design_context`.
+4. Read `package.json`, `src/app/App.tsx`, `src/styles/*.css`, and representative section components from the returned resource links before generating Gutenberg output.
+5. Use the source tree from `get_design_context` as the primary architecture signal for Make files.
+6. Only use screenshots from the same Make app context when source inspection is insufficient.
 
 Preferred Figma MCP tools:
 
 - `mcp__figma__get_design_context`
-- `mcp__figma__get_metadata`
-- `mcp__figma__get_variable_defs`
 - `mcp__figma__get_screenshot`
 
 Rules:
@@ -151,7 +157,36 @@ Rules:
 - Never assume a stored node id.
 - Never require frame selection from repository config.
 - Always start from `figma.app_url`.
+- For Figma Make files, do not rely on `mcp__figma__get_metadata` or `mcp__figma__get_variable_defs`; they are not the primary path and may be unsupported.
+- Treat `package.json`, `App.tsx`, shared UI primitives, and global CSS as better signals of implementation architecture than individual section files.
 - If MCP cannot provide usable context from the Make app URL alone, stop with a clear explanation instead of inventing missing identifiers.
+
+## Make Source Review
+
+When `mcp__figma__get_design_context` returns Figma Make source files, review them in this order:
+
+1. `package.json`
+2. `src/app/App.tsx`
+3. `src/styles/index.css`
+4. `src/styles/theme.css`
+5. `src/styles/fonts.css`
+6. representative files under `src/app/components/`
+7. representative files under `src/app/components/ui/`
+8. imported content files under `src/imports/`
+
+Use that review to distinguish:
+
+- stack facts: framework, build tool, styling system, icon system, UI primitive libraries
+- architecture facts: section composition, state usage, data locality, asset conventions
+- conversion guidance: what should become `theme.json`, patterns, parts, templates, block styles, or editor content
+
+Do not mirror the React component tree 1:1 into Gutenberg. Translate it by intent:
+
+- app-level shell becomes template + template parts
+- page sections become patterns or locked pattern-like template regions
+- inline arrays of content become editor-managed blocks or Query Loop data sources
+- CSS custom properties become `theme.json` presets where stable
+- purely interactive local state stays out of block markup unless the WordPress experience genuinely needs it
 
 ## Page URL Mappings
 
