@@ -10,7 +10,7 @@
 - `inc/patterns.php` registers the custom block pattern category and loads all PHP pattern definitions from `patterns/`.
 - `templates/` and `parts/` contain the block theme HTML templates used by the Site Editor.
 - `src/js/` and `src/css/` contain the authored source files; built output is written to `assets/`.
-- `theme.json` defines global design tokens, spacing, typography, block settings, and template-part metadata.
+- `theme.json` defines the source-of-truth design tokens and editorial defaults that Gutenberg must know natively, while Tailwind consumes those same tokens as a bridge instead of defining a second design system.
 
 ## Naming Conventions
 
@@ -28,6 +28,7 @@
 - `inc/patterns.php`: block pattern registration loader.
 - `theme.json`: design system and editor configuration.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, and visual QA tooling for Figma Make to Gutenberg workflows.
+- `tailwind.config.js`: token bridge that maps WordPress CSS variables into Tailwind utilities for theme-authored CSS and markup.
 - `src/js/app.js`: front-end bootstrap entrypoint.
 - `src/js/blocks/editor.js`: shared editor entry for custom blocks.
 - `src/js/blocks/view.js`: shared front-end entry for custom block behavior.
@@ -54,10 +55,19 @@
 - The main front-end entrypoint is `src/js/app.js`. Additional entries exist for block editor scripts, block view scripts, SEO editor utilities, and CSS bundles as defined in `vite.config.js`.
 - When JavaScript or CSS files under `src/` change, run `npm run build` so the production bundles in `assets/` stay aligned with the source.
 
+## Design System Contract
+
+- `theme.json` is the source of truth for stable global tokens and Gutenberg-facing defaults such as palette, typography presets, spacing scale, layout widths, and shared radius values.
+- `tailwind.config.js` must consume WordPress CSS variables from `theme.json`; it must not become a parallel token registry with divergent colors, spacing values, or widths.
+- Keep `settings.layout` in `theme.json` so the editor, front-end styles, and AI generation flows share the same `contentSize` and `wideSize` baseline.
+- Avoid using `theme.json` to impose broad layout behavior on neutral containers. Section spacing and composition should usually live in patterns, templates, block supports, or scoped CSS instead of global `core/group` padding.
+- Keep `styles.elements` minimal and global. Component-specific variants should live in block styles, patterns, or custom block CSS rather than being forced into every core element default.
+
 ## Maintenance Notes
 
 - When source files in `src/` change, rebuild assets with `npm run build` so production bundles in `assets/` stay aligned.
 - Keep new PHP APIs prefixed with `the_logical_theme_` to avoid collisions with plugins or other themes.
 - Prefer block patterns and `theme.json` settings over custom PHP rendering unless the editor cannot express the requirement cleanly.
+- When updating tokens or layout defaults, change `theme.json` first and let Tailwind keep consuming the generated CSS variables rather than redefining the values in `tailwind.config.js`.
 - When adding a new custom block, update both `docs/custom-blocks.md` and `docs/allowed-blocks.md` if the block should be available to AI-assisted template generation.
 - The `figma-make-theme-sync` skill must read `docs/` during development, but runtime facts for blocks, tokens, and visual QA must come from theme code and its resolver scripts.

@@ -1,5 +1,6 @@
 /*
  * Tailwind configuration scoped to theme templates, parts, patterns, and source files.
+ * WordPress theme.json remains the source of truth for tokens and layout widths.
  */
 
 export default {

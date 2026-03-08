@@ -29,6 +29,16 @@ Do not restate block lists or breakpoint values from memory when the scripts abo
 
 `theme.json` is not a primary design input of this skill. When the skill reads it through `export-theme-tokens.mjs`, treat it only as the current theme state to compare against or update.
 
+When the skill proposes `theme.json` changes, apply this policy:
+
+- use `theme.json` for stable global tokens and Gutenberg-facing defaults only
+- keep `settings.layout` in `theme.json`; do not replace it with Tailwind-only width defaults
+- normalize repeated Make values into palette, typography, spacing, radius, and layout presets before generating markup
+- keep one-off section values in patterns, templates, block styles, or scoped CSS
+- keep `styles.elements` minimal and global
+- avoid global `core/group` padding unless the theme explicitly documents that convention
+- prefer Gutenberg block supports and theme presets over copied Tailwind utility classes
+
 ## Development Context
 
 During the development phase, always read all of these Markdown files before generating code:
@@ -79,6 +89,14 @@ Use it only after you have retrieved the Make source through MCP. It documents w
    - conventions in `docs/`
 14. Prefer the smallest change that matches the design intent.
 15. Run the visual QA loop with screenshots, metrics, and semantic review before considering the task complete.
+
+`theme.json` decision order during generation:
+
+1. Extract repeated stable values from the Make source.
+2. Promote only reusable system values into `theme.json`.
+3. Keep layout widths in `settings.layout` so Gutenberg and Tailwind share the same baseline.
+4. Express section-specific layout and spacing in patterns, templates, block styles, or scoped CSS.
+5. Prefer Gutenberg presets and block supports over copied utility classes.
 
 ## Required Task Inputs
 

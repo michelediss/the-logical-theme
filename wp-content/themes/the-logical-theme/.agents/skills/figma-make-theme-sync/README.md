@@ -61,7 +61,17 @@ Machine-readable exports:
 - `npm run skill:export-tokens`
 - `npm run skill:export-visual-qa`
 
-`theme.json` is not a primary design input for this skill. When it is read, it should be treated as the current theme state to compare against or update, not as the source that drives generation.
+`theme.json` is not a primary design input for this skill. When it is read, treat it as the current theme state to compare against or update, not as the source that drives generation.
+
+When the skill proposes `theme.json` changes, use this policy:
+
+- keep `theme.json` focused on stable global tokens and Gutenberg-facing defaults
+- keep `settings.layout` in `theme.json`; do not move layout widths into Tailwind-only defaults
+- normalize repeated Figma Make values into palette, typography, spacing, radius, and layout presets before generating block markup
+- leave one-off section values in patterns, templates, block styles, or scoped CSS instead of forcing them into global presets
+- keep `styles.elements` minimal and global
+- avoid global `core/group` padding unless the theme explicitly adopts that convention
+- do not copy Tailwind utility classes verbatim into Gutenberg output when the value should become a theme token or block support
 
 ## Expected Inputs
 
@@ -178,6 +188,14 @@ Semantic review still evaluates at least:
 12. Produce a comparison report with objective metrics.
 13. Use AI only for layout mapping and semantic mismatch analysis.
 14. Correct and repeat until the result is satisfactory or the 3-iteration limit is reached.
+
+For `theme.json` generation, use this decision order:
+
+1. Extract repeated stable values from the Make source.
+2. Promote only the reusable system values into `theme.json`.
+3. Keep layout widths in `settings.layout` so Gutenberg and Tailwind share one baseline.
+4. Express section-specific layout and spacing in patterns, templates, block styles, or scoped CSS.
+5. Prefer Gutenberg block supports and presets over copied utility classes.
 
 ## Real Validation
 
