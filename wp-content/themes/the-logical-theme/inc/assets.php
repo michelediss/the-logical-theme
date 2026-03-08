@@ -63,6 +63,34 @@ function the_logical_theme_get_vite_manifest(): array
 }
 
 /**
+ * Resolves a script entry to either a built asset or a source file URI.
+ */
+function the_logical_theme_get_theme_script_uri(string $entry): string
+{
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (isset($manifest[$entry]['file'])) {
+        return get_theme_file_uri('assets/' . $manifest[$entry]['file']);
+    }
+
+    return get_theme_file_uri($entry);
+}
+
+/**
+ * Resolves a script entry to either a built asset or a source file path.
+ */
+function the_logical_theme_get_theme_script_path(string $entry): string
+{
+    $manifest = the_logical_theme_get_vite_manifest();
+
+    if (isset($manifest[$entry]['file'])) {
+        return get_theme_file_path('assets/' . $manifest[$entry]['file']);
+    }
+
+    return get_theme_file_path($entry);
+}
+
+/**
  * Enqueues the front-end JavaScript and CSS entrypoints.
  */
 function the_logical_theme_enqueue_vite_assets(): void

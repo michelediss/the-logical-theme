@@ -20,6 +20,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         app: path.resolve(__dirname, 'src/js/app.js'),
+        editorSeo: path.resolve(__dirname, 'src/js/editor-seo.js'),
         style: path.resolve(__dirname, 'src/css/app.css'),
       },
       output: {
