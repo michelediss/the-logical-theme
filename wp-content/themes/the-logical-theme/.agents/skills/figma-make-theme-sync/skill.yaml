@@ -102,8 +102,8 @@ runtime_notes:
     - patterns/
     - parts/
     - templates/
-    - ai-rules/THEME_SUMMARY.md
-    - ai-rules/AI_AVAILABLE_BLOCKS.md
+    - .agents/skills/figma-make-theme-sync/theme-overview.md
+    - .agents/skills/figma-make-theme-sync/allowed-blocks.md
     - .artifacts/visual-qa/
   page_mapping_resolution:
     site_url_priority:
