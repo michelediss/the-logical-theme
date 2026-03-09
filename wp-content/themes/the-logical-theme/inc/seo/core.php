@@ -248,6 +248,46 @@ function the_logical_theme_seo_output_head_tags(): void
 add_action('wp_head', 'the_logical_theme_seo_output_head_tags', 5);
 
 /**
+ * Returns whether a root-level SEO file can be written safely.
+ */
+function the_logical_theme_seo_can_write_root_file(string $path): bool
+{
+    $directory = dirname($path);
+
+    if (! is_dir($directory) || ! is_writable($directory)) {
+        return false;
+    }
+
+    if (file_exists($path) && ! is_writable($path)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Writes SEO file contents without emitting PHP warnings to the response.
+ */
+function the_logical_theme_seo_write_root_file(string $path, string $contents): bool
+{
+    if (! the_logical_theme_seo_can_write_root_file($path)) {
+        error_log(sprintf('The Logical Theme SEO could not write "%s": path is not writable.', $path));
+
+        return false;
+    }
+
+    $bytes = @file_put_contents($path, $contents, LOCK_EX);
+
+    if ($bytes === false) {
+        error_log(sprintf('The Logical Theme SEO failed to write "%s".', $path));
+
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Generates the sitemap.xml file in the WordPress root.
  */
 function the_logical_theme_seo_generate_sitemap(): void
@@ -268,7 +308,15 @@ function the_logical_theme_seo_generate_sitemap(): void
         $url->addChild('priority', '0.8');
     }
 
-    $xml->asXML(ABSPATH . 'sitemap.xml');
+    $sitemap_contents = $xml->asXML();
+
+    if ($sitemap_contents === false) {
+        error_log('The Logical Theme SEO failed to generate sitemap XML contents.');
+
+        return;
+    }
+
+    the_logical_theme_seo_write_root_file(ABSPATH . 'sitemap.xml', $sitemap_contents);
 }
 
 /**

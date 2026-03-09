@@ -40,7 +40,7 @@ function the_logical_theme_seo_get_robots_txt_contents(): string
  */
 function the_logical_theme_seo_update_robots_txt_contents(string $content): void
 {
-    file_put_contents(ABSPATH . 'robots.txt', $content);
+    the_logical_theme_seo_write_root_file(ABSPATH . 'robots.txt', $content);
 }
 
 /**
