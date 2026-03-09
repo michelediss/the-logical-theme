@@ -51,7 +51,7 @@ function the_logical_theme_enqueue_block_availability_assets(string $hook_suffix
     }
 
     $script_path = get_theme_file_path('assets/js/block-availability-admin.js');
-    $style_path = get_theme_file_path('assets/css/block-availability-admin.css');
+    $style_path = get_theme_file_path('assets/css/admin/block-availability-admin.css');
     $script_version = file_exists($script_path) ? (string) filemtime($script_path) : TLT_VERSION;
     $style_version = file_exists($style_path) ? (string) filemtime($style_path) : TLT_VERSION;
 
@@ -72,7 +72,7 @@ function the_logical_theme_enqueue_block_availability_assets(string $hook_suffix
 
     wp_enqueue_style(
         'the-logical-theme-block-availability-admin',
-        get_theme_file_uri('assets/css/block-availability-admin.css'),
+        get_theme_file_uri('assets/css/admin/block-availability-admin.css'),
         [],
         $style_version
     );

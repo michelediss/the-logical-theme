@@ -101,7 +101,7 @@ function the_logical_theme_enqueue_default_featured_image_assets(string $hook_su
     }
 
     $script_path = get_theme_file_path('assets/js/default-featured-image-admin.js');
-    $style_path = get_theme_file_path('assets/css/default-featured-image-admin.css');
+    $style_path = get_theme_file_path('assets/css/admin/default-featured-image-admin.css');
     $script_version = file_exists($script_path) ? (string) filemtime($script_path) : TLT_VERSION;
     $style_version = file_exists($style_path) ? (string) filemtime($style_path) : TLT_VERSION;
 
@@ -126,7 +126,7 @@ function the_logical_theme_enqueue_default_featured_image_assets(string $hook_su
 
     wp_enqueue_style(
         'the-logical-theme-default-featured-image-admin',
-        get_theme_file_uri('assets/css/default-featured-image-admin.css'),
+        get_theme_file_uri('assets/css/admin/default-featured-image-admin.css'),
         [],
         $style_version
     );
