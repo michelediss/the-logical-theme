@@ -607,76 +607,67 @@ msgstr "Footer"
 msgid "Block Availability"
 msgstr "Disponibilità blocchi"
 
-#: partials/block-availability/admin.php:70
+#: partials/block-availability/admin.php:68
 msgid "active"
 msgstr "attivi"
 
-#: partials/block-availability/admin.php:71
-msgid "inactive"
-msgstr "inattivi"
-
-#: partials/block-availability/admin.php:72
-msgid "matching blocks"
-msgstr "blocchi corrispondenti"
-
-#: partials/block-availability/admin.php:73
-#: partials/block-availability/admin.php:198
+#: partials/block-availability/admin.php:208
 msgid "No blocks match this filter."
 msgstr "Nessun blocco corrisponde a questo filtro."
 
 #. translators: 1: active blocks count, 2: total blocks count
-#: partials/block-availability/admin.php:131
+#: partials/block-availability/admin.php:141
 #, php-format
 msgid "%1$d / %2$d active"
 msgstr ""
 
-#: partials/block-availability/admin.php:146
+#: partials/block-availability/admin.php:156
 msgid "Enable category"
 msgstr "Abilita categoria"
 
-#: partials/block-availability/admin.php:149
+#: partials/block-availability/admin.php:159
 msgid "Always on"
 msgstr "Sempre attiva"
 
-#: partials/block-availability/admin.php:151
+#: partials/block-availability/admin.php:161
 msgid "Plugin detected"
 msgstr "Plugin rilevato"
 
-#: partials/block-availability/admin.php:153
+#: partials/block-availability/admin.php:163
 msgid "Separate area"
 msgstr "Area separata"
 
 #. translators: %s: category label
-#: partials/block-availability/admin.php:164
+#: partials/block-availability/admin.php:174
 #, php-format
 msgid "Filter %s blocks"
 msgstr ""
 
-#: partials/block-availability/admin.php:171
+#: partials/block-availability/admin.php:181
 msgid "Filter blocks…"
 msgstr "Filtra blocchi…"
 
-#: partials/block-availability/admin.php:221
+#: partials/block-availability/admin.php:231
 msgid "Block availability updated."
 msgstr "Disponibilità blocchi aggiornata."
 
-#: partials/block-availability/admin.php:230
+#: partials/block-availability/admin.php:240
 msgid "Block availability"
 msgstr "Disponibilità blocchi"
 
-#: partials/block-availability/admin.php:232
+#: partials/block-availability/admin.php:242
 msgid "Control which core, blog, WooCommerce, and custom blocks remain available in the editor without mixing categories."
 msgstr "Controlla quali blocchi core, blog, WooCommerce e custom restano disponibili nell'editor senza mischiare le categorie."
 
-#: partials/block-availability/admin.php:236
+#: partials/block-availability/admin.php:248
 msgid "Core always enabled"
 msgstr ""
 
-#: partials/block-availability/admin.php:238
+#: partials/block-availability/admin.php:250
 msgid "WooCommerce not installed"
 msgstr "WooCommerce non installato"
 
-#: partials/block-availability/admin.php:251
+#: partials/block-availability/admin.php:244
 msgid "Save block availability"
 msgstr "Salva disponibilità blocchi"
 
@@ -817,3 +808,125 @@ msgstr ""
 msgctxt "Pattern description"
 msgid "Minimal quote-led social proof section."
 msgstr ""
+
+#: partials/theme-options.php:26
+msgid "JPG"
+msgstr "JPG"
+
+#: partials/theme-options.php:31
+msgid "PNG"
+msgstr "PNG"
+
+#: partials/theme-options.php:36
+msgid "WebP"
+msgstr "WebP"
+
+#. translators: %s: MIME label.
+#: partials/theme-options.php:193
+#, php-format
+msgid "The maximum upload size for %s must be greater than zero."
+msgstr "La dimensione massima di upload per %s deve essere maggiore di zero."
+
+#: partials/theme-options.php:205
+msgid "Select at least one image format when upload image limits are enabled."
+msgstr "Seleziona almeno un formato immagine quando i limiti di upload immagini sono abilitati."
+
+#: partials/theme-options.php:219
+#: partials/theme-options.php:220
+#: partials/theme-options.php:314
+msgid "Theme Options"
+msgstr "Opzioni tema"
+
+#. translators: %s: MIME label.
+#: partials/theme-options.php:260
+#, php-format
+msgid "Allow %s uploads"
+msgstr "Consenti upload %s"
+
+#. translators: 1: MIME type, 2: extension list.
+#: partials/theme-options.php:269
+#, php-format
+msgid "MIME: %1$s. Extensions: %2$s."
+msgstr "MIME: %1$s. Estensioni: %2$s."
+
+#. translators: %s: MIME label.
+#: partials/theme-options.php:280
+#, php-format
+msgid "Maximum upload size for %s in KB"
+msgstr "Dimensione massima di upload per %s in KB"
+
+#: partials/theme-options.php:293
+msgid "KB max size"
+msgstr "Dimensione max KB"
+
+#: partials/theme-options.php:316
+msgid "Control global theme behaviors for frontend dependencies, comments, and image upload rules."
+msgstr "Controlla i comportamenti globali del tema per dipendenze frontend, commenti e regole di upload immagini."
+
+#: partials/theme-options.php:327
+msgid "Disable jQuery"
+msgstr "Disabilita jQuery"
+
+#: partials/theme-options.php:336
+msgid "Disable WordPress jQuery on the public frontend."
+msgstr "Disabilita jQuery di WordPress nel frontend pubblico."
+
+#: partials/theme-options.php:339
+msgid "This leaves wp-admin and other administrative screens untouched."
+msgstr "Questo lascia invariati wp-admin e le altre schermate amministrative."
+
+#: partials/theme-options.php:344
+msgid "Disable comments"
+msgstr "Disabilita commenti"
+
+#: partials/theme-options.php:353
+msgid "Disable comments and pingbacks site-wide."
+msgstr "Disabilita commenti e pingback in tutto il sito."
+
+#: partials/theme-options.php:356
+msgid "This closes comments on the frontend, blocks new submissions, and hides comment management entrypoints in admin."
+msgstr "Questo chiude i commenti nel frontend, blocca i nuovi invii e nasconde gli accessi di gestione commenti in admin."
+
+#: partials/theme-options.php:363
+msgid "Upload image limits"
+msgstr "Limiti upload immagini"
+
+#: partials/theme-options.php:364
+msgid "Enable custom limits for JPG, PNG, and WebP uploads. Size values are stored per format."
+msgstr "Abilita limiti personalizzati per upload JPG, PNG e WebP. I valori di dimensione sono salvati per formato."
+
+#: partials/theme-options.php:369
+msgid "Enable upload image limits"
+msgstr "Abilita limiti upload immagini"
+
+#: partials/theme-options.php:378
+msgid "Restrict allowed image formats and enforce per-format file size limits."
+msgstr "Limita i formati immagine consentiti e applica limiti di dimensione per formato."
+
+#: partials/theme-options.php:381
+msgid "When disabled, WordPress falls back to its normal upload rules."
+msgstr "Quando è disabilitato, WordPress torna alle normali regole di upload."
+
+#: partials/theme-options.php:391
+msgid "Save Theme Options"
+msgstr "Salva opzioni tema"
+
+#: partials/theme-options.php:503
+msgid "Comments are disabled by Theme Options."
+msgstr "I commenti sono disabilitati dalle Opzioni tema."
+
+#: partials/theme-options.php:504
+msgid "Comments disabled"
+msgstr "Commenti disabilitati"
+
+#. translators: %s: MIME label.
+#: partials/theme-options.php:654
+#, php-format
+msgid "%s uploads are disabled by Theme Options."
+msgstr "Gli upload %s sono disabilitati dalle Opzioni tema."
+
+#. translators: 1: MIME label, 2: maximum size, 3: helper service URL.
+#: partials/theme-options.php:681
+#, php-format
+msgid "%1$s files must not exceed %2$s. Use this service to reduce the image size: %3$s"
+msgstr "I file %1$s non devono superare %2$s. Usa questo servizio per ridurre la dimensione delle immagini: %3$s"

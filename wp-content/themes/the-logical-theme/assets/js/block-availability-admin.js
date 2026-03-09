@@ -1,29 +1,6 @@
 (function () {
     const config = window.theLogicalThemeBlockAvailability || {};
     let initialized = false;
-    const debugStore = {
-        startedAt: new Date().toISOString(),
-        logs: [],
-        cards: {},
-        errors: [],
-    };
-
-    function pushDebug(type, message, details = {}) {
-        const entry = {
-            timestamp: new Date().toISOString(),
-            type,
-            message,
-            details,
-        };
-
-        debugStore.logs.push(entry);
-
-        if (config.debug) {
-            console.log('[TLT Block Availability]', message, details);
-        }
-
-        return entry;
-    }
 
     function formatCount(activeCount, totalCount) {
         return activeCount + ' / ' + totalCount + ' ' + (config.activeLabel || 'active');
@@ -59,45 +36,6 @@
     function getSearchText(item) {
         const textNode = item.querySelector('[data-role="search-text"]');
         return (textNode ? textNode.textContent : item.textContent || '').trim().toLowerCase();
-    }
-
-    function getCardKey(card) {
-        return card.getAttribute('data-category') || 'unknown';
-    }
-
-    function snapshotCard(elements) {
-        if (!elements.card || !elements.list) {
-            return null;
-        }
-
-        const cardKey = getCardKey(elements.card);
-        const items = getItems(elements.list);
-        const snapshot = {
-            cardKey,
-            searchValue: elements.search ? elements.search.value : '',
-            listDisabled: elements.list.hasAttribute('disabled'),
-            totalItems: items.length,
-            visibleItems: items.filter((item) => !item.hidden).length,
-            checkedItems: items.filter((item) => {
-                const input = getItemInput(item);
-                return input ? input.checked : false;
-            }).length,
-            emptyStateHidden: elements.emptyState ? elements.emptyState.hidden : null,
-            toggleChecked: elements.toggle ? elements.toggle.checked : null,
-            items: items.map((item) => {
-                const input = getItemInput(item);
-
-                return {
-                    text: getSearchText(item),
-                    hidden: item.hidden,
-                    checked: input ? input.checked : null,
-                };
-            }),
-        };
-
-        debugStore.cards[cardKey] = snapshot;
-
-        return snapshot;
     }
 
     function sortItems(list) {
@@ -174,7 +112,6 @@
         filterItems(elements);
         updateCount(elements);
         updateListEnabledState(elements);
-        pushDebug('refreshSearch', 'Search refreshed', snapshotCard(elements) || {});
     }
 
     function refreshOrder(elements) {
@@ -184,31 +121,20 @@
 
         sortItems(elements.list);
         refreshSearch(elements);
-        pushDebug('refreshOrder', 'Items reordered', snapshotCard(elements) || {});
     }
 
     function bindSearch(elements) {
         if (!elements.search) {
-            pushDebug('bindSearch', 'Search input missing for card', {
-                cardKey: elements.card ? getCardKey(elements.card) : 'unknown',
-            });
             return;
         }
 
         elements.search.addEventListener('input', () => {
-            pushDebug('input', 'Search input event', {
-                cardKey: getCardKey(elements.card),
-                value: elements.search.value,
-            });
             refreshSearch(elements);
         });
 
         elements.search.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                pushDebug('keydown', 'Prevented Enter on search input', {
-                    cardKey: getCardKey(elements.card),
-                });
             }
         });
     }
@@ -219,10 +145,6 @@
         }
 
         elements.toggle.addEventListener('change', () => {
-            pushDebug('toggle', 'Category toggle changed', {
-                cardKey: getCardKey(elements.card),
-                checked: elements.toggle.checked,
-            });
             refreshSearch(elements);
         });
     }
@@ -240,11 +162,6 @@
             }
 
             input.addEventListener('change', () => {
-                pushDebug('checkbox', 'Block checkbox changed', {
-                    cardKey: getCardKey(elements.card),
-                    block: getSearchText(item),
-                    checked: input.checked,
-                });
                 refreshOrder(elements);
             });
         });
@@ -261,7 +178,6 @@
         bindToggle(elements);
         bindInputs(elements);
         refreshOrder(elements);
-        pushDebug('initCard', 'Card initialized', snapshotCard(elements) || {});
 
         card.dataset.searchReady = 'true';
     }
@@ -272,78 +188,15 @@
         });
     }
 
-    function buildReport() {
-        return {
-            startedAt: debugStore.startedAt,
-            initialized,
-            config,
-            cardCount: getCards(document).length,
-            cards: debugStore.cards,
-            errors: debugStore.errors,
-            logs: debugStore.logs,
-        };
-    }
-
-    function installGlobalDebugApi() {
-        window.theLogicalThemeBlockAvailabilityDebug = {
-            report() {
-                const report = buildReport();
-                console.groupCollapsed('[TLT Block Availability] Debug report');
-                console.log(report);
-                console.groupEnd();
-                return report;
-            },
-            cards() {
-                return debugStore.cards;
-            },
-            logs() {
-                return debugStore.logs;
-            },
-            errors() {
-                return debugStore.errors;
-            },
-            rerun() {
-                pushDebug('manual', 'Manual reinitialization requested');
-                init(document);
-                return buildReport();
-            },
-        };
-
-        window.addEventListener('error', (event) => {
-            debugStore.errors.push({
-                type: 'error',
-                message: event.message,
-                filename: event.filename,
-                lineno: event.lineno,
-                colno: event.colno,
-            });
-        });
-
-        window.addEventListener('unhandledrejection', (event) => {
-            debugStore.errors.push({
-                type: 'unhandledrejection',
-                reason: String(event.reason),
-            });
-        });
-
-        pushDebug('debug', 'Debug API installed', {
-            api: 'window.theLogicalThemeBlockAvailabilityDebug',
-        });
-    }
-
     window.theLogicalThemeInitBlockAvailabilitySearch = function () {
-        pushDebug('bootstrap', 'Inline bootstrap requested');
         init(document);
     };
-
-    installGlobalDebugApi();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             if (!initialized) {
                 init(document);
                 initialized = true;
-                pushDebug('dom', 'Initialized on DOMContentLoaded', buildReport());
             }
         });
 
@@ -352,5 +205,4 @@
 
     init(document);
     initialized = true;
-    pushDebug('dom', 'Initialized immediately', buildReport());
 })();

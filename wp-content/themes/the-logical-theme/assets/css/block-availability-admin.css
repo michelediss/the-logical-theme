@@ -219,3 +219,8 @@
         min-height: 0;
     }
 }
+
+#submit {
+    border-radius: 1000px;
+    margin-top: 1.5rem;
+}

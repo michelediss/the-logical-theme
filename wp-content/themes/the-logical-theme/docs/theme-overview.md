@@ -30,6 +30,7 @@
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
 - `partials/block-availability.php`: block availability bootstrap that loads the runtime whitelist logic and the related Appearance admin UI for block categories.
+- `partials/theme-options.php`: Settings admin screen for theme-owned runtime options such as frontend jQuery disable, comments disable, and image upload restrictions.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, visual QA tooling, Lighthouse performance audit tooling, and run-manifest based resume support for Figma Make to Gutenberg workflows.
 - `tailwind.config.js`: token bridge that maps WordPress CSS variables into Tailwind utilities for theme-authored CSS and markup.
 - `src/js/app.js`: front-end bootstrap entrypoint.
@@ -72,6 +73,7 @@
 
 - When source files in `src/` change, rebuild assets with `npm run build` so production bundles in `assets/` stay aligned.
 - Keep all user-facing theme strings translatable with the `the-logical-theme` text domain. Load translations from `languages/`, use WordPress i18n helpers in PHP, and call `wp_set_script_translations()` for any theme-owned JS handle that uses `wp.i18n`.
+- Keep theme-owned admin pages under a single clear ownership boundary. `Settings -> Theme Options` is reserved for global runtime toggles owned by the theme, while more specific feature pages can still live under `Settings` or `Appearance` when their scope is narrower.
 - Do not leave user-facing copy hardcoded inside `templates/*.html` or `parts/*.html`. In block themes those files are not reliable extraction targets, so translatable copy should live in PHP-registered patterns referenced by the HTML templates.
 - After adding or changing strings, regenerate catalogs with `npm run i18n:build` so `languages/the-logical-theme.pot`, locale `.po/.mo`, and JS translation JSON files stay aligned.
 - Keep new PHP APIs prefixed with `the_logical_theme_` to avoid collisions with plugins or other themes.

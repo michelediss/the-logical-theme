@@ -131,9 +131,17 @@ function the_logical_theme_get_registered_block_names_by_prefix(string $prefix):
 function the_logical_theme_get_registered_blog_block_names(): array
 {
     $blog_blocks = the_logical_theme_curated_block_groups()['blog']['blocks'];
+    $forced_core_lookup = array_fill_keys(
+        the_logical_theme_curated_block_groups()['core']['blocks'],
+        true
+    );
 
     foreach (the_logical_theme_get_registered_block_types() as $block_name => $block_type) {
         if (! is_string($block_name) || ! str_starts_with($block_name, 'core/')) {
+            continue;
+        }
+
+        if (isset($forced_core_lookup[$block_name])) {
             continue;
         }
 

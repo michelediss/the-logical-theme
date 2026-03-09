@@ -66,7 +66,6 @@ function the_logical_theme_enqueue_block_availability_assets(string $hook_suffix
         'the-logical-theme-block-availability-admin',
         'window.theLogicalThemeBlockAvailability = ' . wp_json_encode([
             'activeLabel' => __('active', 'the-logical-theme'),
-            'debug' => true,
         ]) . ';',
         'before'
     );
@@ -242,9 +241,8 @@ function the_logical_theme_render_block_availability_page(): void
                 <p>
                     <?php esc_html_e('Control which core, blog, WooCommerce, and custom blocks remain available in the editor without mixing categories.', 'the-logical-theme'); ?>
                 </p>
-                <p>
-                    <code>window.theLogicalThemeBlockAvailabilityDebug.report()</code>
-                </p>
+                <?php submit_button(__('Save block availability', 'the-logical-theme'), 'primary', 'submit', false); ?>
+
             </div>
             <div class="tlt-block-availability-page__summary">
                 <span class="tlt-block-availability-badge is-fixed"><?php esc_html_e('Core always enabled', 'the-logical-theme'); ?></span>
@@ -261,8 +259,6 @@ function the_logical_theme_render_block_availability_page(): void
                     <?php the_logical_theme_render_block_availability_category_card($category_key, $category, $settings); ?>
                 <?php endforeach; ?>
             </div>
-
-            <?php submit_button(__('Save block availability', 'the-logical-theme')); ?>
         </form>
         <?php the_logical_theme_render_block_availability_inline_script(); ?>
     </div>
