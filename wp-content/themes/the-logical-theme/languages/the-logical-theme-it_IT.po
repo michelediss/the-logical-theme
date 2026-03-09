@@ -831,102 +831,199 @@ msgstr "La dimensione massima di upload per %s deve essere maggiore di zero."
 msgid "Select at least one image format when upload image limits are enabled."
 msgstr "Seleziona almeno un formato immagine quando i limiti di upload immagini sono abilitati."
 
-#: partials/theme-options.php:219
 #: partials/theme-options.php:220
-#: partials/theme-options.php:314
+#: partials/theme-options.php:221
+#: partials/theme-options.php:315
 msgid "Theme Options"
 msgstr "Opzioni tema"
 
 #. translators: %s: MIME label.
-#: partials/theme-options.php:260
+#: partials/theme-options.php:261
 #, php-format
 msgid "Allow %s uploads"
 msgstr "Consenti upload %s"
 
 #. translators: 1: MIME type, 2: extension list.
-#: partials/theme-options.php:269
+#: partials/theme-options.php:270
 #, php-format
 msgid "MIME: %1$s. Extensions: %2$s."
 msgstr "MIME: %1$s. Estensioni: %2$s."
 
 #. translators: %s: MIME label.
-#: partials/theme-options.php:280
+#: partials/theme-options.php:281
 #, php-format
 msgid "Maximum upload size for %s in KB"
 msgstr "Dimensione massima di upload per %s in KB"
 
-#: partials/theme-options.php:293
+#: partials/theme-options.php:294
 msgid "KB max size"
 msgstr "Dimensione max KB"
 
-#: partials/theme-options.php:316
+#: partials/theme-options.php:317
 msgid "Control global theme behaviors for frontend dependencies, comments, and image upload rules."
 msgstr "Controlla i comportamenti globali del tema per dipendenze frontend, commenti e regole di upload immagini."
 
-#: partials/theme-options.php:327
+#: partials/theme-options.php:328
 msgid "Disable jQuery"
 msgstr "Disabilita jQuery"
 
-#: partials/theme-options.php:336
+#: partials/theme-options.php:337
 msgid "Disable WordPress jQuery on the public frontend."
 msgstr "Disabilita jQuery di WordPress nel frontend pubblico."
 
-#: partials/theme-options.php:339
+#: partials/theme-options.php:340
 msgid "This leaves wp-admin and other administrative screens untouched."
 msgstr "Questo lascia invariati wp-admin e le altre schermate amministrative."
 
-#: partials/theme-options.php:344
+#: partials/theme-options.php:345
 msgid "Disable comments"
 msgstr "Disabilita commenti"
 
-#: partials/theme-options.php:353
+#: partials/theme-options.php:354
 msgid "Disable comments and pingbacks site-wide."
 msgstr "Disabilita commenti e pingback in tutto il sito."
 
-#: partials/theme-options.php:356
+#: partials/theme-options.php:357
 msgid "This closes comments on the frontend, blocks new submissions, and hides comment management entrypoints in admin."
 msgstr "Questo chiude i commenti nel frontend, blocca i nuovi invii e nasconde gli accessi di gestione commenti in admin."
 
-#: partials/theme-options.php:363
+#: partials/theme-options.php:364
 msgid "Upload image limits"
 msgstr "Limiti upload immagini"
 
-#: partials/theme-options.php:364
+#: partials/theme-options.php:365
 msgid "Enable custom limits for JPG, PNG, and WebP uploads. Size values are stored per format."
 msgstr "Abilita limiti personalizzati per upload JPG, PNG e WebP. I valori di dimensione sono salvati per formato."
 
-#: partials/theme-options.php:369
+#: partials/theme-options.php:370
 msgid "Enable upload image limits"
 msgstr "Abilita limiti upload immagini"
 
-#: partials/theme-options.php:378
+#: partials/theme-options.php:379
 msgid "Restrict allowed image formats and enforce per-format file size limits."
 msgstr "Limita i formati immagine consentiti e applica limiti di dimensione per formato."
 
-#: partials/theme-options.php:381
+#: partials/theme-options.php:382
 msgid "When disabled, WordPress falls back to its normal upload rules."
 msgstr "Quando è disabilitato, WordPress torna alle normali regole di upload."
 
-#: partials/theme-options.php:391
+#: partials/theme-options.php:392
 msgid "Save Theme Options"
 msgstr "Salva opzioni tema"
 
-#: partials/theme-options.php:503
+#: partials/theme-options.php:504
 msgid "Comments are disabled by Theme Options."
 msgstr "I commenti sono disabilitati dalle Opzioni tema."
 
-#: partials/theme-options.php:504
+#: partials/theme-options.php:505
 msgid "Comments disabled"
 msgstr "Commenti disabilitati"
 
 #. translators: %s: MIME label.
-#: partials/theme-options.php:654
+#: partials/theme-options.php:663
 #, php-format
 msgid "%s uploads are disabled by Theme Options."
 msgstr "Gli upload %s sono disabilitati dalle Opzioni tema."
 
 #. translators: 1: MIME label, 2: maximum size, 3: helper service URL.
-#: partials/theme-options.php:681
+#: partials/theme-options.php:683
 #, php-format
 msgid "%1$s files must not exceed %2$s. Use this service to reduce the image size: %3$s"
 msgstr "I file %1$s non devono superare %2$s. Usa questo servizio per ridurre la dimensione delle immagini: %3$s"
+
+#: partials/privacy-controller-data.php:26
+msgid "Identity"
+msgstr "Identità"
+
+#: partials/privacy-controller-data.php:28
+msgid "Display name"
+msgstr "Nome visualizzato"
+
+#: partials/privacy-controller-data.php:29
+msgid "First name"
+msgstr "Nome"
+
+#: partials/privacy-controller-data.php:30
+msgid "Last name"
+msgstr "Cognome"
+
+#: partials/privacy-controller-data.php:31
+msgid "Company name"
+msgstr "Ragione sociale"
+
+#: partials/privacy-controller-data.php:32
+msgid "VAT number"
+msgstr "Partita IVA"
+
+#: partials/privacy-controller-data.php:33
+msgid "Tax code"
+msgstr "Codice fiscale"
+
+#: partials/privacy-controller-data.php:37
+msgid "Contacts"
+msgstr "Contatti"
+
+#: partials/privacy-controller-data.php:39
+msgid "Email"
+msgstr "Email"
+
+#: partials/privacy-controller-data.php:40
+msgid "PEC"
+msgstr "PEC"
+
+#: partials/privacy-controller-data.php:41
+msgid "Phone"
+msgstr "Telefono"
+
+#: partials/privacy-controller-data.php:45
+msgid "Address"
+msgstr "Indirizzo"
+
+#: partials/privacy-controller-data.php:47
+msgid "Street address"
+msgstr "Indirizzo"
+
+#: partials/privacy-controller-data.php:48
+msgid "City"
+msgstr "Città"
+
+#: partials/privacy-controller-data.php:49
+msgid "Province"
+msgstr "Provincia"
+
+#: partials/privacy-controller-data.php:50
+msgid "Postal code"
+msgstr "CAP"
+
+#: partials/privacy-controller-data.php:51
+msgid "Country"
+msgstr "Nazione"
+
+#: partials/privacy-controller-data.php:55
+msgid "DPO"
+msgstr "DPO"
+
+#: partials/privacy-controller-data.php:57
+msgid "DPO name"
+msgstr "Nome DPO"
+
+#: partials/privacy-controller-data.php:58
+msgid "DPO email"
+msgstr "Email DPO"
+
+#: partials/privacy-controller-data.php:185
+#: partials/privacy-controller-data.php:240
+msgid "Data Controller Details"
+msgstr "Dati del titolare del trattamento"
+
+#: partials/privacy-controller-data.php:186
+msgid "Privacy Data"
+msgstr "Dati Privacy"
+
+#: partials/privacy-controller-data.php:242
+msgid "Fill in the site-wide privacy details and reuse them in pages with the shortcode [privacy key=\"...\"]."
+msgstr "Compila i dati privacy globali del sito e riusali nelle pagine con lo shortcode [privacy key=\"...\"]."
+
+#: partials/privacy-controller-data.php:261
+msgid "Save Privacy Data"
+msgstr "Salva dati privacy"
