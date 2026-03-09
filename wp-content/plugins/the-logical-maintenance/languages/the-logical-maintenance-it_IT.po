@@ -1,0 +1,157 @@
+# Copyright (C) 2026 Michele Paolino
+# This file is distributed under the same license as the The Logical Maintenance plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: The Logical Maintenance 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/the-logical-"
+"maintenance\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-09T16:38:53+00:00\n"
+"PO-Revision-Date: 2026-03-09T16:38:53+00:00\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: the-logical-maintenance\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+#: the-logical-maintenance.php
+msgid "The Logical Maintenance"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: the-logical-maintenance.php
+msgid "https://github.com/michelediss/the-logical-theme"
+msgstr ""
+
+#. Description of the plugin
+#: the-logical-maintenance.php
+msgid ""
+"Maintenance mode powered by the Gutenberg content of the fixed Maintenance "
+"page."
+msgstr ""
+
+#. Author of the plugin
+#: the-logical-maintenance.php
+msgid "Michele Paolino"
+msgstr ""
+
+#. Author URI of the plugin
+#: the-logical-maintenance.php
+msgid "https://michelepaolino.com"
+msgstr ""
+
+#: includes/class-the-logical-maintenance-plugin.php:111
+#: includes/class-the-logical-maintenance-plugin.php:112
+#: includes/class-the-logical-maintenance-plugin.php:301
+msgid "Maintenance"
+msgstr "Manutenzione"
+
+#: includes/class-the-logical-maintenance-plugin.php:122
+#: includes/class-the-logical-maintenance-plugin.php:139
+msgid "You are not allowed to manage maintenance settings."
+msgstr "Non hai i permessi per gestire le impostazioni di manutenzione."
+
+#: includes/class-the-logical-maintenance-plugin.php:302
+msgid ""
+"Enable a site-wide maintenance response powered by the Gutenberg content of "
+"the fixed Maintenance page."
+msgstr ""
+"Attiva una risposta di manutenzione per tutto il sito basata sul contenuto "
+"Gutenberg della pagina Manutenzione predefinita."
+
+#: includes/class-the-logical-maintenance-plugin.php:313
+msgid "Status"
+msgstr "Stato"
+
+#: includes/class-the-logical-maintenance-plugin.php:323
+msgid "Enable maintenance mode"
+msgstr "Attiva modalità manutenzione"
+
+#: includes/class-the-logical-maintenance-plugin.php:326
+msgid ""
+"When enabled, public frontend HTML requests are replaced with the "
+"Maintenance page and return HTTP 503."
+msgstr ""
+"Quando attiva, le richieste HTML pubbliche del frontend vengono sostituite "
+"con la pagina Manutenzione e restituiscono HTTP 503."
+
+#: includes/class-the-logical-maintenance-plugin.php:331
+msgid "Source page"
+msgstr "Pagina sorgente"
+
+#: includes/class-the-logical-maintenance-plugin.php:337
+msgid "The required page was not found or is not published."
+msgstr "La pagina richiesta non è stata trovata o non è pubblicata."
+
+#: includes/class-the-logical-maintenance-plugin.php:339
+msgid ""
+"The plugin always uses the page with slug Maintenance / maintenance. No page "
+"selector is exposed here."
+msgstr ""
+"Il plugin usa sempre la pagina con slug Maintenance / maintenance. Qui non è "
+"esposto alcun selettore di pagina."
+
+#: includes/class-the-logical-maintenance-plugin.php:343
+msgid "Bypass link"
+msgstr "Link di bypass"
+
+#: includes/class-the-logical-maintenance-plugin.php:353
+msgid "Copy link"
+msgstr "Copia link"
+
+#. translators: %d: number of days.
+#: includes/class-the-logical-maintenance-plugin.php:359
+#, php-format
+msgid "Visitors using this link receive a bypass cookie valid for %d days."
+msgstr "I visitatori che usano questo link ricevono un cookie di bypass valido per %d giorni."
+
+#: includes/class-the-logical-maintenance-plugin.php:367
+msgid "Automatic access"
+msgstr "Accesso automatico"
+
+#: includes/class-the-logical-maintenance-plugin.php:369
+msgid ""
+"Administrators bypass maintenance automatically when logged in. External "
+"users can access the site only through the bypass link."
+msgstr ""
+"Gli amministratori aggirano automaticamente la manutenzione quando sono "
+"autenticati. Gli utenti esterni possono accedere al sito solo tramite il "
+"link di bypass."
+
+#: includes/class-the-logical-maintenance-plugin.php:375
+msgid "Save Maintenance Settings"
+msgstr "Salva impostazioni di manutenzione"
+
+#: includes/class-the-logical-maintenance-plugin.php:381
+msgid "Regenerate bypass token"
+msgstr "Rigenera token di bypass"
+
+#: includes/class-the-logical-maintenance-plugin.php:414
+msgid "Maintenance settings saved."
+msgstr "Impostazioni di manutenzione salvate."
+
+#: includes/class-the-logical-maintenance-plugin.php:418
+msgid "Bypass token regenerated."
+msgstr "Token di bypass rigenerato."
+
+#: includes/class-the-logical-maintenance-plugin.php:423
+msgid ""
+"The required page with slug \"maintenance\" is missing or not published. "
+"Maintenance mode will not block the site until that page exists."
+msgstr ""
+"La pagina richiesta con slug \"maintenance\" manca o non è pubblicata. La "
+"modalità manutenzione non bloccherà il sito finché quella pagina non esiste."
+
+#: templates/maintenance-template.php:34
+msgid "Maintenance page unavailable"
+msgstr "Pagina di manutenzione non disponibile"
+
+#: templates/maintenance-template.php:35
+msgid ""
+"Create and publish the page with slug \"maintenance\" to use this plugin."
+msgstr ""
+"Crea e pubblica la pagina con slug \"maintenance\" per usare questo plugin."

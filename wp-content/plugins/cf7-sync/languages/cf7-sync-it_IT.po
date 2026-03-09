@@ -1,0 +1,140 @@
+# Copyright (C) 2026 Michele Paolino
+# This file is distributed under the same license as the CF7 Sync plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: CF7 Sync 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cf7-sync\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-09T16:38:53+00:00\n"
+"PO-Revision-Date: 2026-03-09T16:38:53+00:00\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cf7-sync\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+#: cf7-sync.php
+msgid "CF7 Sync"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: cf7-sync.php
+msgid "https://github.com/michelediss/the-logical-theme"
+msgstr ""
+
+#. Description of the plugin
+#: cf7-sync.php
+msgid "Sync Contact Form 7 forms from versioned JSON manifests via WP-CLI."
+msgstr ""
+
+#. Author of the plugin
+#: cf7-sync.php
+msgid "Michele Paolino"
+msgstr ""
+
+#. Author URI of the plugin
+#: cf7-sync.php
+msgid "https://michelepaolino.com"
+msgstr ""
+
+#: cf7-sync.php:88
+msgid "Contact Form 7 must be installed and active before using this command."
+msgstr "Contact Form 7 deve essere installato e attivo prima di usare questo comando."
+
+#: cf7-sync.php:103
+#, php-format
+msgid "Manifest directory not found: %s"
+msgstr "Directory dei manifest non trovata: %s"
+
+#: cf7-sync.php:118
+#, php-format
+msgid "No JSON manifests found in %s"
+msgstr "Nessun manifest JSON trovato in %s"
+
+#: cf7-sync.php:136
+#, php-format
+msgid "Duplicate slug \"%1$s\" found in %2$s and %3$s"
+msgstr "Slug duplicato \"%1$s\" trovato in %2$s e %3$s"
+
+#: cf7-sync.php:149
+#, php-format
+msgid "No manifest found for slug \"%s\""
+msgstr "Nessun manifest trovato per lo slug \"%s\""
+
+#: cf7-sync.php:158
+#, php-format
+msgid "Unable to read manifest file: %s"
+msgstr "Impossibile leggere il file manifest: %s"
+
+#: cf7-sync.php:163
+#, php-format
+msgid "Invalid JSON in %1$s: %2$s"
+msgstr "JSON non valido in %1$s: %2$s"
+
+#: cf7-sync.php:167
+#, php-format
+msgid "Manifest must decode to an object: %s"
+msgstr "Il manifest deve decodificarsi in un oggetto: %s"
+
+#: cf7-sync.php:184
+#, php-format
+msgid "Missing or invalid \"slug\" in %s"
+msgstr "\"slug\" mancante o non valido in %s"
+
+#: cf7-sync.php:188
+#, php-format
+msgid "Missing \"title\" in %s"
+msgstr "\"title\" mancante in %s"
+
+#: cf7-sync.php:192
+#, php-format
+msgid "Missing \"form\" in %s"
+msgstr "\"form\" mancante in %s"
+
+#: cf7-sync.php:201
+#, php-format
+msgid "Missing \"%1$s\" in %2$s"
+msgstr "\"%1$s\" mancante in %2$s"
+
+#: cf7-sync.php:208
+#, php-format
+msgid "\"%1$s\" must be an object in %2$s"
+msgstr "\"%1$s\" deve essere un oggetto in %2$s"
+
+#: cf7-sync.php:227
+#, php-format
+msgid "Missing \"%1$s.%2$s\" in %3$s"
+msgstr "\"%1$s.%2$s\" mancante in %3$s"
+
+#: cf7-sync.php:280
+#, php-format
+msgid "Multiple CF7 forms found for slug \"%s\""
+msgstr "Trovati più moduli CF7 per lo slug \"%s\""
+
+#: cf7-sync.php:310
+#, php-format
+msgid "Unable to create form \"%1$s\": %2$s"
+msgstr "Impossibile creare il modulo \"%1$s\": %2$s"
+
+#: cf7-sync.php:315
+#, php-format
+msgid "Unable to bootstrap CF7 form instance for \"%s\""
+msgstr "Impossibile inizializzare l'istanza del modulo CF7 per \"%s\""
+
+#: cf7-sync.php:388
+#, php-format
+msgid "CF7 failed to save form \"%s\""
+msgstr "CF7 non è riuscito a salvare il modulo \"%s\""
+
+#: cf7-sync.php:492
+#, php-format
+msgid "CF7 sync complete%s. Created: %d, Updated: %d, Unchanged: %d"
+msgstr "Sincronizzazione CF7 completata%s. Creati: %d, Aggiornati: %d, Invariati: %d"
+
+#: cf7-sync.php:493
+msgid "(dry-run)"
+msgstr "(simulazione)"

@@ -6,24 +6,35 @@
 * Plugin URI: https://github.com/michelediss/the-logical-theme
 * Author: Michele Paolino
 * Author URI: https://michelepaolino.com
+* Text Domain: turnstile-wp
+* Domain Path: /languages
 */
 
 if (!defined('ABSPATH')) {
-    exit; // Impedisce l'accesso diretto
+    exit;
 }
 
 global $wpdb;
 define('CFT_TABLE_NAME', $wpdb->prefix . 'cf_turnstile_keys');
+define('CFT_TEXT_DOMAIN', 'turnstile-wp');
+
+function cft_load_textdomain() {
+    load_plugin_textdomain(
+        CFT_TEXT_DOMAIN,
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
+}
+add_action('init', 'cft_load_textdomain');
 
 /**
- * 1. ATTIVAZIONE: Creazione/Aggiornamento tabella nel DB
+ * Creates or updates the plugin settings table on activation.
  */
 function cft_plugin_activate() {
     global $wpdb;
     $table_name = CFT_TABLE_NAME;
     $charset_collate = $wpdb->get_charset_collate();
 
-    // Aggiunta la colonna 'is_active' (tinyint 1 = true, 0 = false)
     $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         site_key tinytext NOT NULL,
@@ -36,7 +47,6 @@ function cft_plugin_activate() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 
-    // Inseriamo la riga iniziale se non esiste
     $row_exists = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
     if ($row_exists == 0) {
         $wpdb->insert(
@@ -44,7 +54,7 @@ function cft_plugin_activate() {
             array(
                 'site_key' => '',
                 'secret_key' => '',
-                'is_active' => 1, // Attivo di default
+                'is_active' => 1,
                 'updated_at' => current_time('mysql')
             )
         );
@@ -53,22 +63,21 @@ function cft_plugin_activate() {
 register_activation_hook(__FILE__, 'cft_plugin_activate');
 
 /**
- * 2. HELPERS: Funzioni DB
+ * Reads the stored Turnstile configuration.
  */
 function cft_get_config() {
     global $wpdb;
     $table_name = CFT_TABLE_NAME;
-    // Recuperiamo anche lo stato is_active
     return $wpdb->get_row("SELECT site_key, secret_key, is_active FROM $table_name WHERE id = 1");
 }
 
 /**
- * 3. ADMIN: Pagina di configurazione (PROTETTA)
+ * Registers the settings page.
  */
 function cft_add_admin_menu() {
     add_options_page(
-        'Turnstile Login', 
-        'Turnstile Login', 
+        __('Turnstile Login', 'turnstile-wp'),
+        __('Turnstile Login', 'turnstile-wp'),
         'manage_options', 
         'cf-turnstile-login', 
         'cft_options_page'
@@ -77,20 +86,17 @@ function cft_add_admin_menu() {
 add_action('admin_menu', 'cft_add_admin_menu');
 
 function cft_options_page() {
-    // Controllo Ruolo Administrator
     $current_user = wp_get_current_user();
     if ( ! in_array( 'administrator', (array) $current_user->roles ) ) {
-        wp_die( __('Accesso negato. Questa pagina è riservata esclusivamente agli amministratori.', 'cf-turnstile') );
+        wp_die(__('Access denied. This page is restricted to administrators only.', 'turnstile-wp'));
     }
 
     global $wpdb;
     $table_name = CFT_TABLE_NAME;
 
-    // Salvataggio dati
     if (isset($_POST['cft_submit']) && check_admin_referer('cft_save_keys_action', 'cft_nonce_field')) {
-        $site_key = sanitize_text_field($_POST['site_key']);
-        $secret_key = sanitize_text_field($_POST['secret_key']);
-        // Checkbox: se non è settato nell'array $_POST, significa che è stato deselezionato (quindi 0)
+        $site_key = sanitize_text_field(wp_unslash($_POST['site_key']));
+        $secret_key = sanitize_text_field(wp_unslash($_POST['secret_key']));
         $is_active = isset($_POST['is_active']) ? 1 : 0;
 
         $wpdb->update(
@@ -103,23 +109,23 @@ function cft_options_page() {
             ),
             array('id' => 1)
         );
-        echo '<div class="updated"><p>Impostazioni salvate con successo.</p></div>';
+        echo '<div class="updated"><p>' . esc_html__('Settings saved successfully.', 'turnstile-wp') . '</p></div>';
     }
 
     $config = cft_get_config();
     ?>
     <div class="wrap">
-        <h2>Configurazione Cloudflare Turnstile</h2>
+        <h2><?php esc_html_e('Cloudflare Turnstile Configuration', 'turnstile-wp'); ?></h2>
         
         <form method="post" action="">
             <?php wp_nonce_field('cft_save_keys_action', 'cft_nonce_field'); ?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">Stato Turnstile</th>
+                    <th scope="row"><?php esc_html_e('Turnstile Status', 'turnstile-wp'); ?></th>
                     <td>
                         <label for="is_active">
                             <input type="checkbox" name="is_active" id="is_active" value="1" <?php checked(1, $config->is_active); ?> />
-                            Attiva la protezione sul login
+                            <?php esc_html_e('Enable login protection', 'turnstile-wp'); ?>
                         </label>
                     </td>
                 </tr>
@@ -132,18 +138,17 @@ function cft_options_page() {
                     <td><input type="text" name="secret_key" value="<?php echo esc_attr($config->secret_key); ?>" class="regular-text" /></td>
                 </tr>
             </table>
-            <?php submit_button('Salva Impostazioni', 'primary', 'cft_submit'); ?>
+            <?php submit_button(__('Save Settings', 'turnstile-wp'), 'primary', 'cft_submit'); ?>
         </form>
     </div>
     <?php
 }
 
 /**
- * 4. FRONTEND: Script e Widget
+ * Outputs the Turnstile API on the login screen.
  */
 function cft_login_script() {
     $config = cft_get_config();
-    // Se disattivato o chiavi mancanti, non caricare JS
     if (empty($config->site_key) || $config->is_active == 0) return;
 
     echo '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>';
@@ -153,7 +158,6 @@ add_action('login_head', 'cft_login_script');
 function cft_login_form() {
     $config = cft_get_config();
     
-    // Se disattivato o chiavi mancanti, non mostrare widget
     if (empty($config->site_key) || empty($config->secret_key) || $config->is_active == 0) {
         return;
     }
@@ -163,27 +167,25 @@ function cft_login_form() {
 add_action('login_form', 'cft_login_form');
 
 /**
- * 5. BACKEND: Verifica del Token
+ * Validates the Turnstile token during login.
  */
 function cft_authenticate_check($user, $password) {
     if (is_wp_error($user)) return $user;
 
     $config = cft_get_config();
 
-    // SE IL PLUGIN È DISATTIVATO DALLA CHECKBOX, SALTA IL CONTROLLO
     if ($config->is_active == 0) {
         return $user;
     }
 
-    // Fallback se chiavi vuote
     if (empty($config->site_key) || empty($config->secret_key)) return $user;
 
     if (!isset($_POST['cf-turnstile-response'])) {
-        return new WP_Error('turnstile_error', __('<b>Errore</b>: Verifica di sicurezza mancante.', 'cf-turnstile'));
+        return new WP_Error('turnstile_error', __('<b>Error</b>: Security verification is missing.', 'turnstile-wp'));
     }
 
-    $token = $_POST['cf-turnstile-response'];
-    $ip = $_SERVER['REMOTE_ADDR'];
+    $token = sanitize_text_field(wp_unslash($_POST['cf-turnstile-response']));
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
 
     $verify_url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
     $data = array(
@@ -195,13 +197,13 @@ function cft_authenticate_check($user, $password) {
     $response = wp_remote_post($verify_url, array('body' => $data));
 
     if (is_wp_error($response)) {
-        return new WP_Error('turnstile_error', __('Errore connessione Cloudflare.', 'cf-turnstile'));
+        return new WP_Error('turnstile_error', __('Cloudflare connection error.', 'turnstile-wp'));
     }
 
     $result = json_decode(wp_remote_retrieve_body($response));
 
     if (!$result->success) {
-        return new WP_Error('turnstile_error', __('Verifica fallita. Riprova.', 'cf-turnstile'));
+        return new WP_Error('turnstile_error', __('Verification failed. Please try again.', 'turnstile-wp'));
     }
 
     return $user;

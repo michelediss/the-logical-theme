@@ -2,6 +2,7 @@
   "apiVersion": 3,
   "name": "simple-cookie-consent/cookie-table",
   "title": "Cookie Table",
+  "textdomain": "simple-cookie-consent",
   "category": "widgets",
   "icon": "table-col-after",
   "description": "Displays the registered cookies as a table or card list.",

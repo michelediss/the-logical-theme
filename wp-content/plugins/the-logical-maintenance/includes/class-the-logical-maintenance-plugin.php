@@ -108,8 +108,8 @@ final class The_Logical_Maintenance_Plugin
     public function register_settings_page(): void
     {
         add_options_page(
-            __('Maintenance', self::TEXT_DOMAIN),
-            __('Maintenance', self::TEXT_DOMAIN),
+            __('Maintenance', 'the-logical-maintenance'),
+            __('Maintenance', 'the-logical-maintenance'),
             'manage_options',
             self::SETTINGS_SLUG,
             [$this, 'render_settings_page']
@@ -119,7 +119,7 @@ final class The_Logical_Maintenance_Plugin
     public function handle_settings_save(): void
     {
         if (! current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to manage maintenance settings.', self::TEXT_DOMAIN));
+            wp_die(esc_html__('You are not allowed to manage maintenance settings.', 'the-logical-maintenance'));
         }
 
         check_admin_referer(self::ACTION_SAVE);
@@ -136,7 +136,7 @@ final class The_Logical_Maintenance_Plugin
     public function handle_regenerate_bypass(): void
     {
         if (! current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to manage maintenance settings.', self::TEXT_DOMAIN));
+            wp_die(esc_html__('You are not allowed to manage maintenance settings.', 'the-logical-maintenance'));
         }
 
         check_admin_referer(self::ACTION_REGENERATE);
@@ -298,8 +298,8 @@ final class The_Logical_Maintenance_Plugin
         $notice = isset($_GET[self::NOTICE_ARG]) ? sanitize_key((string) $_GET[self::NOTICE_ARG]) : '';
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Maintenance', self::TEXT_DOMAIN); ?></h1>
-            <p><?php esc_html_e('Enable a site-wide maintenance response powered by the Gutenberg content of the fixed Maintenance page.', self::TEXT_DOMAIN); ?></p>
+            <h1><?php esc_html_e('Maintenance', 'the-logical-maintenance'); ?></h1>
+            <p><?php esc_html_e('Enable a site-wide maintenance response powered by the Gutenberg content of the fixed Maintenance page.', 'the-logical-maintenance'); ?></p>
 
             <?php $this->render_admin_notice($notice, $maintenance_page); ?>
 
@@ -310,7 +310,7 @@ final class The_Logical_Maintenance_Plugin
                 <table class="form-table" role="presentation">
                     <tbody>
                         <tr>
-                            <th scope="row"><?php esc_html_e('Status', self::TEXT_DOMAIN); ?></th>
+                            <th scope="row"><?php esc_html_e('Status', 'the-logical-maintenance'); ?></th>
                             <td>
                                 <label for="the-logical-maintenance-enabled">
                                     <input
@@ -320,27 +320,27 @@ final class The_Logical_Maintenance_Plugin
                                         value="1"
                                         <?php checked($settings['enabled']); ?>
                                     >
-                                    <?php esc_html_e('Enable maintenance mode', self::TEXT_DOMAIN); ?>
+                                    <?php esc_html_e('Enable maintenance mode', 'the-logical-maintenance'); ?>
                                 </label>
                                 <p class="description">
-                                    <?php esc_html_e('When enabled, public frontend HTML requests are replaced with the Maintenance page and return HTTP 503.', self::TEXT_DOMAIN); ?>
+                                    <?php esc_html_e('When enabled, public frontend HTML requests are replaced with the Maintenance page and return HTTP 503.', 'the-logical-maintenance'); ?>
                                 </p>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><?php esc_html_e('Source page', self::TEXT_DOMAIN); ?></th>
+                            <th scope="row"><?php esc_html_e('Source page', 'the-logical-maintenance'); ?></th>
                             <td>
                                 <p><code>maintenance</code></p>
                                 <?php if ($maintenance_link !== '') : ?>
                                     <p><a href="<?php echo esc_url($maintenance_link); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($maintenance_link); ?></a></p>
                                 <?php else : ?>
-                                    <p class="description"><?php esc_html_e('The required page was not found or is not published.', self::TEXT_DOMAIN); ?></p>
+                                    <p class="description"><?php esc_html_e('The required page was not found or is not published.', 'the-logical-maintenance'); ?></p>
                                 <?php endif; ?>
-                                <p class="description"><?php esc_html_e('The plugin always uses the page with slug Maintenance / maintenance. No page selector is exposed here.', self::TEXT_DOMAIN); ?></p>
+                                <p class="description"><?php esc_html_e('The plugin always uses the page with slug Maintenance / maintenance. No page selector is exposed here.', 'the-logical-maintenance'); ?></p>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><?php esc_html_e('Bypass link', self::TEXT_DOMAIN); ?></th>
+                            <th scope="row"><?php esc_html_e('Bypass link', 'the-logical-maintenance'); ?></th>
                             <td>
                                 <input
                                     id="the-logical-maintenance-bypass-link"
@@ -350,13 +350,13 @@ final class The_Logical_Maintenance_Plugin
                                     value="<?php echo esc_attr($bypass_link); ?>"
                                 >
                                 <p>
-                                    <button type="button" class="button" data-copy-target="the-logical-maintenance-bypass-link"><?php esc_html_e('Copy link', self::TEXT_DOMAIN); ?></button>
+                                    <button type="button" class="button" data-copy-target="the-logical-maintenance-bypass-link"><?php esc_html_e('Copy link', 'the-logical-maintenance'); ?></button>
                                 </p>
                                 <p class="description">
                                     <?php
                                     printf(
                                         /* translators: %d: number of days. */
-                                        esc_html__('Visitors using this link receive a bypass cookie valid for %d days.', self::TEXT_DOMAIN),
+                                        esc_html__('Visitors using this link receive a bypass cookie valid for %d days.', 'the-logical-maintenance'),
                                         (int) $settings['bypass_ttl_days']
                                     );
                                     ?>
@@ -364,21 +364,21 @@ final class The_Logical_Maintenance_Plugin
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><?php esc_html_e('Automatic access', self::TEXT_DOMAIN); ?></th>
+                            <th scope="row"><?php esc_html_e('Automatic access', 'the-logical-maintenance'); ?></th>
                             <td>
-                                <p><?php esc_html_e('Administrators bypass maintenance automatically when logged in. External users can access the site only through the bypass link.', self::TEXT_DOMAIN); ?></p>
+                                <p><?php esc_html_e('Administrators bypass maintenance automatically when logged in. External users can access the site only through the bypass link.', 'the-logical-maintenance'); ?></p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <?php submit_button(__('Save Maintenance Settings', self::TEXT_DOMAIN)); ?>
+                <?php submit_button(__('Save Maintenance Settings', 'the-logical-maintenance')); ?>
             </form>
 
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top: 1rem;">
                 <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_REGENERATE); ?>">
                 <?php wp_nonce_field(self::ACTION_REGENERATE); ?>
-                <?php submit_button(__('Regenerate bypass token', self::TEXT_DOMAIN), 'secondary', 'submit', false); ?>
+                <?php submit_button(__('Regenerate bypass token', 'the-logical-maintenance'), 'secondary', 'submit', false); ?>
             </form>
         </div>
 
@@ -411,16 +411,16 @@ final class The_Logical_Maintenance_Plugin
     private function render_admin_notice(string $notice, ?WP_Post $maintenance_page): void
     {
         if ($notice === self::NOTICE_SAVED) {
-            $this->render_notice_message(__('Maintenance settings saved.', self::TEXT_DOMAIN), 'updated');
+            $this->render_notice_message(__('Maintenance settings saved.', 'the-logical-maintenance'), 'updated');
         }
 
         if ($notice === self::NOTICE_REGENERATED) {
-            $this->render_notice_message(__('Bypass token regenerated.', self::TEXT_DOMAIN), 'updated');
+            $this->render_notice_message(__('Bypass token regenerated.', 'the-logical-maintenance'), 'updated');
         }
 
         if (! $maintenance_page instanceof WP_Post) {
             $this->render_notice_message(
-                __('The required page with slug "maintenance" is missing or not published. Maintenance mode will not block the site until that page exists.', self::TEXT_DOMAIN),
+                __('The required page with slug "maintenance" is missing or not published. Maintenance mode will not block the site until that page exists.', 'the-logical-maintenance'),
                 'error'
             );
         }

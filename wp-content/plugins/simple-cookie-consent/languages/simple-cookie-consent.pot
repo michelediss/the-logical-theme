@@ -1,0 +1,298 @@
+# Copyright (C) 2026 Michele Paolino
+# This file is distributed under the same license as the Simple Cookie Consent plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple Cookie Consent 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/simple-cookie-consent\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-09T16:38:53+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: simple-cookie-consent\n"
+
+#. Plugin Name of the plugin
+#: simple-cookie-consent.php
+#: includes/class-simple-cookie-consent-plugin.php:302
+msgid "Simple Cookie Consent"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: simple-cookie-consent.php
+msgid "https://github.com/michelediss/the-logical-theme"
+msgstr ""
+
+#. Description of the plugin
+#: simple-cookie-consent.php
+msgid "Cookie consent banner, Gutenberg blocks, and cookie registry management."
+msgstr ""
+
+#. Author of the plugin
+#: simple-cookie-consent.php
+msgid "Michele Paolino"
+msgstr ""
+
+#. Author URI of the plugin
+#: simple-cookie-consent.php
+msgid "https://michelepaolino.com"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:303
+#: includes/class-simple-cookie-consent-plugin.php:403
+msgid "Cookie Registry"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:313
+#: includes/class-simple-cookie-consent-plugin.php:335
+#: includes/class-simple-cookie-consent-plugin.php:371
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:404
+msgid "Cookie definitions are stored in WordPress options and exposed to Gutenberg blocks and the consent API integration."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:407
+msgid "Cookie added."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:409
+msgid "Cookie updated."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:411
+msgid "Cookie deleted."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:413
+msgid "Operation failed. Check required fields and try again."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:416
+msgid "Registered Cookies"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:420
+msgid "Name"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:421
+#: includes/class-simple-cookie-consent-plugin.php:493
+#: includes/class-simple-cookie-consent-plugin.php:642
+#: includes/class-simple-cookie-consent-plugin.php:662
+#: assets/js/frontend.js:219
+msgid "Service"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:422
+#: includes/class-simple-cookie-consent-plugin.php:497
+#: includes/class-simple-cookie-consent-plugin.php:644
+#: includes/class-simple-cookie-consent-plugin.php:664
+msgid "Category"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:423
+#: includes/class-simple-cookie-consent-plugin.php:507
+#: includes/class-simple-cookie-consent-plugin.php:647
+#: includes/class-simple-cookie-consent-plugin.php:667
+#: assets/js/frontend.js:220
+msgid "Duration"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:424
+#: includes/class-simple-cookie-consent-plugin.php:511
+#: includes/class-simple-cookie-consent-plugin.php:669
+#: assets/js/frontend.js:221
+msgid "Description"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:425
+#: includes/class-simple-cookie-consent-plugin.php:515
+msgid "First party"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:426
+msgid "Actions"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:431
+#: includes/class-simple-cookie-consent-plugin.php:630
+msgid "No cookies registered."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:443
+msgid "Edit"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:449
+msgid "Delete"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:459
+msgid "Edit Cookie"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:465
+msgid "Save changes"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:466
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:470
+msgid "Add Cookie"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:475
+msgid "Add cookie"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:489
+msgid "Cookie name"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:516
+msgid "First-party cookie"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:528
+#: assets/js/editor.js:59
+msgid "Necessary"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:529
+#: assets/js/editor.js:60
+msgid "Preferences"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:530
+#: assets/js/editor.js:61
+msgid "Anonymous analytics"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:531
+#: assets/js/editor.js:62
+msgid "Analytics"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:532
+#: assets/js/editor.js:63
+msgid "Marketing"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:540
+msgid "Privacy"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:541
+msgid "Cookie preferences"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:546
+msgid "We use necessary cookies and, with your consent, optional cookies for preferences, analytics, and embedded third-party media."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:549
+msgid "Read the cookie policy"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:556
+msgid "Necessary cookies are always active. You can opt in to the other categories below."
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:561
+#, php-format
+msgid "Show cookies for %s"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:568
+msgid "Optional category"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:568
+msgid "Always enabled"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:572
+#, php-format
+msgid "Enable %s cookies"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:574
+#, php-format
+msgid "%s cookies are required"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:585
+msgid "Save preferences"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:593
+msgid "Accept all"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:594
+msgid "Reject all"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:595
+#: assets/js/frontend.js:340
+msgid "Settings"
+msgstr ""
+
+#: includes/class-simple-cookie-consent-plugin.php:661
+msgid "Cookie"
+msgstr ""
+
+#: simple-cookie-consent.php:66
+#: assets/js/frontend.js:339
+msgid "To view this content you need to accept marketing cookies."
+msgstr ""
+
+#: simple-cookie-consent.php:67
+msgid "Update settings"
+msgstr ""
+
+#: assets/js/editor.js:10
+msgid "Cookie Banner"
+msgstr ""
+
+#: assets/js/editor.js:24
+msgid "Cookie Table"
+msgstr ""
+
+#: assets/js/editor.js:40
+msgid "Cookie table settings"
+msgstr ""
+
+#: assets/js/editor.js:44
+msgid "Layout"
+msgstr ""
+
+#: assets/js/editor.js:47
+msgid "Table"
+msgstr ""
+
+#: assets/js/editor.js:48
+msgid "Cards"
+msgstr ""
+
+#: assets/js/editor.js:55
+msgid "Category filter"
+msgstr ""
+
+#: assets/js/editor.js:58
+msgid "All categories"
+msgstr ""
+
+#: assets/js/editor.js:70
+msgid "Show category column"
+msgstr ""
+
+#: assets/js/editor.js:77
+msgid "Show duration column"
+msgstr ""

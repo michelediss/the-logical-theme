@@ -6,6 +6,8 @@
  * Plugin URI: https://github.com/michelediss/the-logical-theme
  * Author: Michele Paolino
  * Author URI: https://michelepaolino.com
+ * Text Domain: cf7-sync
+ * Domain Path: /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,11 +19,22 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 		const VERSION           = '0.1.0';
 		const FORM_META_SLUG    = '_cf7_sync_slug';
 		const DEFAULT_FORMS_DIR = 'wp-content/themes/the-logical-theme/cf7-forms';
+		const TEXT_DOMAIN       = 'cf7-sync';
 
 		public static function init() {
+			add_action( 'init', [ __CLASS__, 'load_textdomain' ] );
+
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				self::register_cli_command();
 			}
+		}
+
+		public static function load_textdomain() {
+			load_plugin_textdomain(
+				self::TEXT_DOMAIN,
+				false,
+				dirname( plugin_basename( __FILE__ ) ) . '/languages'
+			);
 		}
 
 		private static function register_cli_command() {
@@ -72,7 +85,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 
 		private static function assert_cf7_available() {
 			if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
-				\WP_CLI::error( 'Contact Form 7 must be installed and active before using this command.' );
+				\WP_CLI::error( __( 'Contact Form 7 must be installed and active before using this command.', 'cf7-sync' ) );
 			}
 		}
 
@@ -87,7 +100,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 
 			$real_path = realpath( $directory );
 			if ( false === $real_path || ! is_dir( $real_path ) ) {
-				\WP_CLI::error( sprintf( 'Manifest directory not found: %s', $directory ) );
+				\WP_CLI::error( sprintf( __( 'Manifest directory not found: %s', 'cf7-sync' ), $directory ) );
 			}
 
 			return $real_path;
@@ -102,7 +115,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 			$files   = glob( $pattern );
 
 			if ( false === $files || [] === $files ) {
-				\WP_CLI::error( sprintf( 'No JSON manifests found in %s', $directory ) );
+				\WP_CLI::error( sprintf( __( 'No JSON manifests found in %s', 'cf7-sync' ), $directory ) );
 			}
 
 			sort( $files );
@@ -120,7 +133,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 				if ( isset( $seen[ $manifest['slug'] ] ) ) {
 					\WP_CLI::error(
 						sprintf(
-							'Duplicate slug "%1$s" found in %2$s and %3$s',
+							__( 'Duplicate slug "%1$s" found in %2$s and %3$s', 'cf7-sync' ),
 							$manifest['slug'],
 							$seen[ $manifest['slug'] ],
 							$file
@@ -133,7 +146,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 			}
 
 			if ( $slug_filter && [] === $manifests ) {
-				\WP_CLI::error( sprintf( 'No manifest found for slug "%s"', $slug_filter ) );
+				\WP_CLI::error( sprintf( __( 'No manifest found for slug "%s"', 'cf7-sync' ), $slug_filter ) );
 			}
 
 			return $manifests;
@@ -142,16 +155,16 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 		private static function load_manifest_file( $file ) {
 			$raw_json = file_get_contents( $file );
 			if ( false === $raw_json ) {
-				\WP_CLI::error( sprintf( 'Unable to read manifest file: %s', $file ) );
+				\WP_CLI::error( sprintf( __( 'Unable to read manifest file: %s', 'cf7-sync' ), $file ) );
 			}
 
 			$data = json_decode( $raw_json, true );
 			if ( JSON_ERROR_NONE !== json_last_error() ) {
-				\WP_CLI::error( sprintf( 'Invalid JSON in %1$s: %2$s', $file, json_last_error_msg() ) );
+				\WP_CLI::error( sprintf( __( 'Invalid JSON in %1$s: %2$s', 'cf7-sync' ), $file, json_last_error_msg() ) );
 			}
 
 			if ( ! is_array( $data ) ) {
-				\WP_CLI::error( sprintf( 'Manifest must decode to an object: %s', $file ) );
+				\WP_CLI::error( sprintf( __( 'Manifest must decode to an object: %s', 'cf7-sync' ), $file ) );
 			}
 
 			$manifest = [
@@ -168,15 +181,15 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 			];
 
 			if ( '' === $manifest['slug'] ) {
-				\WP_CLI::error( sprintf( 'Missing or invalid "slug" in %s', $file ) );
+				\WP_CLI::error( sprintf( __( 'Missing or invalid "slug" in %s', 'cf7-sync' ), $file ) );
 			}
 
 			if ( '' === $manifest['title'] ) {
-				\WP_CLI::error( sprintf( 'Missing "title" in %s', $file ) );
+				\WP_CLI::error( sprintf( __( 'Missing "title" in %s', 'cf7-sync' ), $file ) );
 			}
 
 			if ( '' === trim( $manifest['form'] ) ) {
-				\WP_CLI::error( sprintf( 'Missing "form" in %s', $file ) );
+				\WP_CLI::error( sprintf( __( 'Missing "form" in %s', 'cf7-sync' ), $file ) );
 			}
 
 			return $manifest;
@@ -185,14 +198,14 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 		private static function normalize_mail_property( $value, $file, $property_name ) {
 			if ( null === $value ) {
 				if ( 'mail' === $property_name ) {
-					\WP_CLI::error( sprintf( 'Missing "%1$s" in %2$s', $property_name, $file ) );
+					\WP_CLI::error( sprintf( __( 'Missing "%1$s" in %2$s', 'cf7-sync' ), $property_name, $file ) );
 				}
 
 				return [];
 			}
 
 			if ( ! is_array( $value ) ) {
-				\WP_CLI::error( sprintf( '"%1$s" must be an object in %2$s', $property_name, $file ) );
+				\WP_CLI::error( sprintf( __( '"%1$s" must be an object in %2$s', 'cf7-sync' ), $property_name, $file ) );
 			}
 
 			$normalized = [
@@ -211,7 +224,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 				$required_keys = [ 'subject', 'sender', 'recipient', 'body' ];
 				foreach ( $required_keys as $required_key ) {
 					if ( '' === trim( $normalized[ $required_key ] ) ) {
-						\WP_CLI::error( sprintf( 'Missing "%1$s.%2$s" in %3$s', $property_name, $required_key, $file ) );
+						\WP_CLI::error( sprintf( __( 'Missing "%1$s.%2$s" in %3$s', 'cf7-sync' ), $property_name, $required_key, $file ) );
 					}
 				}
 			}
@@ -264,7 +277,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 
 			$posts = $query->posts;
 			if ( count( $posts ) > 1 ) {
-				\WP_CLI::error( sprintf( 'Multiple CF7 forms found for slug "%s"', $slug ) );
+				\WP_CLI::error( sprintf( __( 'Multiple CF7 forms found for slug "%s"', 'cf7-sync' ), $slug ) );
 			}
 
 			if ( [] === $posts ) {
@@ -294,12 +307,12 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 			);
 
 			if ( is_wp_error( $post_id ) ) {
-				\WP_CLI::error( sprintf( 'Unable to create form "%1$s": %2$s', $manifest['slug'], $post_id->get_error_message() ) );
+				\WP_CLI::error( sprintf( __( 'Unable to create form "%1$s": %2$s', 'cf7-sync' ), $manifest['slug'], $post_id->get_error_message() ) );
 			}
 
 			$form = \WPCF7_ContactForm::get_instance( $post_id );
 			if ( ! $form ) {
-				\WP_CLI::error( sprintf( 'Unable to bootstrap CF7 form instance for "%s"', $manifest['slug'] ) );
+				\WP_CLI::error( sprintf( __( 'Unable to bootstrap CF7 form instance for "%s"', 'cf7-sync' ), $manifest['slug'] ) );
 			}
 
 			self::apply_manifest_to_form( $form, $manifest );
@@ -372,7 +385,7 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 		private static function save_form( $form, $slug ) {
 			$result = $form->save();
 			if ( false === $result ) {
-				\WP_CLI::error( sprintf( 'CF7 failed to save form "%s"', $slug ) );
+				\WP_CLI::error( sprintf( __( 'CF7 failed to save form "%s"', 'cf7-sync' ), $slug ) );
 			}
 
 			update_post_meta( $form->id(), self::FORM_META_SLUG, $slug );
@@ -476,8 +489,8 @@ if ( ! class_exists( 'CF7_Sync_Plugin' ) ) {
 			}
 
 			$message = sprintf(
-				'CF7 sync complete%s. Created: %d, Updated: %d, Unchanged: %d',
-				$dry_run ? ' (dry-run)' : '',
+				__( 'CF7 sync complete%s. Created: %d, Updated: %d, Unchanged: %d', 'cf7-sync' ),
+				$dry_run ? ' ' . __( '(dry-run)', 'cf7-sync' ) : '',
 				$counts['create'],
 				$counts['update'],
 				$counts['no-change']
