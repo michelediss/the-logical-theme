@@ -12,7 +12,7 @@
     "i18n:mo": "wp i18n make-mo languages",
     "i18n:json": "wp i18n make-json languages languages --domain=the-logical-theme --pretty-print --no-purge --use-map=languages/script-translations-map.json",
     "i18n:build": "npm run i18n:pot && npm run i18n:po && npm run i18n:mo && npm run i18n:json",
-    "skill:export-blocks": "php .agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php",
+    "skill:export-blocks": "docker exec thelogicaltheme-wpcli php /var/www/html/wp-content/themes/the-logical-theme/.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php",
     "skill:export-tokens": "node .agents/skills/figma-make-theme-sync/scripts/export-theme-tokens.mjs",
     "skill:export-visual-qa": "node .agents/skills/figma-make-theme-sync/scripts/export-visual-qa-config.mjs",
     "skill:inspect-mcp-debug": "node .agents/skills/figma-make-theme-sync/scripts/inspect-figma-mcp-dump.mjs",

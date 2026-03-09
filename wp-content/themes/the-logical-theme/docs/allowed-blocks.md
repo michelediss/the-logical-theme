@@ -4,7 +4,8 @@ This file describes the blocks that are allowed in this theme and how an AI shou
 
 Custom theme blocks are also allowed. The runtime source of truth is:
 
-- `partials/block-availability.php` for curated block categories and admin-managed availability
+- `partials/block-availability/runtime.php` for curated block categories and admin-managed availability
+- `partials/block-availability.php` as the theme bootstrap entrypoint for that runtime
 - `blocks/*/block.json` for theme custom blocks discovered automatically
 
 Do not treat this file as the only source of truth for custom blocks. When a custom block exists in `blocks/*/block.json`, it is considered allowed unless project instructions say otherwise.

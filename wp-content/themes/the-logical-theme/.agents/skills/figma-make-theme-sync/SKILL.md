@@ -41,6 +41,7 @@ Read runtime facts from these sources before generating code:
 
 - `figma.json`
 - `partials/block-availability.php`
+- `partials/block-availability/runtime.php`
 - `inc/blocks.php`
 - `blocks/*/block.json`
 - `.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php`
@@ -85,6 +86,8 @@ When the task depends on the Make app implementation, read `references/figma-mak
 ## Hard Rules
 
 - Runtime data from PHP, JSON, and scripts wins over docs when they disagree.
+- `export-theme-blocks.php` must bootstrap WordPress so the block registry and saved availability settings reflect real runtime state.
+- In this repository, prefer running the block export through the local `wpcli` container so the script sees the same PHP extensions and database-backed state as WordPress.
 - Never invent node ids, frame ids, or alternate Figma URLs.
 - Always start from `figma.app_url`.
 - Treat `mcp__figma__get_design_context` as the primary Make source inspection path.

@@ -4,41 +4,38 @@
 declare(strict_types=1);
 
 $themeRoot = realpath(__DIR__ . '/../../../..');
+$wpRoot = $themeRoot !== false ? realpath($themeRoot . '/../../..') : false;
 
 if ($themeRoot === false) {
     fwrite(STDERR, "Unable to resolve theme root.\n");
     exit(1);
 }
 
-if (! defined('ABSPATH')) {
-    define('ABSPATH', $themeRoot . '/');
+if ($wpRoot === false) {
+    fwrite(STDERR, "Unable to resolve WordPress root.\n");
+    exit(1);
 }
 
-if (! function_exists('get_theme_file_path')) {
-    function get_theme_file_path(string $path = ''): string
-    {
-        global $themeRoot;
+$wpLoadPath = $wpRoot . '/wp-load.php';
 
-        return $themeRoot . ($path !== '' ? '/' . ltrim($path, '/') : '');
-    }
+if (! file_exists($wpLoadPath)) {
+    fwrite(STDERR, "Unable to bootstrap WordPress: wp-load.php not found.\n");
+    exit(1);
 }
 
-if (! function_exists('add_action')) {
-    function add_action(...$args): void
-    {
-    }
+require_once $wpLoadPath;
+
+if (! function_exists('the_logical_theme_get_custom_block_metadata_files')) {
+    require_once $themeRoot . '/inc/blocks.php';
 }
 
-if (! function_exists('add_filter')) {
-    function add_filter(...$args): void
-    {
-    }
+if (! function_exists('the_logical_theme_get_block_catalog')) {
+    require_once $themeRoot . '/partials/block-availability.php';
 }
 
-require_once $themeRoot . '/inc/blocks.php';
-require_once $themeRoot . '/partials/block-availability.php';
-
-$groups = the_logical_theme_curated_block_groups();
+$curatedGroups = the_logical_theme_curated_block_groups();
+$catalog = the_logical_theme_get_block_catalog();
+$settings = the_logical_theme_get_block_availability_settings();
 $customBlocks = the_logical_theme_get_custom_block_names();
 $allowedBlocks = the_logical_theme_allowed_blocks();
 $customBlockMetadata = [];
@@ -67,10 +64,14 @@ foreach (the_logical_theme_get_custom_block_metadata_files() as $metadataFile) {
 
 $payload = [
     'source' => [
-        'curated_groups' => 'partials/block-availability.php',
+        'wp_root' => $wpRoot,
+        'theme_bootstrap' => 'partials/block-availability.php',
+        'block_runtime' => 'partials/block-availability/runtime.php',
         'custom_blocks' => 'blocks/*/block.json',
     ],
-    'core_groups' => $groups,
+    'curated_groups' => $curatedGroups,
+    'catalog' => $catalog,
+    'settings' => $settings,
     'custom_blocks' => $customBlocks,
     'custom_block_metadata' => $customBlockMetadata,
     'allowed_blocks' => $allowedBlocks,

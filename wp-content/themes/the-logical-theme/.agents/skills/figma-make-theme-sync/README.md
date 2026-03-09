@@ -53,6 +53,7 @@ Primary sources:
 
 - `figma.json`
 - `partials/block-availability.php`
+- `partials/block-availability/runtime.php`
 - `inc/blocks.php`
 - `blocks/*/block.json`
 - `.agents/skills/figma-make-theme-sync/scripts/visual-qa-common.mjs`
@@ -62,6 +63,8 @@ Machine-readable exports:
 - `npm run skill:export-blocks`
 - `npm run skill:export-tokens`
 - `npm run skill:export-visual-qa`
+
+`skill:export-blocks` bootstraps WordPress through `wp-load.php` so the export reflects the registered block catalog and the saved block availability settings instead of a standalone fallback snapshot. In this repository, the npm script runs that export through the project `wpcli` container so the required PHP extensions and database connectivity match the local WordPress runtime.
 
 `theme.json` is not a primary design input for this skill. When it is read, treat it as the current theme state to compare against or update, not as the source that drives generation.
 

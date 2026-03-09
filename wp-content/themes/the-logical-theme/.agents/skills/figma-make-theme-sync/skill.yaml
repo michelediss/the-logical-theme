@@ -165,6 +165,7 @@ runtime_notes:
     - docs/theme-overview.md
     - docs/allowed-blocks.md
     - docs/custom-blocks.md
+    - partials/block-availability/runtime.php
     - inc/patterns.php
     - patterns/
     - parts/
@@ -191,6 +192,9 @@ runtime_notes:
     figma_capture_url_flag: --figma-capture-url
     legacy_alias_policy: rejected
     resume_script: .agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs
+    notes:
+      - export-theme-blocks.php bootstraps WordPress through wp-load.php so runtime block exports include registered blocks and saved availability settings.
+      - In this repository, npm run skill:export-blocks executes that PHP script through the project wpcli container.
   page_mapping_resolution:
     site_url_priority:
       - preview_url

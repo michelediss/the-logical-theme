@@ -29,7 +29,7 @@
 - `inc/patterns.php`: custom block pattern category registration.
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
-- `partials/block-availability.php`: block availability bootstrap that loads the runtime whitelist logic and the related Appearance admin UI for block categories.
+- `partials/block-availability.php`: block availability bootstrap that loads `partials/block-availability/runtime.php` for the runtime whitelist logic and `partials/block-availability/admin.php` for the related Appearance admin UI.
 - `partials/theme-options.php`: Settings admin screen for theme-owned runtime options such as frontend jQuery disable, comments disable, and image upload restrictions.
 - `partials/privacy-controller-data.php`: Settings admin screen for the global `privacy_controller_data` option and the `[privacy key="..."]` shortcode used in policy pages.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, visual QA tooling, Lighthouse performance audit tooling, and run-manifest based resume support for Figma Make to Gutenberg workflows.
