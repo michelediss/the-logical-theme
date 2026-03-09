@@ -6,14 +6,8 @@
       "home": {
         "label": "Home page",
         "target_name": "front-page",
-        "figma_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG?p=f&t=QpVONFXydlTCl9KV-0&fullscreen=1",
+        "figma_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG/Design-Sputnik-Press-Homepage",
         "site_url": "http://thelogicaltheme.localhost/"
-      },
-      "about": {
-        "label": "About page",
-        "target_name": "page-about",
-        "figma_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG?p=f&t=QpVONFXydlTCl9KV-0&fullscreen=1",
-        "site_url": "http://thelogicaltheme.localhost/about/"
       }
     }
   }

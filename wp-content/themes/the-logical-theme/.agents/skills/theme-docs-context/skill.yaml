@@ -1,5 +1,5 @@
 name: theme-docs-context
-description: Use this skill when a task depends on the canonical Markdown documentation of the-logical-theme. It must include and rely on all files in docs/: docs/theme-overview.md, docs/allowed-blocks.md, docs/custom-blocks.md, and docs/skill-sync.md.
+description: Use this skill when a task depends on the canonical Markdown documentation of the-logical-theme. It must include and rely on all files in docs/: docs/theme-overview.md, docs/block-availability-system.md, docs/block-composition-guide.md, docs/custom-blocks.md, and docs/skill-sync.md.
 context:
   platform: wordpress
   theme: the-logical-theme
@@ -8,6 +8,7 @@ context:
 runtime_notes:
   preferred_files:
     - docs/theme-overview.md
-    - docs/allowed-blocks.md
+    - docs/block-availability-system.md
+    - docs/block-composition-guide.md
     - docs/custom-blocks.md
     - docs/skill-sync.md

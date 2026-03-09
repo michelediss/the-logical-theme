@@ -80,6 +80,73 @@ function the_logical_theme_enqueue_block_availability_assets(string $hook_suffix
 add_action('admin_enqueue_scripts', 'the_logical_theme_enqueue_block_availability_assets');
 
 /**
+ * Marks the current request as a block availability save request.
+ */
+function the_logical_theme_mark_block_availability_save_request(): void
+{
+    $GLOBALS['the_logical_theme_block_availability_run_exports_on_shutdown'] = true;
+}
+
+/**
+ * Detects explicit saves from options.php so exports also run when values do not change.
+ */
+function the_logical_theme_detect_block_availability_save_request(): void
+{
+    if (! is_admin()) {
+        return;
+    }
+
+    if ('POST' !== strtoupper($_SERVER['REQUEST_METHOD'] ?? '')) {
+        return;
+    }
+
+    $optionPage = isset($_POST['option_page']) ? sanitize_text_field(wp_unslash($_POST['option_page'])) : '';
+
+    if ('the_logical_theme_block_availability' !== $optionPage) {
+        return;
+    }
+
+    the_logical_theme_mark_block_availability_save_request();
+}
+add_action('admin_init', 'the_logical_theme_detect_block_availability_save_request', 5);
+
+/**
+ * Runs registry and whitelist exports after block availability settings are saved.
+ */
+function the_logical_theme_maybe_run_block_availability_exports(): void
+{
+    if (empty($GLOBALS['the_logical_theme_block_availability_run_exports_on_shutdown'])) {
+        return;
+    }
+
+    try {
+        $registryPath = the_logical_theme_export_block_registry_json();
+        the_logical_theme_export_whitelisted_blocks_markdown($registryPath);
+        delete_transient('the_logical_theme_block_availability_export_error');
+    } catch (Throwable $throwable) {
+        set_transient(
+            'the_logical_theme_block_availability_export_error',
+            $throwable->getMessage(),
+            MINUTE_IN_SECONDS * 5
+        );
+    }
+}
+add_action('shutdown', 'the_logical_theme_maybe_run_block_availability_exports', 20);
+
+add_action(
+    'update_option_' . 'the_logical_theme_block_availability_settings',
+    'the_logical_theme_mark_block_availability_save_request',
+    10,
+    0
+);
+add_action(
+    'add_option_' . 'the_logical_theme_block_availability_settings',
+    'the_logical_theme_mark_block_availability_save_request',
+    10,
+    0
+);
+
+/**
  * Renders the inline script that powers the live block filter.
  */
 function the_logical_theme_render_block_availability_inline_script(): void
@@ -101,7 +168,7 @@ function the_logical_theme_get_block_availability_page_sections(): array
     $catalog = the_logical_theme_get_block_availability_admin_categories();
     $ordered_sections = [];
 
-    foreach (['core', 'blog', 'woocommerce', 'custom'] as $category_key) {
+    foreach (['core', 'blog', 'woocommerce', 'third_party', 'custom'] as $category_key) {
         if (isset($catalog[$category_key])) {
             $ordered_sections[$category_key] = $catalog[$category_key];
         }
@@ -159,6 +226,8 @@ function the_logical_theme_render_block_availability_category_card(
                     <span class="tlt-block-availability-badge is-fixed"><?php esc_html_e('Always on', 'the-logical-theme'); ?></span>
                 <?php elseif ('woocommerce' === $category_key) : ?>
                     <span class="tlt-block-availability-badge"><?php esc_html_e('Plugin detected', 'the-logical-theme'); ?></span>
+                <?php elseif ('third_party' === $category_key) : ?>
+                    <span class="tlt-block-availability-badge"><?php esc_html_e('Plugin blocks', 'the-logical-theme'); ?></span>
                 <?php else : ?>
                     <span class="tlt-block-availability-badge"><?php esc_html_e('Separate area', 'the-logical-theme'); ?></span>
                 <?php endif; ?>
@@ -232,28 +301,43 @@ function the_logical_theme_render_block_availability_page(): void
             'updated'
         );
     }
+
+    $exportError = get_transient('the_logical_theme_block_availability_export_error');
+
+    if (is_string($exportError) && $exportError !== '') {
+        add_settings_error(
+            'the_logical_theme_block_availability',
+            'the-logical-theme-block-availability-export-error',
+            sprintf(
+                /* translators: %s: export error message */
+                __('Block export failed: %s', 'the-logical-theme'),
+                $exportError
+            ),
+            'error'
+        );
+        delete_transient('the_logical_theme_block_availability_export_error');
+    }
+
     ?>
     <div class="wrap tlt-block-availability-page">
         <?php settings_errors('the_logical_theme_block_availability'); ?>
-        <div class="tlt-block-availability-page__hero">
-            <div>
-                <h1><?php esc_html_e('Block availability', 'the-logical-theme'); ?></h1>
-                <p>
-                    <?php esc_html_e('Control which core, blog, WooCommerce, and custom blocks remain available in the editor without mixing categories.', 'the-logical-theme'); ?>
-                </p>
-                <?php submit_button(__('Save block availability', 'the-logical-theme'), 'primary', 'submit', false); ?>
-
-            </div>
-            <div class="tlt-block-availability-page__summary">
-                <span class="tlt-block-availability-badge is-fixed"><?php esc_html_e('Core always enabled', 'the-logical-theme'); ?></span>
-                <?php if (! the_logical_theme_has_woocommerce()) : ?>
-                    <span class="tlt-block-availability-badge"><?php esc_html_e('WooCommerce not installed', 'the-logical-theme'); ?></span>
-                <?php endif; ?>
-            </div>
-        </div>
-
         <form method="post" action="options.php">
             <?php settings_fields('the_logical_theme_block_availability'); ?>
+            <div class="tlt-block-availability-page__hero">
+                <div>
+                    <h1><?php esc_html_e('Block availability', 'the-logical-theme'); ?></h1>
+                    <p>
+                        <?php esc_html_e('Control which core, blog, WooCommerce, third-party, and custom blocks remain available in the editor without mixing categories.', 'the-logical-theme'); ?>
+                    </p>
+                    <?php submit_button(__('Save block availability', 'the-logical-theme'), 'primary', 'submit', false); ?>
+                </div>
+                <div class="tlt-block-availability-page__summary">
+                    <span class="tlt-block-availability-badge is-fixed"><?php esc_html_e('Core always enabled', 'the-logical-theme'); ?></span>
+                    <?php if (! the_logical_theme_has_woocommerce()) : ?>
+                        <span class="tlt-block-availability-badge"><?php esc_html_e('WooCommerce not installed', 'the-logical-theme'); ?></span>
+                    <?php endif; ?>
+                </div>
+            </div>
             <div class="tlt-block-availability-grid">
                 <?php foreach ($sections as $category_key => $category) : ?>
                     <?php the_logical_theme_render_block_availability_category_card($category_key, $category, $settings); ?>

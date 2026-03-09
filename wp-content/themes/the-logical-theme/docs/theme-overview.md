@@ -29,7 +29,8 @@
 - `inc/patterns.php`: custom block pattern category registration.
 - `cf7-forms/`: versioned Contact Form 7 JSON manifests owned by the theme and synced with the local `cf7-sync` WP-CLI plugin.
 - `theme.json`: design system and editor configuration.
-- `partials/block-availability.php`: block availability bootstrap that loads `partials/block-availability/runtime.php` for the runtime whitelist logic and `partials/block-availability/admin.php` for the related Appearance admin UI.
+- `partials/block-availability.php`: block availability bootstrap that loads `partials/block-availability/runtime.php` for the runtime whitelist logic across core, blog, WooCommerce, third-party plugin blocks, and theme custom blocks, plus `partials/block-availability/admin.php` for the related Appearance admin UI.
+- `partials/block-availability/utility/`: export utilities that regenerate the derived block reference files in `docs/block/`, including `block-registry.json` and `whitelisted-blocks.md`.
 - `partials/theme-options.php`: Settings admin screen for theme-owned runtime options such as frontend jQuery disable, comments disable, and image upload restrictions.
 - `partials/privacy-controller-data.php`: Settings admin screen for the global `privacy_controller_data` option and the `[privacy key="..."]` shortcode used in policy pages.
 - `.agents/skills/figma-make-theme-sync/`: repository-local skill, runtime resolver scripts, visual QA tooling, Lighthouse performance audit tooling, and run-manifest based resume support for Figma Make to Gutenberg workflows.
@@ -37,7 +38,8 @@
 - `src/js/app.js`: front-end bootstrap entrypoint.
 - `src/js/blocks/editor.js`: shared editor entry for custom blocks.
 - `src/js/blocks/view.js`: shared front-end entry for custom block behavior.
-- `docs/allowed-blocks.md`: AI-facing guide to allowed blocks and their intended use.
+- `docs/block-availability-system.md`: documentation of the runtime block availability system, category model, and allowlist behavior.
+- `docs/block-composition-guide.md`: AI-facing guide to block usage and composition patterns.
 - `docs/custom-blocks.md`: development rules for future custom blocks.
 - `style.css`: theme registration metadata required by WordPress.
 - `vite.config.js` and `tailwind.config.js`: build pipeline configuration.
@@ -82,5 +84,5 @@
 - Prefer block patterns and `theme.json` settings over custom PHP rendering unless the editor cannot express the requirement cleanly.
 - When updating tokens or layout defaults, change `theme.json` first and let Tailwind keep consuming the generated CSS variables rather than redefining the values in `tailwind.config.js`.
 - Keep Contact Form 7 manifests under `wp-content/themes/the-logical-theme/cf7-forms` so they are versioned with the theme; the local `cf7-sync` WP-CLI command reads from that path by default.
-- When adding a new custom block, update both `docs/custom-blocks.md` and `docs/allowed-blocks.md` if the block should be available to AI-assisted template generation.
+- When adding a new custom block, update both `docs/custom-blocks.md` and `docs/block-composition-guide.md` if the block should be available to AI-assisted template generation.
 - The `figma-make-theme-sync` skill must read `docs/` during development, but runtime facts for blocks, tokens, visual QA, and performance audit thresholds must come from theme code and its resolver scripts.

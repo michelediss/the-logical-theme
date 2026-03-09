@@ -85,6 +85,11 @@ function the_logical_theme_curated_block_groups(): array
             'description' => __('Commerce-specific blocks available only when WooCommerce is active.', 'the-logical-theme'),
             'blocks' => [],
         ],
+        'third_party' => [
+            'label' => __('Third-Party', 'the-logical-theme'),
+            'description' => __('Blocks registered by installed plugins or external code outside the theme-managed categories.', 'the-logical-theme'),
+            'blocks' => [],
+        ],
         'custom' => [
             'label' => __('Custom', 'the-logical-theme'),
             'description' => __('Theme custom blocks managed separately from the curated core categories.', 'the-logical-theme'),
@@ -190,6 +195,34 @@ function the_logical_theme_get_woocommerce_block_names(): array
 }
 
 /**
+ * Returns registered third-party block names outside the theme-managed namespaces.
+ */
+function the_logical_theme_get_third_party_block_names(): array
+{
+    $block_names = [];
+
+    foreach (the_logical_theme_get_registered_block_types() as $block_name => $block_type) {
+        if (! is_string($block_name) || ! str_contains($block_name, '/')) {
+            continue;
+        }
+
+        if (
+            str_starts_with($block_name, 'core/')
+            || str_starts_with($block_name, 'woocommerce/')
+            || str_starts_with($block_name, 'custom/')
+        ) {
+            continue;
+        }
+
+        $block_names[] = $block_name;
+    }
+
+    sort($block_names);
+
+    return array_values(array_unique($block_names));
+}
+
+/**
  * Returns the full block catalog grouped by category.
  */
 function the_logical_theme_get_block_catalog(): array
@@ -198,6 +231,7 @@ function the_logical_theme_get_block_catalog(): array
     $groups['core']['blocks'] = the_logical_theme_get_registered_core_block_names();
     $groups['blog']['blocks'] = the_logical_theme_get_registered_blog_block_names();
     $groups['woocommerce']['blocks'] = the_logical_theme_get_woocommerce_block_names();
+    $groups['third_party']['blocks'] = the_logical_theme_get_third_party_block_names();
     $groups['custom']['blocks'] = the_logical_theme_get_custom_block_names();
 
     return $groups;
@@ -238,6 +272,7 @@ function the_logical_theme_get_default_allowed_block_map(): array
         'core' => array_values(array_intersect($catalog['core']['blocks'], $curated_groups['core']['blocks'])),
         'blog' => array_values(array_intersect($catalog['blog']['blocks'], $curated_groups['blog']['blocks'])),
         'woocommerce' => [],
+        'third_party' => $catalog['third_party']['blocks'],
         'custom' => $catalog['custom']['blocks'],
     ];
 
@@ -320,7 +355,29 @@ function the_logical_theme_normalize_block_availability_settings($value, bool $s
  */
 function the_logical_theme_sanitize_block_availability_settings($value): array
 {
-    return the_logical_theme_normalize_block_availability_settings($value, true);
+    $sanitized = the_logical_theme_normalize_block_availability_settings($value, true);
+
+    $GLOBALS['the_logical_theme_block_availability_settings_override'] = $sanitized;
+    $GLOBALS['the_logical_theme_block_availability_run_exports_on_shutdown'] = false;
+    the_logical_theme_block_availability_utility_log('Sanitize callback triggered for block availability save.');
+
+    try {
+        $registryPath = the_logical_theme_export_block_registry_json();
+        the_logical_theme_export_whitelisted_blocks_markdown($registryPath);
+        the_logical_theme_block_availability_utility_log('Synchronous block availability exports completed successfully.');
+        delete_transient('the_logical_theme_block_availability_export_error');
+    } catch (Throwable $throwable) {
+        the_logical_theme_block_availability_utility_log('Synchronous block availability exports failed: ' . $throwable->getMessage());
+        set_transient(
+            'the_logical_theme_block_availability_export_error',
+            $throwable->getMessage(),
+            MINUTE_IN_SECONDS * 5
+        );
+    }
+
+    unset($GLOBALS['the_logical_theme_block_availability_settings_override']);
+
+    return $sanitized;
 }
 
 /**
@@ -328,6 +385,13 @@ function the_logical_theme_sanitize_block_availability_settings($value): array
  */
 function the_logical_theme_get_block_availability_settings(): array
 {
+    if (
+        isset($GLOBALS['the_logical_theme_block_availability_settings_override'])
+        && is_array($GLOBALS['the_logical_theme_block_availability_settings_override'])
+    ) {
+        return $GLOBALS['the_logical_theme_block_availability_settings_override'];
+    }
+
     $saved_settings = get_option(the_logical_theme_block_availability_option_name(), []);
 
     return the_logical_theme_normalize_block_availability_settings($saved_settings);
@@ -338,7 +402,7 @@ function the_logical_theme_get_block_availability_settings(): array
  */
 function the_logical_theme_is_block_category_enabled(string $category_key, array $settings): bool
 {
-    if ('core' === $category_key || 'custom' === $category_key) {
+    if ('core' === $category_key || 'custom' === $category_key || 'third_party' === $category_key) {
         return true;
     }
 

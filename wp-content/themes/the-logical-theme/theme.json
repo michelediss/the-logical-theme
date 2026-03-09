@@ -26,6 +26,26 @@
           "slug": "muted",
           "name": "Muted",
           "color": "#d9d1c5"
+        },
+        {
+          "slug": "sputnik-dark",
+          "name": "Sputnik Dark",
+          "color": "#0A0A0A"
+        },
+        {
+          "slug": "sputnik-cream",
+          "name": "Sputnik Cream",
+          "color": "#F5F0E8"
+        },
+        {
+          "slug": "sputnik-red",
+          "name": "Sputnik Red",
+          "color": "#E8132A"
+        },
+        {
+          "slug": "sputnik-orange",
+          "name": "Sputnik Orange",
+          "color": "#F57C20"
         }
       ]
     },
@@ -61,6 +81,16 @@
           "slug": "xl",
           "name": "XL",
           "size": "5rem"
+        },
+        {
+          "slug": "2xl",
+          "name": "2XL",
+          "size": "6rem"
+        },
+        {
+          "slug": "3xl",
+          "name": "3XL",
+          "size": "8rem"
         }
       ]
     },
@@ -77,6 +107,16 @@
           "fontFamily": "\"Fraunces\", Georgia, serif",
           "name": "Display",
           "slug": "display"
+        },
+        {
+          "fontFamily": "\"Space Grotesk\", sans-serif",
+          "name": "Space Grotesk",
+          "slug": "space-grotesk"
+        },
+        {
+          "fontFamily": "\"Inter\", sans-serif",
+          "name": "Inter",
+          "slug": "inter"
         }
       ],
       "fontSizes": [
@@ -99,6 +139,11 @@
           "slug": "xl",
           "name": "XL",
           "size": "clamp(2.25rem, 4vw, 4.5rem)"
+        },
+        {
+          "slug": "hero",
+          "name": "Hero",
+          "size": "clamp(4rem, 9vw, 8rem)"
         }
       ]
     },

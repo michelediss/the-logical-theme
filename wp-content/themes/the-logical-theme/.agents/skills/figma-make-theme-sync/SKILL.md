@@ -25,7 +25,7 @@ Use this skill when the user wants Gutenberg-compatible code for `the-logical-th
 
 ## Required Preconditions
 
-Stop immediately if any of these conditions is not true:
+For generation or update work, stop immediately if any of these conditions is not true:
 
 - `figma.json` exists in the theme root
 - `figma.source` equals `"make"`
@@ -33,7 +33,13 @@ Stop immediately if any of these conditions is not true:
 - `mcp__figma__get_design_context` is available
 - `mcp__figma__get_screenshot` is available
 
-This skill has no fallback mode without MCP Figma.
+If MCP Figma is unavailable but `.artifacts/figma-mcp-debug/<app-id>/` exists for the same Make app, you may continue only in diagnostic mode:
+
+- inspect the saved dump to explain prior MCP output or generation assumptions
+- review the Make app structure already captured in the dump
+- identify gaps, stale data risks, or next steps for a future live MCP run
+
+Diagnostic mode is not a substitute for live MCP when generating or updating theme code, screenshots, or Lighthouse-backed reports.
 
 ## Runtime Sources Of Truth
 
@@ -57,10 +63,13 @@ Read runtime facts from these sources before generating code:
 During development, always read:
 
 - `docs/theme-overview.md`
-- `docs/allowed-blocks.md`
+- `docs/block-availability-system.md`
+- `docs/block-composition-guide.md`
 - `docs/custom-blocks.md`
 
 When the task depends on the Make app implementation, read `references/figma-make-architecture.md` after MCP has returned real Make context.
+
+When MCP is unavailable and a saved dump exists, you may read the matching files under `.artifacts/figma-mcp-debug/<app-id>/` for diagnosis only.
 
 ## Workflow
 
@@ -69,29 +78,34 @@ When the task depends on the Make app implementation, read `references/figma-mak
 3. Validate `figma.json` and resolve URLs from `scripts/get-figma-app-url.sh`.
 4. Export runtime block availability and visual QA configuration with the local scripts.
 5. Inspect current `theme.json` state only when the task requires token updates or merges.
-6. Start from `figma.app_url` and call `mcp__figma__get_design_context`.
-7. Call `mcp__figma__get_screenshot` for the same Make app context.
-8. Review returned Make sources in this order: `package.json`, `src/app/App.tsx`, `src/styles/index.css`, `src/styles/theme.css`, `src/styles/fonts.css`, representative section files, representative UI primitive files, imported content files.
-9. Generate `theme.json` suggestions first when the task is page-oriented or system-oriented.
-10. Build reusable `patterns/*.php` before composing templates.
-11. Build `parts/*.html` when the page needs shared structural regions.
-12. Compose `templates/*.html` from patterns and parts instead of writing monolithic markup.
-13. Run WordPress screenshot capture for the current iteration.
-14. Run Lighthouse against the same WordPress URL for the current iteration.
-15. If Lighthouse is below threshold, apply low-risk remediation to the generated code, then repeat WordPress capture and Lighthouse until the page passes or the default 3-iteration loop is exhausted.
-16. If the result is still unsatisfactory, continue on the same `run_id` with a resume cycle that appends `iter-4+`.
-17. On resume, let the user choose `reuse` or `refresh` for the Figma baseline. `refresh` means rerun both MCP design context and the Figma screenshot baseline.
-18. Finish page-oriented work with the visual QA and performance reports.
+6. If the task is diagnostic and MCP is unavailable, check whether `.artifacts/figma-mcp-debug/<app-id>/` exists for the same Make app and use it only as a saved reference.
+7. For generation or update work, start from `figma.app_url` and call `mcp__figma__get_design_context`.
+8. For generation or update work, call `mcp__figma__get_screenshot` for the same Make app context.
+9. Review returned Make sources in this order: `package.json`, `src/app/App.tsx`, `src/styles/index.css`, `src/styles/theme.css`, `src/styles/fonts.css`, representative section files, representative UI primitive files, imported content files.
+10. Generate `theme.json` suggestions first when the task is page-oriented or system-oriented.
+11. Build reusable `patterns/*.php` before composing templates.
+12. Build `parts/*.html` when the page needs shared structural regions.
+13. Compose `templates/*.html` from patterns and parts instead of writing monolithic markup.
+14. Run WordPress screenshot capture for the current iteration.
+15. Run Lighthouse against the same WordPress URL for the current iteration.
+16. If Lighthouse is below threshold, apply low-risk remediation to the generated code, then repeat WordPress capture and Lighthouse until the page passes or the default 3-iteration loop is exhausted.
+17. If the result is still unsatisfactory, continue on the same `run_id` with a resume cycle that appends `iter-4+`.
+18. On resume, let the user choose `reuse` or `refresh` for the Figma baseline. `refresh` means rerun both MCP design context and the Figma screenshot baseline.
+19. Finish page-oriented work with the visual QA and performance reports.
 
 ## Hard Rules
 
 - Runtime data from PHP, JSON, and scripts wins over docs when they disagree.
 - `export-theme-blocks.php` must bootstrap WordPress so the block registry and saved availability settings reflect real runtime state.
 - In this repository, prefer running the block export through the local `wpcli` container so the script sees the same PHP extensions and database-backed state as WordPress.
+- Do not use a single large `WriteFile` call for long or complex HTML, block markup, JSON, CSS, or PHP content.
+- Prefer small incremental writes or patches, one file at a time, and reread each file immediately after writing to verify it was not truncated or corrupted.
+- If a file is too large for a safe single write, split it into multiple smaller edits instead of retrying the same large payload.
 - Never invent node ids, frame ids, or alternate Figma URLs.
 - Always start from `figma.app_url`.
 - Treat `mcp__figma__get_design_context` as the primary Make source inspection path.
 - Treat `mcp__figma__get_screenshot` as mandatory visual context, not as an optional convenience.
+- Do not treat `.artifacts/figma-mcp-debug/` as live MCP. It is diagnostic-only unless the task is explicitly limited to diagnosis or review.
 - Do not rely on `mcp__figma__get_metadata` or `mcp__figma__get_variable_defs` for this skill.
 - Use MCP resource listing and reading tools only as support when linked resources need inspection; they do not replace the required Figma MCP tools.
 - `theme.json` is only for stable global tokens and Gutenberg-facing defaults.

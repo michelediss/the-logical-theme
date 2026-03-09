@@ -1,0 +1,10 @@
+[2026-03-09T22:46:13+00:00] Sanitize callback triggered for block availability save.
+[2026-03-09T22:46:13+00:00] Starting block registry export.
+[2026-03-09T22:46:13+00:00] Completed block registry export: /var/www/html/wp-content/themes/the-logical-theme/docs/block/block-registry.json
+[2026-03-09T22:46:13+00:00] Starting whitelisted blocks markdown export.
+[2026-03-09T22:46:13+00:00] Completed whitelisted blocks markdown export: /var/www/html/wp-content/themes/the-logical-theme/docs/block/whitelisted-blocks.md
+[2026-03-09T22:46:13+00:00] Synchronous block availability exports completed successfully.
+[2026-03-09T22:46:13+00:00] Starting block registry export.
+[2026-03-09T22:46:13+00:00] Completed block registry export: /var/www/html/wp-content/themes/the-logical-theme/docs/block/block-registry.json
+[2026-03-09T22:46:13+00:00] Starting whitelisted blocks markdown export.
+[2026-03-09T22:46:13+00:00] Completed whitelisted blocks markdown export: /var/www/html/wp-content/themes/the-logical-theme/docs/block/whitelisted-blocks.md

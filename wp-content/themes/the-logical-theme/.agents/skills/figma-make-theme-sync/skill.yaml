@@ -17,6 +17,7 @@ tooling:
     - functions.list_mcp_resource_templates
     - functions.read_mcp_resource
   fallback_without_figma_mcp: false
+  diagnostic_dump_fallback: true
   requires_visual_context: true
 context:
   platform: wordpress
@@ -146,12 +147,16 @@ output_schema:
         type: string
 safety_rules:
   - Read figma.json from the theme root as the only Figma configuration source.
-  - Read docs/theme-overview.md, docs/allowed-blocks.md, and docs/custom-blocks.md before generating code.
+  - Read docs/theme-overview.md, docs/block-availability-system.md, docs/block-composition-guide.md, and docs/custom-blocks.md before generating code.
   - Stop if figma.source is not make or if figma.app_url is missing or malformed.
-  - Stop if mcp__figma__get_design_context is unavailable.
-  - Stop if mcp__figma__get_screenshot is unavailable.
+  - Stop if mcp__figma__get_design_context is unavailable, unless the task is explicitly diagnostic and a matching .artifacts/figma-mcp-debug dump exists.
+  - Stop if mcp__figma__get_screenshot is unavailable, unless the task is explicitly diagnostic and a matching .artifacts/figma-mcp-debug dump exists.
   - Validate figma.pages mappings when provided, and stop on the exact invalid key.
   - Never invent node ids, frame ids, or alternate Figma URLs.
+  - Do not treat .artifacts/figma-mcp-debug as live MCP output for generation or completion criteria.
+  - Do not send a single large WriteFile payload for long or complex HTML, PHP, JSON, CSS, or block markup content.
+  - Prefer small incremental writes or patches, one file at a time, and reread each file immediately after writing.
+  - Split large file generation into multiple smaller edits instead of retrying the same oversized payload.
   - Respect the existing block-theme conventions before writing code.
   - For page-oriented tasks, do not finish without theme.json output or update suggestions, reusable patterns or parts, screenshot capture, a shared run_id, a visual QA report, and a Lighthouse performance report.
   - Run Lighthouse on the generated WordPress page URL, not on Figma Make.
@@ -163,7 +168,8 @@ runtime_notes:
   preferred_files:
     - figma.json
     - docs/theme-overview.md
-    - docs/allowed-blocks.md
+    - docs/block-availability-system.md
+    - docs/block-composition-guide.md
     - docs/custom-blocks.md
     - partials/block-availability/runtime.php
     - inc/patterns.php

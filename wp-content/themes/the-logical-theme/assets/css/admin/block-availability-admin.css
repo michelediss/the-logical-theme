@@ -1,5 +1,5 @@
 .tlt-block-availability-page {
-    max-width: 1240px;
+    max-width: 1460px;
 }
 
 .tlt-block-availability-page__hero {
@@ -39,7 +39,7 @@
 
 .tlt-block-availability-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: 18px;
     margin: 0 0 24px;
 }
@@ -217,6 +217,18 @@
 
     .tlt-block-availability-card {
         min-height: 0;
+    }
+}
+
+@media (min-width: 783px) {
+    .tlt-block-availability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .tlt-block-availability-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 

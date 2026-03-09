@@ -1,6 +1,6 @@
 ---
 name: theme-docs-context
-description: "Use this skill when a task depends on the canonical Markdown documentation of `the-logical-theme`. It loads and relies on every file in `docs/`: `docs/theme-overview.md`, `docs/allowed-blocks.md`, `docs/custom-blocks.md`, and `docs/skill-sync.md`."
+description: "Use this skill when a task depends on the canonical Markdown documentation of `the-logical-theme`. It loads and relies on every file in `docs/`: `docs/theme-overview.md`, `docs/block-availability-system.md`, `docs/block-composition-guide.md`, `docs/custom-blocks.md`, and `docs/skill-sync.md`."
 ---
 
 # Theme Docs Context
@@ -14,7 +14,8 @@ This skill's only specialization is that it must include, use, and know all Mark
 Always read all of these files before acting:
 
 - `docs/theme-overview.md`
-- `docs/allowed-blocks.md`
+- `docs/block-availability-system.md`
+- `docs/block-composition-guide.md`
 - `docs/custom-blocks.md`
 - `docs/skill-sync.md`
 
@@ -27,7 +28,8 @@ When a task also touches `wp-content/plugins/cf7-sync`, additionally read:
 ## Usage rules
 
 - Treat `docs/theme-overview.md` as the architectural overview and maintenance guide.
-- Treat `docs/allowed-blocks.md` as the AI-facing guide to allowed blocks and their intended usage.
+- Treat `docs/block-availability-system.md` as the documentation of the runtime block availability system and allowlist behavior.
+- Treat `docs/block-composition-guide.md` as the AI-facing guide to block usage and composition patterns.
 - Treat `docs/custom-blocks.md` as the implementation standard for new custom blocks.
 - Treat `docs/skill-sync.md` as the operational guide for keeping repository-local skills aligned with the global Codex skills directory.
 - Treat `wp-content/plugins/cf7-sync/README.md` as the local operational reference for the CF7 sync plugin when the task involves that plugin.

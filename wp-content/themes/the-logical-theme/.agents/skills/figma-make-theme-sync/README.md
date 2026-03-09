@@ -4,6 +4,11 @@ Local skill for `the-logical-theme` that generates Gutenberg code from `figma.js
 
 The skill is repository-local on purpose and should derive runtime facts from the theme itself, not from duplicated markdown lists.
 
+Operational note:
+
+- when writing theme files through an agent tool layer, avoid single large `WriteFile` payloads for long HTML, PHP, JSON, or CSS documents
+- prefer smaller incremental writes or patches and reread the file after each write before continuing
+
 ## What It Does
 
 - reads `figma.app_url` from `figma.json`
@@ -32,13 +37,15 @@ This distinction matters for Figma Make:
 Diagnostic note:
 
 - `.artifacts/figma-mcp-debug/` is debug-only and is not part of the normal Make-to-Gutenberg generation pipeline
+- when live MCP is unavailable, a matching dump may still be used for diagnosis or review, but not as a substitute for generation, screenshot baselines, or Lighthouse-backed completion
 
 ## Required Development Context
 
 Before generating code, always read:
 
 - `docs/theme-overview.md`
-- `docs/allowed-blocks.md`
+- `docs/block-availability-system.md`
+- `docs/block-composition-guide.md`
 - `docs/custom-blocks.md`
 
 Interpretation rule:
