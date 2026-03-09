@@ -6,17 +6,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 DEFAULT_SOURCE_ROOT="${THEME_ROOT}/.agents/skills"
 DEFAULT_TARGET_ROOT="${HOME}/.codex/skills"
+DEFAULT_KIMI_TARGET_ROOT="${HOME}/.kimi/skills"
 
 SKILL_NAME=""
 SOURCE_ROOT="${DEFAULT_SOURCE_ROOT}"
-TARGET_ROOT="${DEFAULT_TARGET_ROOT}"
+TARGET_ROOTS=("${DEFAULT_TARGET_ROOT}" "${DEFAULT_KIMI_TARGET_ROOT}")
+CUSTOM_TARGET_ROOTS="false"
 LIST_ONLY="false"
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") --skill <skill-name> [options]
 
-Sync a repository-local skill to the global Codex skills directory.
+Sync a repository-local skill to the global Codex and Kimi skills directories.
 
 Required:
   --skill <name>           Skill directory name to sync
@@ -24,8 +26,9 @@ Required:
 Options:
   --source-root <path>     Source skills root
                            Default: ${DEFAULT_SOURCE_ROOT}
-  --target-root <path>     Target Codex skills root
+  --target-root <path>     Target skills root. Repeat to sync to multiple roots.
                            Default: ${DEFAULT_TARGET_ROOT}
+                                    ${DEFAULT_KIMI_TARGET_ROOT}
   --list                   List available source skills and exit
   -h, --help               Show this help
 
@@ -50,7 +53,8 @@ list_skills() {
 sync_skill() {
   local skill_name="$1"
   local source_dir="${SOURCE_ROOT}/${skill_name}"
-  local target_dir="${TARGET_ROOT}/${skill_name}"
+  local target_root
+  local target_dir
 
   if [[ ! -d "${source_dir}" ]]; then
     echo "Error: source skill not found: ${source_dir}" >&2
@@ -62,17 +66,22 @@ sync_skill() {
     exit 1
   fi
 
-  if command -v rsync >/dev/null 2>&1; then
-    rsync -a --delete "${source_dir}/" "${target_dir}/"
-  else
-    rm -rf "${target_dir}"
-    mkdir -p "${target_dir}"
-    cp -R "${source_dir}/." "${target_dir}/"
-  fi
-
   echo "Synced skill '${skill_name}'"
   echo "Source dir: ${source_dir}"
-  echo "Target dir: ${target_dir}"
+  for target_root in "${TARGET_ROOTS[@]}"; do
+    target_dir="${target_root}/${skill_name}"
+    mkdir -p "${target_root}"
+
+    if command -v rsync >/dev/null 2>&1; then
+      rsync -a --delete "${source_dir}/" "${target_dir}/"
+    else
+      rm -rf "${target_dir}"
+      mkdir -p "${target_dir}"
+      cp -R "${source_dir}/." "${target_dir}/"
+    fi
+
+    echo "Target dir: ${target_dir}"
+  done
 }
 
 while [[ $# -gt 0 ]]; do
@@ -86,7 +95,11 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --target-root)
-      TARGET_ROOT="${2:-}"
+      if [[ "${CUSTOM_TARGET_ROOTS}" == "false" ]]; then
+        TARGET_ROOTS=()
+        CUSTOM_TARGET_ROOTS="true"
+      fi
+      TARGET_ROOTS+=("${2:-}")
       shift 2
       ;;
     --list)
@@ -116,10 +129,11 @@ if [[ -z "${SKILL_NAME}" ]]; then
   exit 1
 fi
 
-mkdir -p "${TARGET_ROOT}"
-
 echo "Source root: ${SOURCE_ROOT}"
-echo "Target root: ${TARGET_ROOT}"
+printf 'Target roots:\n'
+for target_root in "${TARGET_ROOTS[@]}"; do
+  echo "  - ${target_root}"
+done
 
 if [[ "${SKILL_NAME}" == "all" ]]; then
   while IFS= read -r skill; do
