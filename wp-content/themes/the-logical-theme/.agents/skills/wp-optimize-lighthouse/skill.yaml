@@ -1,0 +1,21 @@
+name: wp-optimize-lighthouse
+description: Optimize one WordPress page from Lighthouse audit artifacts without breaking theme structure, content, or design intent.
+context:
+  platform: wordpress
+  source_of_truth: repository-local
+  workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+inputs:
+  required:
+    - ai-source/<page>/manifest.json
+    - ai-source/<page>/lighthouse/mobile.json
+    - ai-source/<page>/lighthouse/desktop.json
+    - ai-source/<page>/code/wp-reviewed
+    - wp-content/themes/the-logical-theme/docs/block/whitelisted-blocks.md
+outputs:
+  primary:
+    - ai-source/<page>/code/wp-optimized
+    - ai-source/<page>/reports/lighthouse-optimize.md
+guardrails:
+  - one page at a time
+  - preserve design and structural constraints
+  - treat score chasing as lower priority than safe improvements

@@ -1,0 +1,22 @@
+name: wp-review-page
+description: Review one generated WordPress page against Figma and local screenshots, applying at most one automatic revision pass.
+context:
+  platform: wordpress
+  source_of_truth: repository-local
+  workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+inputs:
+  required:
+    - ai-source/<page>/manifest.json
+    - ai-source/<page>/code/wp-draft
+    - ai-source/<page>/screen-figma
+    - ai-source/<page>/screen-wp
+    - wp-content/themes/the-logical-theme/docs/block/whitelisted-blocks.md
+    - references/figma-make-architecture.md
+outputs:
+  primary:
+    - ai-source/<page>/code/wp-reviewed
+    - ai-source/<page>/reports/review-page.md
+guardrails:
+  - single automatic review pass only
+  - one page at a time
+  - no blocks outside whitelist

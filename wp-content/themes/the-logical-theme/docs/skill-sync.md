@@ -73,3 +73,4 @@ wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh \
 - The script syncs one skill at a time on purpose, so changes remain explicit and reviewable.
 - `--skill all` is available when you intentionally want to sync every local skill in one run.
 - When `figma-make-theme-sync` changes, sync the whole skill directory so `SKILL.md`, `README.md`, `skill.yaml`, and `scripts/` stay aligned across repository-local and global copies.
+- Apply the same whole-directory sync rule to repository-local workflow skills such as `wp-generate-page`, `wp-review-page`, and `wp-optimize-lighthouse`.

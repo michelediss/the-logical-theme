@@ -1,0 +1,27 @@
+name: wp-generate-page
+description: Generate a single WordPress page from ai-source page inputs derived from Figma Make while respecting the theme block whitelist.
+context:
+  platform: wordpress
+  source_of_truth: repository-local
+  workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+  theme_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/themes/the-logical-theme
+inputs:
+  required:
+    - ai-source/<page>/manifest.json
+    - ai-source/<page>/code/figma-raw
+    - ai-source/<page>/screen-figma
+    - wp-content/themes/the-logical-theme/docs/block/whitelisted-blocks.md
+    - references/figma-make-architecture.md
+outputs:
+  primary:
+    - ai-source/<page>/code/wp-draft
+    - ai-source/<page>/reports/generate-page.md
+runtime_notes:
+  scripts:
+    - scripts/init-manifest.mjs
+    - scripts/ingest-figma.mjs
+    - scripts/figma-screenshots.mjs
+guardrails:
+  - one page at a time
+  - never use blocks outside whitelisted-blocks.md
+  - do not map Figma Make markup blindly to Gutenberg markup

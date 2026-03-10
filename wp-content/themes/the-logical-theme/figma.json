@@ -2,13 +2,21 @@
   "figma": {
     "source": "make",
     "app_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG",
-    "pages": {
-      "home": {
+    "pages": [
+      {
+        "id": "home",
         "label": "Home page",
-        "target_name": "front-page",
+
         "figma_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG/Design-Sputnik-Press-Homepage",
-        "site_url": "http://thelogicaltheme.localhost/"
+
+        "wp_template": "front-page",
+
+        "slug": "/",
+
+        "site_url": "http://thelogicaltheme.localhost/",
+
+        "enabled": true
       }
-    }
+    ]
   }
 }

@@ -66,6 +66,14 @@ sync_skill() {
     exit 1
   fi
 
+  if [[ ! -f "${source_dir}/skill.yaml" ]]; then
+    echo "Warning: missing skill.yaml in ${source_dir}" >&2
+  fi
+
+  if [[ ! -f "${source_dir}/README.md" ]]; then
+    echo "Warning: missing README.md in ${source_dir}" >&2
+  fi
+
   echo "Synced skill '${skill_name}'"
   echo "Source dir: ${source_dir}"
   for target_root in "${TARGET_ROOTS[@]}"; do

@@ -24,7 +24,12 @@
     "visual-qa:wp": "node .agents/skills/figma-make-theme-sync/scripts/capture-wp-screenshots.mjs",
     "visual-qa:lighthouse": "node .agents/skills/figma-make-theme-sync/scripts/run-lighthouse-audit.mjs",
     "visual-qa:resume": "node .agents/skills/figma-make-theme-sync/scripts/resume-visual-qa-run.mjs",
-    "visual-qa:report": "node .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs"
+    "visual-qa:report": "node .agents/skills/figma-make-theme-sync/scripts/prepare-visual-qa-report.mjs",
+    "ai:init-manifest": "node scripts/init-manifest.mjs",
+    "ai:ingest-figma": "node scripts/ingest-figma.mjs",
+    "ai:figma-screenshots": "node scripts/figma-screenshots.mjs",
+    "ai:prepare": "node scripts/ai-ingest-figma.mjs",
+    "skill:sync": "bash scripts/sync-codex-skill.sh"
   },
   "dependencies": {
     "gsap": "^3.13.0",
