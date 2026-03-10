@@ -21,30 +21,6 @@ function the_logical_theme_block_availability_utility_registry_output_path(): st
     return the_logical_theme_block_availability_utility_output_dir() . '/block-registry.json';
 }
 
-function the_logical_theme_block_availability_utility_log_path(): string
-{
-    return the_logical_theme_block_availability_utility_output_dir() . '/block-export.log';
-}
-
-function the_logical_theme_block_availability_utility_log(string $message): void
-{
-    $timestamp = gmdate('c');
-    $line = '[' . $timestamp . '] ' . $message . PHP_EOL;
-    $logPath = the_logical_theme_block_availability_utility_log_path();
-    $logDir = dirname($logPath);
-
-    if (! is_dir($logDir)) {
-        @mkdir($logDir, 0777, true);
-    }
-
-    @file_put_contents($logPath, $line, FILE_APPEND);
-    @chmod($logPath, 0666);
-
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('the-logical-theme block export: ' . $message);
-    }
-}
-
 function the_logical_theme_block_availability_utility_bootstrap_wordpress_for_cli(): void
 {
     if (defined('ABSPATH')) {
@@ -134,8 +110,6 @@ function the_logical_theme_block_availability_utility_export_support_flag(array 
 
 function the_logical_theme_export_block_registry_json(?string $outputPath = null): string
 {
-    the_logical_theme_block_availability_utility_log('Starting block registry export.');
-
     if (! function_exists('the_logical_theme_get_custom_block_metadata_files')) {
         require_once the_logical_theme_block_availability_utility_theme_root() . '/inc/blocks.php';
     }
@@ -277,33 +251,26 @@ function the_logical_theme_export_block_registry_json(?string $outputPath = null
     $outputDir = dirname($outputPath);
 
     if (! is_dir($outputDir) && ! mkdir($outputDir, 0775, true) && ! is_dir($outputDir)) {
-        the_logical_theme_block_availability_utility_log("Failed to create output directory: {$outputDir}");
         throw new RuntimeException("Unable to create output directory: {$outputDir}");
     }
 
     if (! is_writable($outputDir)) {
-        the_logical_theme_block_availability_utility_log("Output directory is not writable: {$outputDir}");
         throw new RuntimeException("Output directory is not writable: {$outputDir}");
     }
 
     if (file_exists($outputPath) && ! is_writable($outputPath)) {
         if (! unlink($outputPath)) {
-            the_logical_theme_block_availability_utility_log("Existing output file could not be replaced: {$outputPath}");
             throw new RuntimeException("Existing output file is not writable and could not be replaced: {$outputPath}");
         }
-
-        the_logical_theme_block_availability_utility_log("Removed non-writable existing output file: {$outputPath}");
     }
 
     $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
     if (! is_string($json) || file_put_contents($outputPath, $json . PHP_EOL) === false) {
-        the_logical_theme_block_availability_utility_log("Failed writing JSON output: {$outputPath}");
         throw new RuntimeException("Unable to write JSON output: {$outputPath}");
     }
 
     @chmod($outputPath, 0666);
-    the_logical_theme_block_availability_utility_log("Completed block registry export: {$outputPath}");
 
     return $outputPath;
 }
@@ -328,7 +295,6 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath((string) $argv[0]) === __F
 
         fwrite(STDOUT, the_logical_theme_export_block_registry_json($outputPath) . PHP_EOL);
     } catch (Throwable $throwable) {
-        the_logical_theme_block_availability_utility_log('CLI block registry export failed: ' . $throwable->getMessage());
         fwrite(STDERR, $throwable->getMessage() . PHP_EOL);
         exit(1);
     }

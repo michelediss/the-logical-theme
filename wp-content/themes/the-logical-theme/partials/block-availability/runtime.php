@@ -359,15 +359,12 @@ function the_logical_theme_sanitize_block_availability_settings($value): array
 
     $GLOBALS['the_logical_theme_block_availability_settings_override'] = $sanitized;
     $GLOBALS['the_logical_theme_block_availability_run_exports_on_shutdown'] = false;
-    the_logical_theme_block_availability_utility_log('Sanitize callback triggered for block availability save.');
 
     try {
         $registryPath = the_logical_theme_export_block_registry_json();
         the_logical_theme_export_whitelisted_blocks_markdown($registryPath);
-        the_logical_theme_block_availability_utility_log('Synchronous block availability exports completed successfully.');
         delete_transient('the_logical_theme_block_availability_export_error');
     } catch (Throwable $throwable) {
-        the_logical_theme_block_availability_utility_log('Synchronous block availability exports failed: ' . $throwable->getMessage());
         set_transient(
             'the_logical_theme_block_availability_export_error',
             $throwable->getMessage(),

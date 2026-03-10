@@ -7,10 +7,10 @@
         "block_runtime": "partials/block-availability/runtime.php",
         "custom_blocks": "blocks/*/block.json"
     },
-    "generated_at_utc": "2026-03-09T22:46:13+00:00",
+    "generated_at_utc": "2026-03-10T02:02:25+00:00",
     "totals": {
         "registered_blocks": 276,
-        "allowed_blocks": 78
+        "allowed_blocks": 79
     },
     "blocks": [
         {
@@ -1153,8 +1153,8 @@
             "description": "Prompt visitors to take action with a button-style link.",
             "origin": "core",
             "category_bucket": "core",
-            "currently_allowed": false,
-            "currently_blacklisted": true,
+            "currently_allowed": true,
+            "currently_blacklisted": false,
             "is_dynamic": true,
             "api_version": 3,
             "category": "design",

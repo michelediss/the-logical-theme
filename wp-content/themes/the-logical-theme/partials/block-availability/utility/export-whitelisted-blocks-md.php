@@ -70,20 +70,16 @@ function the_logical_theme_block_availability_md_map($value): string
 
 function the_logical_theme_export_whitelisted_blocks_markdown(?string $inputPath = null, ?string $outputPath = null): string
 {
-    the_logical_theme_block_availability_utility_log('Starting whitelisted blocks markdown export.');
-
     $inputPath = $inputPath ?: the_logical_theme_block_availability_utility_registry_output_path();
     $outputPath = $outputPath ?: the_logical_theme_block_availability_utility_whitelist_output_path();
 
     if (! file_exists($inputPath)) {
-        the_logical_theme_block_availability_utility_log("Input JSON not found for markdown export: {$inputPath}");
         throw new RuntimeException("Input JSON not found: {$inputPath}");
     }
 
     $decoded = json_decode((string) file_get_contents($inputPath), true);
 
     if (! is_array($decoded) || ! isset($decoded['blocks']) || ! is_array($decoded['blocks'])) {
-        the_logical_theme_block_availability_utility_log('Invalid block registry JSON for markdown export.');
         throw new RuntimeException('Invalid block registry JSON.');
     }
 
@@ -212,31 +208,24 @@ function the_logical_theme_export_whitelisted_blocks_markdown(?string $inputPath
     $outputDir = dirname($outputPath);
 
     if (! is_dir($outputDir) && ! mkdir($outputDir, 0775, true) && ! is_dir($outputDir)) {
-        the_logical_theme_block_availability_utility_log("Failed to create markdown output directory: {$outputDir}");
         throw new RuntimeException("Unable to create output directory: {$outputDir}");
     }
 
     if (! is_writable($outputDir)) {
-        the_logical_theme_block_availability_utility_log("Markdown output directory is not writable: {$outputDir}");
         throw new RuntimeException("Output directory is not writable: {$outputDir}");
     }
 
     if (file_exists($outputPath) && ! is_writable($outputPath)) {
         if (! unlink($outputPath)) {
-            the_logical_theme_block_availability_utility_log("Existing markdown output file could not be replaced: {$outputPath}");
             throw new RuntimeException("Existing output file is not writable and could not be replaced: {$outputPath}");
         }
-
-        the_logical_theme_block_availability_utility_log("Removed non-writable existing markdown output file: {$outputPath}");
     }
 
     if (file_put_contents($outputPath, implode(PHP_EOL, $lines) . PHP_EOL) === false) {
-        the_logical_theme_block_availability_utility_log("Failed writing markdown output: {$outputPath}");
         throw new RuntimeException("Unable to write Markdown output: {$outputPath}");
     }
 
     @chmod($outputPath, 0666);
-    the_logical_theme_block_availability_utility_log("Completed whitelisted blocks markdown export: {$outputPath}");
 
     return $outputPath;
 }
@@ -270,7 +259,6 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath((string) $argv[0]) === __F
 
         fwrite(STDOUT, the_logical_theme_export_whitelisted_blocks_markdown($inputPath, $outputPath) . PHP_EOL);
     } catch (Throwable $throwable) {
-        the_logical_theme_block_availability_utility_log('CLI whitelisted blocks markdown export failed: ' . $throwable->getMessage());
         fwrite(STDERR, $throwable->getMessage() . PHP_EOL);
         exit(1);
     }
