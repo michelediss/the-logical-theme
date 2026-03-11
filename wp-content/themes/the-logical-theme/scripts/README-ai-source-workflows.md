@@ -191,6 +191,33 @@ Serve come libreria condivisa per:
 
 Non eseguirlo direttamente.
 
+### `lib/figma-mcp-codex.mjs`
+
+Questo file non è un entrypoint operativo.
+
+Serve come adapter MCP esterno per Figma Make tramite `codex exec`.
+
+Responsabilità:
+
+- risolvere il `fileKey` a partire da un URL Figma Make
+- fare discovery delle risorse disponibili del file Make
+- leggere risorse testuali e binarie via MCP
+- normalizzare il payload restituito da Codex/Figma MCP
+- supportare fetch singolo e fetch batch usati da `ingest-figma.mjs`
+
+API esportate:
+
+- `discoverMakeResources(page)`
+- `fetchMakeResource(uri)`
+- `fetchMakeResources(uris)`
+
+Note:
+
+- richiede `codex` disponibile nel PATH
+- richiede server MCP Figma configurato in Codex
+- non scrive direttamente in `ai-source/`
+- non decide cosa è semanticamente utile per WordPress: espone solo artifact e payload MCP in forma normalizzata
+
 ## Flusso consigliato
 
 ### Preparazione minima di una pagina
