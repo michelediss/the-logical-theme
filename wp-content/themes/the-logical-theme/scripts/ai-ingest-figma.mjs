@@ -23,17 +23,11 @@ export async function runAiIngestFigma(argv = process.argv.slice(2)) {
     sharedArgs.push("--figma-config", figmaConfig);
   }
 
-  const dumpRoot = getArg(args, "source-dump-root", null);
-  const metadataOnly = hasFlag(args, "allow-metadata-only");
-
   await runInitManifest(sharedArgs);
 
   const ingestArgs = [...sharedArgs];
-  if (dumpRoot) {
-    ingestArgs.push("--source-dump-root", dumpRoot);
-  }
-  if (metadataOnly) {
-    ingestArgs.push("--allow-metadata-only");
+  if (hasFlag(args, "fail-fast")) {
+    ingestArgs.push("--fail-fast");
   }
   await runIngestFigma(ingestArgs);
 

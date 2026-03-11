@@ -6,11 +6,8 @@ import {
   DEFAULT_FIGMA_CONFIG,
   appendHistory,
   cleanDir,
-  copyPath,
   ensurePageStructure,
-  fileExists,
   getArg,
-  getPagePaths,
   hasFlag,
   loadFigmaConfig,
   loadManifest,
@@ -21,33 +18,35 @@ import {
   upsertIndexPage,
   writeJson,
 } from "./lib/ai-source-utils.mjs";
+import { discoverMakeResources, fetchMakeResources } from "./lib/figma-mcp-codex.mjs";
 
-async function resolveDumpSource(page, dumpRoot) {
-  if (!dumpRoot) {
-    return null;
+async function writeFetchedResource(pagePaths, resource, payload) {
+  const baseDir =
+    resource.kind === "source"
+      ? path.join(pagePaths.figmaRawCode, "source")
+      : resource.kind === "image"
+        ? path.join(pagePaths.figmaRawCode, "assets")
+        : path.join(pagePaths.figmaRawCode, "docs");
+  const targetPath = path.join(baseDir, resource.relativePath);
+
+  await fs.mkdir(path.dirname(targetPath), { recursive: true });
+  if (payload.encoding === "base64") {
+    await fs.writeFile(targetPath, Buffer.from(payload.content, "base64"));
+  } else if (payload.encoding === "text") {
+    await fs.writeFile(targetPath, payload.content, "utf8");
+  } else {
+    await fs.writeFile(targetPath, "", "utf8");
   }
 
-  const candidates = [
-    path.join(dumpRoot, `${page.pageId}.json`),
-    path.join(dumpRoot, `${page.pageSlug}.json`),
-    path.join(dumpRoot, page.pageId),
-    path.join(dumpRoot, page.pageSlug),
-  ];
-
-  for (const candidate of candidates) {
-    if (await fileExists(candidate)) {
-      return candidate;
-    }
-  }
-
-  return null;
+  return targetPath;
 }
 
 export async function runIngestFigma(argv = process.argv.slice(2)) {
   const args = parseCliArgs(argv);
   const figmaConfigPath = getArg(args, "figma-config", DEFAULT_FIGMA_CONFIG);
-  const dumpRoot = getArg(args, "source-dump-root", null);
-  const metadataOnly = hasFlag(args, "allow-metadata-only");
+  const failFast = hasFlag(args, "fail-fast");
+  const batchSize = Number.parseInt(getArg(args, "batch-size", "12"), 10);
+  const limit = Number.parseInt(getArg(args, "limit", "0"), 10);
   const figmaConfig = await loadFigmaConfig(figmaConfigPath);
   const pages = selectPages(figmaConfig, {
     all: hasFlag(args, "all"),
@@ -57,48 +56,98 @@ export async function runIngestFigma(argv = process.argv.slice(2)) {
   for (const page of pages) {
     const pagePaths = await ensurePageStructure(page);
     await cleanDir(pagePaths.figmaRawCode);
+    const startedAt = nowIso();
 
-    const resolvedDump = await resolveDumpSource(page, dumpRoot);
-    const ingestSummary = {
-      page_id: page.pageId,
-      page_slug: page.pageSlug,
-      figma_url: page.figmaUrl,
-      app_url: page.appUrl,
-      source_dump: resolvedDump ? path.relative(process.cwd(), resolvedDump) : null,
-      metadata_only: resolvedDump ? false : true,
-      ingested_at: nowIso(),
-    };
+    const sourcePagePath = path.join(pagePaths.figmaRawCode, "meta", "source-page.json");
+    await writeJson(sourcePagePath, page.rawConfig);
 
-    await writeJson(path.join(pagePaths.figmaRawCode, "source-page.json"), page.rawConfig);
-    await writeJson(path.join(pagePaths.figmaRawCode, "ingest-summary.json"), ingestSummary);
+    try {
+      const discovered = await discoverMakeResources(page);
+      const resourcesToFetch = limit > 0 ? discovered.resources.slice(0, limit) : discovered.resources;
+      const savedResources = [];
 
-    if (resolvedDump) {
-      const targetPath = path.join(pagePaths.figmaRawCode, path.basename(resolvedDump));
-      await copyPath(resolvedDump, targetPath);
-    } else if (!metadataOnly) {
-      throw new Error(
-        `No MCP dump found for ${page.pageId}. Pass --source-dump-root <dir> or use --allow-metadata-only.`,
-      );
+      for (let index = 0; index < resourcesToFetch.length; index += batchSize) {
+        const batch = resourcesToFetch.slice(index, index + batchSize);
+        const fetchedBatch = await fetchMakeResources(batch.map((resource) => resource.uri));
+
+        for (const resource of batch) {
+          const payload = fetchedBatch.get(resource.uri);
+          if (!payload) {
+            throw new Error(`Missing fetched payload for ${resource.uri}`);
+          }
+
+          const savedPath = await writeFetchedResource(pagePaths, resource, payload);
+          savedResources.push({
+            kind: resource.kind,
+            uri: resource.uri,
+            mimeType: payload.mimeType,
+            encoding: payload.encoding,
+            relativePath: path.relative(pagePaths.figmaRawCode, savedPath),
+          });
+        }
+      }
+
+      const ingestSummary = {
+        page_id: page.pageId,
+        page_slug: page.pageSlug,
+        figma_url: page.figmaUrl,
+        app_url: page.appUrl,
+        file_key: discovered.fileKey,
+        fetched_at: nowIso(),
+        resource_count: savedResources.length,
+        total_discovered_resources: discovered.resources.length,
+        resources: savedResources,
+        notes: discovered.notes,
+      };
+
+      await writeJson(path.join(pagePaths.figmaRawCode, "meta", "resource-index.json"), ingestSummary);
+
+      const manifest = await loadManifest(page.pageSlug);
+      manifest.status.figma_ingested = true;
+      manifest.current_stage = "ingested";
+      manifest.source.figma_input_version = ingestSummary.fetched_at;
+      manifest.warnings = Array.isArray(manifest.warnings)
+        ? manifest.warnings.filter((warning) => warning !== "figma ingest completed in metadata-only mode")
+        : [];
+      manifest.last_ingest_run = {
+        started_at: startedAt,
+        completed_at: nowIso(),
+        file_key: discovered.fileKey,
+        resource_count: savedResources.length,
+      };
+      manifest.errors = [];
+      await saveManifest(page.pageSlug, manifest);
+      await appendHistory(page.pageSlug, {
+        event: "figma_ingested",
+        file_key: discovered.fileKey,
+        resource_count: savedResources.length,
+      });
+      await upsertIndexPage(page, "ingested");
+
+      console.log(`Ingested ${page.pageSlug}: ${savedResources.length} resource(s)`);
+    } catch (error) {
+      const manifest = await loadManifest(page.pageSlug);
+      manifest.errors = Array.isArray(manifest.errors) ? manifest.errors : [];
+      manifest.errors.push(String(error.message));
+      manifest.current_stage = "error";
+      manifest.last_ingest_run = {
+        started_at: startedAt,
+        completed_at: nowIso(),
+        failed: true,
+      };
+      await saveManifest(page.pageSlug, manifest);
+      await appendHistory(page.pageSlug, {
+        event: "figma_ingest_failed",
+        error: String(error.message),
+      });
+      await upsertIndexPage(page, "error");
+
+      if (failFast) {
+        throw error;
+      }
+
+      console.error(`Failed ingest for ${page.pageSlug}: ${error.message}`);
     }
-
-    const manifest = await loadManifest(page.pageSlug);
-    manifest.status.figma_ingested = true;
-    manifest.current_stage = "ingested";
-    manifest.source.figma_input_version = ingestSummary.ingested_at;
-    manifest.warnings = Array.isArray(manifest.warnings) ? manifest.warnings : [];
-    if (!resolvedDump) {
-      manifest.warnings.push("figma ingest completed in metadata-only mode");
-    }
-    await saveManifest(page.pageSlug, manifest);
-    await appendHistory(page.pageSlug, {
-      event: "figma_ingested",
-      source_dump: ingestSummary.source_dump,
-      metadata_only: ingestSummary.metadata_only,
-    });
-    await upsertIndexPage(page, "ingested");
-
-    const files = await fs.readdir(pagePaths.figmaRawCode);
-    console.log(`Ingested ${page.pageSlug}: ${files.length} artifact(s)`);
   }
 }
 
