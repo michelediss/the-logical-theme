@@ -4,7 +4,7 @@ import path from "node:path";
 const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname);
 export const THEME_ROOT = path.resolve(SCRIPT_DIR, "..", "..");
 export const WORKSPACE_ROOT = path.resolve(THEME_ROOT, "..", "..", "..");
-export const AI_SOURCE_ROOT = path.join(WORKSPACE_ROOT, "ai-source");
+export const AI_SOURCE_ROOT = path.join(WORKSPACE_ROOT, "wp-content", "uploads", "ai-source");
 export const DEFAULT_FIGMA_CONFIG = path.join(THEME_ROOT, "figma.json");
 export const INDEX_PATH = path.join(AI_SOURCE_ROOT, "index.json");
 
@@ -210,6 +210,26 @@ export function buildDefaultManifest(page) {
   };
 }
 
+export function normalizeManifest(pageSlug, manifest) {
+  const pagePaths = getPagePaths(pageSlug);
+
+  return {
+    ...manifest,
+    page_slug: pageSlug,
+    paths: {
+      ...(manifest.paths || {}),
+      figma_raw_code_dir: path.relative(WORKSPACE_ROOT, pagePaths.figmaRawCode),
+      wp_draft_code_dir: path.relative(WORKSPACE_ROOT, pagePaths.wpDraftCode),
+      wp_reviewed_code_dir: path.relative(WORKSPACE_ROOT, pagePaths.wpReviewedCode),
+      wp_optimized_code_dir: path.relative(WORKSPACE_ROOT, pagePaths.wpOptimizedCode),
+      figma_screens_dir: path.relative(WORKSPACE_ROOT, pagePaths.screenFigma),
+      wp_screens_dir: path.relative(WORKSPACE_ROOT, pagePaths.screenWp),
+      lighthouse_dir: path.relative(WORKSPACE_ROOT, pagePaths.lighthouse),
+      reports_dir: path.relative(WORKSPACE_ROOT, pagePaths.reports),
+    },
+  };
+}
+
 export async function ensurePageStructure(page) {
   const pagePaths = getPagePaths(page.pageSlug);
   await Promise.all([
@@ -227,13 +247,17 @@ export async function ensurePageStructure(page) {
 
   if (!(await fileExists(pagePaths.manifest))) {
     await writeJson(pagePaths.manifest, buildDefaultManifest(page));
+  } else {
+    const manifest = await readJson(pagePaths.manifest);
+    await writeJson(pagePaths.manifest, normalizeManifest(page.pageSlug, manifest));
   }
 
   return pagePaths;
 }
 
 export async function loadManifest(pageSlug) {
-  return readJson(getPagePaths(pageSlug).manifest);
+  const manifest = await readJson(getPagePaths(pageSlug).manifest);
+  return normalizeManifest(pageSlug, manifest);
 }
 
 export async function saveManifest(pageSlug, manifest) {
@@ -262,7 +286,13 @@ export async function ensureIndex() {
     });
   }
 
-  return readJson(INDEX_PATH);
+  const index = await readJson(INDEX_PATH);
+  const pages = Array.isArray(index.pages) ? index.pages : [];
+  index.pages = pages.map((page) => ({
+    ...page,
+    manifest_path: path.relative(WORKSPACE_ROOT, getPagePaths(page.page_slug).manifest),
+  }));
+  return index;
 }
 
 export async function upsertIndexPage(page, stage) {

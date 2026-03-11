@@ -2,7 +2,7 @@
 
 Questa cartella contiene gli script deterministici del workflow WordPress basato su input Figma Make.
 
-Le skill AI vivono in `.agents/skills/` e intervengono solo dopo che questi script hanno preparato i dati in `ai-source/`.
+Le skill AI vivono in `.agents/skills/` e intervengono solo dopo che questi script hanno preparato i dati in `wp-content/uploads/ai-source/`.
 
 Il download degli artifact Figma Make passa tramite un boundary esterno:
 
@@ -17,9 +17,9 @@ Gli script di questa cartella non parlano direttamente il protocollo MCP. Usano 
 
 Scopo:
 
-- inizializza la struttura minima di `ai-source/<page>/`
+- inizializza la struttura minima di `wp-content/uploads/ai-source/<page>/`
 - crea o aggiorna `manifest.json`
-- aggiorna `ai-source/index.json`
+- aggiorna `wp-content/uploads/ai-source/index.json`
 
 Uso:
 
@@ -36,8 +36,8 @@ Input richiesti:
 
 Output:
 
-- `ai-source/index.json`
-- `ai-source/<page>/manifest.json`
+- `wp-content/uploads/ai-source/index.json`
+- `wp-content/uploads/ai-source/<page>/manifest.json`
 - directory standard della pagina
 
 Note:
@@ -72,10 +72,10 @@ Input richiesti:
 
 Output:
 
-- `ai-source/<page>/code/figma-raw/meta/source-page.json`
-- `ai-source/<page>/code/figma-raw/meta/resource-index.json`
-- `ai-source/<page>/code/figma-raw/source/...`
-- `ai-source/<page>/code/figma-raw/assets/images/...`
+- `wp-content/uploads/ai-source/<page>/code/figma-raw/meta/source-page.json`
+- `wp-content/uploads/ai-source/<page>/code/figma-raw/meta/resource-index.json`
+- `wp-content/uploads/ai-source/<page>/code/figma-raw/source/...`
+- `wp-content/uploads/ai-source/<page>/code/figma-raw/assets/images/...`
 
 Note:
 
@@ -113,10 +113,10 @@ Input opzionali:
 
 Output:
 
-- `ai-source/<page>/screen-figma/desktop.png`
-- `ai-source/<page>/screen-figma/mobile.png`
-- `ai-source/<page>/screen-wp/<variant>-desktop.png`
-- `ai-source/<page>/screen-wp/<variant>-mobile.png`
+- `wp-content/uploads/ai-source/<page>/screen-figma/desktop.png`
+- `wp-content/uploads/ai-source/<page>/screen-figma/mobile.png`
+- `wp-content/uploads/ai-source/<page>/screen-wp/<variant>-desktop.png`
+- `wp-content/uploads/ai-source/<page>/screen-wp/<variant>-mobile.png`
 
 Note:
 
@@ -186,7 +186,7 @@ Serve come libreria condivisa per:
 - parsing CLI
 - risoluzione percorsi
 - lettura/scrittura JSON
-- creazione struttura `ai-source/`
+- creazione struttura `wp-content/uploads/ai-source/`
 - gestione `manifest.json` e `index.json`
 
 Non eseguirlo direttamente.
@@ -215,7 +215,7 @@ Note:
 
 - richiede `codex` disponibile nel PATH
 - richiede server MCP Figma configurato in Codex
-- non scrive direttamente in `ai-source/`
+- non scrive direttamente in `wp-content/uploads/ai-source/`
 - non decide cosa è semanticamente utile per WordPress: espone solo artifact e payload MCP in forma normalizzata
 
 ## Flusso consigliato
@@ -246,6 +246,6 @@ bash scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
 
 - non usare questi script per prendere decisioni AI sul mapping Figma Make → WordPress
 - non trattare `figma-make-architecture.md` come documentazione condivisa del tema
-- non scrivere output AI direttamente fuori da `ai-source/`
+- non scrivere output AI direttamente fuori da `wp-content/uploads/ai-source/`
 - non usare batch impliciti: `--all` deve restare un ciclo esplicito pagina-per-pagina
 - non aggiungere in `package.json` script che puntino a `.agents/skills/*`
