@@ -6,8 +6,8 @@
       {
         "id": "home",
         "label": "Home page",
-
-        "figma_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG/Design-Sputnik-Press-Homepage",
+        "figma_mcp_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG/Design-Sputnik-Press-Homepage",
+        "figma_screenshot_url": "https://www.figma.com/make/ugHr0Gh5yVbWe2mtIPCLIG/Design-Sputnik-Press-Homepage?p=f&t=lfR0WuZHin2UoJnV-0&fullscreen=1",
 
         "wp_template": "front-page",
 

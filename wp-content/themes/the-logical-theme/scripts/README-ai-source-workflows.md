@@ -11,6 +11,11 @@ Il download degli artifact Figma Make passa tramite un boundary esterno:
 
 Gli script di questa cartella non parlano direttamente il protocollo MCP. Usano Codex CLI come wrapper non interattivo per rilevare e leggere le risorse esposte dal file Make.
 
+Ogni pagina in `figma.json` deve dichiarare due URL distinti:
+
+- `figma_mcp_url`: usato solo per l’ingest via MCP
+- `figma_screenshot_url`: usato solo per Playwright
+
 ## Script disponibili
 
 ### `init-manifest.mjs`
@@ -82,6 +87,7 @@ Note:
 - richiede `codex` disponibile nel PATH
 - richiede server MCP Figma configurato e autenticato in Codex
 - richiede accesso rete verso MCP Figma quando il comando viene eseguito
+- richiede `figma_mcp_url` per ogni pagina selezionata
 - se una pagina fallisce, per default le altre proseguono; `--fail-fast` interrompe subito il batch
 - `--batch-size` controlla quante risorse MCP vengono lette per sessione Codex
 - `--limit` serve solo per debug o validazione parziale del file Make
@@ -121,8 +127,9 @@ Output:
 Note:
 
 - usa Playwright
-- per `--mode figma` serve un `figma_url` valido
+- per `--mode figma` serve un `figma_screenshot_url` valido
 - per `--mode wp` serve un `site_url` locale valido e raggiungibile
+- per Figma aspetta il canvas reale e la scomparsa del loader prima di salvare lo screenshot
 
 ### `ai-ingest-figma.mjs`
 

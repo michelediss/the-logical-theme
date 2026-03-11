@@ -29,7 +29,8 @@ export async function runInitManifest(argv = process.argv.slice(2)) {
     currentManifest.local_url = page.siteUrl;
     currentManifest.template_hint = page.wpTemplate;
     currentManifest.source.figma_entry_id = page.pageId;
-    currentManifest.source.figma_node_ref = page.figmaUrl;
+    currentManifest.source.figma_mcp_url = page.figmaMcpUrl;
+    currentManifest.source.figma_screenshot_url = page.figmaScreenshotUrl;
     currentManifest.status.manifest_initialized = true;
     currentManifest.current_stage = currentManifest.status.figma_ingested ? "ingested" : "initialized";
     await saveManifest(page.pageSlug, currentManifest);

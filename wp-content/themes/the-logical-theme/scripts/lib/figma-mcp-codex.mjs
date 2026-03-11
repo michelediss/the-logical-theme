@@ -166,7 +166,11 @@ function parseWrappedResourcePayload(result, uri) {
 }
 
 export async function discoverMakeResources(page) {
-  const fileKey = extractFileKey(page.figmaUrl);
+  if (!page.figmaMcpUrl) {
+    throw new Error(`Missing figma_mcp_url for ${page.pageId}`);
+  }
+
+  const fileKey = extractFileKey(page.figmaMcpUrl);
   const prompt = [
     "Use the configured Figma MCP server.",
     "Call figma.get_design_context for the Figma Make root.",
@@ -176,7 +180,7 @@ export async function discoverMakeResources(page) {
     "Stop after the first successful get_design_context result.",
     `fileKey: ${fileKey}`,
     "nodeId: 0:1",
-    `Make URL: ${page.figmaUrl}`,
+    `Make URL: ${page.figmaMcpUrl}`,
   ].join(" ");
 
   const result = await runCodexUntilToolResult(prompt, (event) => {
@@ -236,8 +240,10 @@ export async function fetchMakeResource(uri) {
   return results.get(uri);
 }
 
-export async function fetchMakeResources(uris) {
+export async function fetchMakeResources(uris, options = {}) {
+  const log = typeof options.log === "function" ? options.log : () => {};
   const uniqueUris = [...new Set(uris)];
+  log(`Fetching ${uniqueUris.length} MCP resource(s)`);
   const prompt = [
     "Use the configured Figma MCP server.",
     "Read exactly these Figma MCP resource URIs with figma.read_mcp_resource.",
@@ -263,6 +269,7 @@ export async function fetchMakeResources(uris) {
       if (pending.has(currentUri)) {
         collected.set(currentUri, parseWrappedResourcePayload(item.result, currentUri));
         pending.delete(currentUri);
+        log(`Fetched MCP resource ${collected.size}/${uniqueUris.length}: ${currentUri}`);
       }
 
       if (pending.size === 0) {

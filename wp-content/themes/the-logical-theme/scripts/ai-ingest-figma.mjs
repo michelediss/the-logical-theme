@@ -23,16 +23,20 @@ export async function runAiIngestFigma(argv = process.argv.slice(2)) {
     sharedArgs.push("--figma-config", figmaConfig);
   }
 
+  console.log("Step 1/3: initializing manifests");
   await runInitManifest(sharedArgs);
 
   const ingestArgs = [...sharedArgs];
   if (hasFlag(args, "fail-fast")) {
     ingestArgs.push("--fail-fast");
   }
+  console.log("Step 2/3: ingesting Figma MCP resources");
   await runIngestFigma(ingestArgs);
 
   const screenshotArgs = [...sharedArgs, "--mode", "figma"];
+  console.log("Step 3/3: capturing Figma screenshots");
   await runFigmaScreenshots(screenshotArgs);
+  console.log("AI ingest pipeline completed");
 }
 
 const entrypointPath = new URL(import.meta.url).pathname;

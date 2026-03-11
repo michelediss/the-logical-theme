@@ -91,7 +91,8 @@ export function buildPageRecord(pageConfig) {
     pageId: String(pageId),
     pageSlug,
     pageTitle: String(pageTitle),
-    figmaUrl: pageConfig.figma_url || pageConfig.app_url || null,
+    figmaMcpUrl: pageConfig.figma_mcp_url || null,
+    figmaScreenshotUrl: pageConfig.figma_screenshot_url || null,
     appUrl: pageConfig.app_url || null,
     siteUrl: pageConfig.site_url || null,
     wpTemplate: pageConfig.wp_template || null,
@@ -196,7 +197,8 @@ export function buildDefaultManifest(page) {
     },
     source: {
       figma_entry_id: page.pageId,
-      figma_node_ref: page.figmaUrl,
+      figma_mcp_url: page.figmaMcpUrl,
+      figma_screenshot_url: page.figmaScreenshotUrl,
       figma_input_version: null,
     },
     local_url: page.siteUrl,
@@ -226,6 +228,12 @@ export function normalizeManifest(pageSlug, manifest) {
       wp_screens_dir: path.relative(WORKSPACE_ROOT, pagePaths.screenWp),
       lighthouse_dir: path.relative(WORKSPACE_ROOT, pagePaths.lighthouse),
       reports_dir: path.relative(WORKSPACE_ROOT, pagePaths.reports),
+    },
+    source: {
+      figma_entry_id: manifest.source?.figma_entry_id || null,
+      figma_mcp_url: manifest.source?.figma_mcp_url || null,
+      figma_screenshot_url: manifest.source?.figma_screenshot_url || null,
+      figma_input_version: manifest.source?.figma_input_version || null,
     },
   };
 }

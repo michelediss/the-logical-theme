@@ -53,22 +53,41 @@ export async function runIngestFigma(argv = process.argv.slice(2)) {
     pageId: getArg(args, "page-id", null),
   });
 
+  console.log(`Starting Figma ingest for ${pages.length} page(s)`);
+
   for (const page of pages) {
     const pagePaths = await ensurePageStructure(page);
     await cleanDir(pagePaths.figmaRawCode);
     const startedAt = nowIso();
+    console.log(`[${page.pageSlug}] Preparing figma-raw workspace`);
 
     const sourcePagePath = path.join(pagePaths.figmaRawCode, "meta", "source-page.json");
     await writeJson(sourcePagePath, page.rawConfig);
 
     try {
+      if (!page.figmaMcpUrl) {
+        throw new Error(`Missing figma_mcp_url for ${page.pageId}`);
+      }
+
+      console.log(`[${page.pageSlug}] Discovering MCP resources`);
       const discovered = await discoverMakeResources(page);
       const resourcesToFetch = limit > 0 ? discovered.resources.slice(0, limit) : discovered.resources;
       const savedResources = [];
+      console.log(
+        `[${page.pageSlug}] Discovered ${discovered.resources.length} resource(s), fetching ${resourcesToFetch.length} with batch size ${batchSize}`,
+      );
 
       for (let index = 0; index < resourcesToFetch.length; index += batchSize) {
         const batch = resourcesToFetch.slice(index, index + batchSize);
-        const fetchedBatch = await fetchMakeResources(batch.map((resource) => resource.uri));
+        const batchStart = index + 1;
+        const batchEnd = index + batch.length;
+        console.log(`[${page.pageSlug}] Fetching batch ${batchStart}-${batchEnd}/${resourcesToFetch.length}`);
+        const fetchedBatch = await fetchMakeResources(
+          batch.map((resource) => resource.uri),
+          {
+            log: (message) => console.log(`[${page.pageSlug}] ${message}`),
+          },
+        );
 
         for (const resource of batch) {
           const payload = fetchedBatch.get(resource.uri);
@@ -84,13 +103,14 @@ export async function runIngestFigma(argv = process.argv.slice(2)) {
             encoding: payload.encoding,
             relativePath: path.relative(pagePaths.figmaRawCode, savedPath),
           });
+          console.log(`[${page.pageSlug}] Saved ${resource.kind} -> ${path.relative(pagePaths.figmaRawCode, savedPath)}`);
         }
       }
 
       const ingestSummary = {
         page_id: page.pageId,
         page_slug: page.pageSlug,
-        figma_url: page.figmaUrl,
+        figma_mcp_url: page.figmaMcpUrl,
         app_url: page.appUrl,
         file_key: discovered.fileKey,
         fetched_at: nowIso(),
@@ -106,6 +126,8 @@ export async function runIngestFigma(argv = process.argv.slice(2)) {
       manifest.status.figma_ingested = true;
       manifest.current_stage = "ingested";
       manifest.source.figma_input_version = ingestSummary.fetched_at;
+      manifest.source.figma_mcp_url = page.figmaMcpUrl;
+      manifest.source.figma_screenshot_url = page.figmaScreenshotUrl;
       manifest.warnings = Array.isArray(manifest.warnings)
         ? manifest.warnings.filter((warning) => warning !== "figma ingest completed in metadata-only mode")
         : [];
