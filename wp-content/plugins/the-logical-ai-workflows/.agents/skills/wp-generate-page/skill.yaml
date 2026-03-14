@@ -4,6 +4,7 @@ context:
   platform: wordpress
   source_of_truth: repository-local
   workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+  plugin_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/plugins/the-logical-ai-workflows
   theme_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/themes/the-logical-theme
 inputs:
   required:
@@ -18,9 +19,9 @@ outputs:
     - ai-source/<page>/reports/generate-page.md
 runtime_notes:
   scripts:
-    - scripts/init-manifest.mjs
-    - scripts/ingest-figma.mjs
-    - scripts/figma-screenshots.mjs
+    - wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs
+    - wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs
+    - wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs
 guardrails:
   - one page at a time
   - never use blocks outside whitelisted-blocks.md

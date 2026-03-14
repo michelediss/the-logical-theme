@@ -62,7 +62,7 @@ src/css/blocks.css
 - Do not manually add a new custom block to `partials/block-availability.php` unless there is an explicit exception.
 - Always update `docs/block-composition-guide.md` when adding a new custom block so AI-assisted template generation can use it intentionally.
 - Do not duplicate runtime logic in that file: document availability and usage rules only.
-- The `figma-make-theme-sync` skill should discover custom block availability from runtime exports, then use this document only for implementation standards and usage constraints.
+- The workflow skills in `wp-content/plugins/the-logical-ai-workflows/.agents/skills/` should discover custom block availability from runtime exports or whitelist artifacts, then use this document only for implementation standards and usage constraints.
 
 ## Minimum Checklist
 

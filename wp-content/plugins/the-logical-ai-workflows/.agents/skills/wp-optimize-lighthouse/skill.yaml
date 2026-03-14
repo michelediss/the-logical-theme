@@ -4,6 +4,7 @@ context:
   platform: wordpress
   source_of_truth: repository-local
   workspace_root: /home/miche/docker/wp-sites/thelogicaltheme/wp
+  plugin_root: /home/miche/docker/wp-sites/thelogicaltheme/wp/wp-content/plugins/the-logical-ai-workflows
 inputs:
   required:
     - ai-source/<page>/manifest.json

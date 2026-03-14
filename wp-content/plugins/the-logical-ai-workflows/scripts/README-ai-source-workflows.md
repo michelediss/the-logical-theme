@@ -2,7 +2,9 @@
 
 Questa cartella contiene gli script deterministici del workflow WordPress basato su input Figma Make.
 
-Le skill AI vivono in `.agents/skills/` e intervengono solo dopo che questi script hanno preparato i dati in `wp-content/uploads/ai-source/`.
+Le skill AI operative vivono in `wp-content/plugins/the-logical-ai-workflows/.agents/skills/` e intervengono solo dopo che questi script hanno preparato i dati in `wp-content/uploads/ai-source/`.
+
+`theme-docs-context` resta invece nel tema in `wp-content/themes/the-logical-theme/.agents/skills/theme-docs-context`.
 
 Il download degli artifact Figma Make passa tramite un boundary esterno:
 
@@ -29,9 +31,9 @@ Scopo:
 Uso:
 
 ```bash
-node scripts/init-manifest.mjs --page-id home
-node scripts/init-manifest.mjs --all
-node scripts/init-manifest.mjs --all --figma-config /percorso/personalizzato/figma.json
+node wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs --all
+node wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs --all --figma-config /percorso/personalizzato/figma.json
 ```
 
 Input richiesti:
@@ -63,11 +65,11 @@ Scopo:
 Uso:
 
 ```bash
-node scripts/ingest-figma.mjs --page-id home
-node scripts/ingest-figma.mjs --all
-node scripts/ingest-figma.mjs --all --fail-fast
-node scripts/ingest-figma.mjs --page-id home --batch-size 8
-node scripts/ingest-figma.mjs --page-id home --limit 10
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --all
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --all --fail-fast
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --page-id home --batch-size 8
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --page-id home --limit 10
 ```
 
 Input richiesti:
@@ -102,9 +104,9 @@ Scopo:
 Uso:
 
 ```bash
-node scripts/figma-screenshots.mjs --page-id home --mode figma
-node scripts/figma-screenshots.mjs --page-id home --mode wp --variant draft
-node scripts/figma-screenshots.mjs --all --mode both --variant reviewed
+node wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs --page-id home --mode figma
+node wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs --page-id home --mode wp --variant draft
+node wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs --all --mode both --variant reviewed
 ```
 
 Input richiesti:
@@ -141,9 +143,9 @@ Scopo:
 Uso:
 
 ```bash
-node scripts/ai-ingest-figma.mjs --page-id home
-node scripts/ai-ingest-figma.mjs --all
-node scripts/ai-ingest-figma.mjs --all --fail-fast
+node wp-content/plugins/the-logical-ai-workflows/scripts/ai-ingest-figma.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/ai-ingest-figma.mjs --all
+node wp-content/plugins/the-logical-ai-workflows/scripts/ai-ingest-figma.mjs --all --fail-fast
 ```
 
 Ordine interno:
@@ -161,23 +163,26 @@ Note:
 
 Scopo:
 
-- sincronizza una skill repository-local da `.agents/skills/`
+- sincronizza una skill repository-local dal plugin `wp-content/plugins/the-logical-ai-workflows/.agents/skills/`
+- sincronizza anche `theme-docs-context` dal tema
 - copia la skill in `~/.codex/skills`
 - copia la skill in `~/.kimi/skills`
 
 Uso:
 
 ```bash
-bash scripts/sync-codex-skill.sh --list
-bash scripts/sync-codex-skill.sh --skill wp-generate-page
-bash scripts/sync-codex-skill.sh --skill wp-review-page
-bash scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
-bash scripts/sync-codex-skill.sh --skill all
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --list
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-generate-page
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-review-page
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill theme-docs-context
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill all
 ```
 
 Note:
 
-- `.agents/skills/` è la source of truth
+- `wp-content/plugins/the-logical-ai-workflows/.agents/skills/` è la source of truth per `wp-generate-page`, `wp-review-page`, `wp-optimize-lighthouse`
+- `wp-content/themes/the-logical-theme/.agents/skills/theme-docs-context/` resta la source of truth per `theme-docs-context`
 - le directory globali sono copie runtime
 - lo script verifica almeno la presenza di `SKILL.md`
 - se `rsync` è disponibile, usa sync speculare della cartella skill
@@ -230,23 +235,23 @@ Note:
 ### Preparazione minima di una pagina
 
 ```bash
-node scripts/init-manifest.mjs --page-id home
-node scripts/ingest-figma.mjs --page-id home
-node scripts/figma-screenshots.mjs --page-id home --mode figma
+node wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs --page-id home --mode figma
 ```
 
 ### Preparazione orchestrata
 
 ```bash
-node scripts/ai-ingest-figma.mjs --page-id home
+node wp-content/plugins/the-logical-ai-workflows/scripts/ai-ingest-figma.mjs --page-id home
 ```
 
 ### Sync skill dopo modifica repository-local
 
 ```bash
-bash scripts/sync-codex-skill.sh --skill wp-generate-page
-bash scripts/sync-codex-skill.sh --skill wp-review-page
-bash scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-generate-page
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-review-page
+bash wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
 ```
 
 ## Guardrail operativi
@@ -255,4 +260,4 @@ bash scripts/sync-codex-skill.sh --skill wp-optimize-lighthouse
 - non trattare `figma-make-architecture.md` come documentazione condivisa del tema
 - non scrivere output AI direttamente fuori da `wp-content/uploads/ai-source/`
 - non usare batch impliciti: `--all` deve restare un ciclo esplicito pagina-per-pagina
-- non aggiungere in `package.json` script che puntino a `.agents/skills/*`
+- non aggiungere in `package.json` script che puntino direttamente a `.agents/skills/*`

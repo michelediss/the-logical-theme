@@ -2,8 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname);
-export const THEME_ROOT = path.resolve(SCRIPT_DIR, "..", "..");
-export const WORKSPACE_ROOT = path.resolve(THEME_ROOT, "..", "..", "..");
+export const PLUGIN_ROOT = path.resolve(SCRIPT_DIR, "..", "..");
+export const WORKSPACE_ROOT = path.resolve(PLUGIN_ROOT, "..", "..", "..");
+export const THEME_ROOT = path.join(WORKSPACE_ROOT, "wp-content", "themes", "the-logical-theme");
 export const AI_SOURCE_ROOT = path.join(WORKSPACE_ROOT, "wp-content", "uploads", "ai-source");
 export const DEFAULT_FIGMA_CONFIG = path.join(THEME_ROOT, "figma.json");
 export const INDEX_PATH = path.join(AI_SOURCE_ROOT, "index.json");

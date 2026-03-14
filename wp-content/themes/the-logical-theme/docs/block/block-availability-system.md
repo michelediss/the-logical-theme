@@ -11,7 +11,7 @@ It is the conceptual reference for the availability system. The runtime source o
 - `partials/block-availability/utility/export-block-registry.php` exports the full registered block registry enriched with current allowlist state.
 - `partials/block-availability/utility/export-whitelisted-blocks-md.php` generates a Markdown reference for the blocks currently in whitelist.
 - `inc/blocks.php` discovers custom theme blocks from `blocks/*/block.json`.
-- `.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php` exports the current runtime catalog and normalized availability state from a bootstrapped WordPress environment.
+- `wp-content/plugins/the-logical-ai-workflows/.agents/skills/wp-generate-page/` and related review/optimization skills should consume the exported whitelist artifacts plus runtime outputs instead of maintaining their own block catalog.
 
 For AI-assisted generation, the export script should be treated as the primary machine-readable source for which blocks are currently available.
 
@@ -67,7 +67,7 @@ These derived files are convenience exports for human review and AI-assisted wor
 
 ## What The Export Script Provides
 
-`.agents/skills/figma-make-theme-sync/scripts/export-theme-blocks.php` returns:
+The runtime/export boundary for AI workflows should expose:
 
 - `curated_groups`: the category definitions and curated defaults
 - `catalog`: the runtime-discovered block catalog grouped by category

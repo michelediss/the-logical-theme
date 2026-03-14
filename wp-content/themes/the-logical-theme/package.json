@@ -12,10 +12,10 @@
     "i18n:mo": "wp i18n make-mo languages",
     "i18n:json": "wp i18n make-json languages languages --domain=the-logical-theme --pretty-print --no-purge --use-map=languages/script-translations-map.json",
     "i18n:build": "npm run i18n:pot && npm run i18n:po && npm run i18n:mo && npm run i18n:json",
-    "ai:init-manifest": "node scripts/init-manifest.mjs",
-    "ai:ingest-figma": "node scripts/ingest-figma.mjs",
-    "ai:figma-screenshots": "node scripts/figma-screenshots.mjs",
-    "ai:prepare": "node scripts/ai-ingest-figma.mjs"
+    "ai:init-manifest": "node ../../plugins/the-logical-ai-workflows/scripts/init-manifest.mjs",
+    "ai:ingest-figma": "node ../../plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs",
+    "ai:figma-screenshots": "node ../../plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs",
+    "ai:prepare": "node ../../plugins/the-logical-ai-workflows/scripts/ai-ingest-figma.mjs"
   },
   "dependencies": {
     "gsap": "^3.13.0",

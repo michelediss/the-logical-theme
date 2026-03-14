@@ -4,9 +4,9 @@ Repository-local Codex skill for page generation from prepared `ai-source/<page>
 
 Use this skill only after deterministic prep has completed:
 
-1. `scripts/init-manifest.mjs`
-2. `scripts/ingest-figma.mjs`
-3. `scripts/figma-screenshots.mjs --mode figma`
+1. `wp-content/plugins/the-logical-ai-workflows/scripts/init-manifest.mjs`
+2. `wp-content/plugins/the-logical-ai-workflows/scripts/ingest-figma.mjs`
+3. `wp-content/plugins/the-logical-ai-workflows/scripts/figma-screenshots.mjs --mode figma`
 
 The skill is intentionally narrow:
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import {
@@ -33,9 +34,89 @@ const FIGMA_MAX_TILES = 24;
 const FIGMA_SCROLL_OVERLAP = 140;
 const FIGMA_CAPTURE_ATTEMPTS = 2;
 const FIGMA_REPEAT_RECOVERY_ATTEMPTS = 2;
+const FIGMA_BLANK_HOST_STREAK = 3;
+const FIGMA_JOIN_TOLERANCE_PX = 72;
 
 function hashBuffer(buffer) {
   return crypto.createHash("sha1").update(buffer).digest("hex");
+}
+
+async function saveFigmaDebugArtifacts(page, outputPath, label) {
+  const parsed = path.parse(outputPath);
+  const safeLabel = String(label).replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
+  const debugDir = path.join(parsed.dir, "debug");
+
+  await fs.mkdir(debugDir, { recursive: true });
+
+  const screenshotPath = path.join(debugDir, `${parsed.name}.${safeLabel}.host.png`);
+  const htmlPath = path.join(debugDir, `${parsed.name}.${safeLabel}.host.html`);
+  const statePath = path.join(debugDir, `${parsed.name}.${safeLabel}.state.json`);
+
+  const html = await page.content().catch(() => "");
+  const state = await page
+    .evaluate(() => ({
+      url: location.href,
+      title: document.title,
+      readyState: document.readyState,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+      scrollY: window.scrollY,
+      docScrollHeight: document.documentElement.scrollHeight,
+      bodyScrollHeight: document.body?.scrollHeight ?? null,
+      iframes: Array.from(document.querySelectorAll("iframe")).map((element, index) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          index,
+          src: element.getAttribute("src"),
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        };
+      }),
+      fixedOrSticky: Array.from(document.querySelectorAll("body *"))
+        .map((element) => {
+          if (!(element instanceof HTMLElement)) {
+            return null;
+          }
+
+          const style = window.getComputedStyle(element);
+          if (!["fixed", "sticky"].includes(style.position)) {
+            return null;
+          }
+
+          const rect = element.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) {
+            return null;
+          }
+
+          return {
+            tag: element.tagName,
+            id: element.id || "",
+            className: String(element.className || "").slice(0, 160),
+            position: style.position,
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            text: (element.innerText || element.textContent || "").trim().slice(0, 240),
+          };
+        })
+        .filter(Boolean)
+        .slice(0, 50),
+      bodyTextSample: (document.body?.innerText || "").slice(0, 2000),
+    }))
+    .catch((error) => ({
+      stateCaptureError: String(error.message || error),
+    }));
+
+  await Promise.all([
+    page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => null),
+    fs.writeFile(htmlPath, html, "utf8"),
+    fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8"),
+  ]);
+
+  console.error(`Saved Figma debug artifacts: ${screenshotPath}`);
 }
 
 async function tryAcceptFigmaCookies(page) {
@@ -69,6 +150,13 @@ async function hideFigmaHostBanners(page) {
       "Do not allow cookies",
       "Cookies settings",
       "Improve performance by enabling hardware acceleration",
+      "[INTERNAL ONLY] Interactive elements cannot have other interactive elements nested inside of them.",
+    ];
+    const selectorHints = [
+      "[class*='cookie']",
+      "[class*='loading_indicator']",
+      "[class*='blocked_ui_loading_indicator']",
+      "[class*='visual_bell']",
     ];
 
     const hidden = new Set();
@@ -91,6 +179,13 @@ async function hideFigmaHostBanners(page) {
       if (!(element instanceof HTMLElement)) {
         return false;
       }
+      const tagName = element.tagName.toLowerCase();
+      if (["html", "body"].includes(tagName)) {
+        return false;
+      }
+      if (element.id === "react-page") {
+        return false;
+      }
       if (hidden.has(element)) {
         return false;
       }
@@ -107,18 +202,43 @@ async function hideFigmaHostBanners(page) {
       }
 
       const text = (node.innerText || node.textContent || "").trim();
-      if (!text || !matchesText(text)) {
+      const selectorMatch = selectorHints.some((hint) => {
+        try {
+          return node.matches(hint);
+        } catch {
+          return false;
+        }
+      });
+
+      if ((!text || !matchesText(text)) && !selectorMatch) {
         continue;
       }
 
       let target = node;
+      const originalRect = target.getBoundingClientRect();
       while (target.parentElement) {
         const parent = target.parentElement;
+        const parentTag = parent.tagName.toLowerCase();
+        if (["html", "body"].includes(parentTag) || parent.id === "react-page") {
+          break;
+        }
+
         const style = window.getComputedStyle(parent);
         const rect = parent.getBoundingClientRect();
         const fixedLike = style.position === "fixed" || style.position === "sticky";
         const overlaysBottom = rect.bottom >= window.innerHeight - 4;
         const overlaysTop = rect.top <= 12 && rect.height <= 100;
+        const parentTooLarge =
+          rect.width >= window.innerWidth * 0.98 &&
+          rect.height >= window.innerHeight * 0.98;
+        const expandsTooMuch =
+          rect.width > originalRect.width * 1.75 ||
+          rect.height > originalRect.height * 1.75;
+
+        if (parentTooLarge || expandsTooMuch) {
+          break;
+        }
+
         if (fixedLike || overlaysBottom || overlaysTop) {
           target = parent;
         } else {
@@ -145,16 +265,16 @@ async function hideFigmaHostBanners(page) {
 
 async function waitForFigmaPreview(page) {
   const maxAttempts = Math.ceil(FIGMA_READY_TIMEOUT_MS / FIGMA_PROBE_INTERVAL_MS);
+  let blankHostStreak = 0;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     if (attempt === 1 || attempt % 4 === 0) {
       await tryAcceptFigmaCookies(page);
-      await hideFigmaHostBanners(page);
     }
 
     await page.waitForTimeout(FIGMA_PROBE_INTERVAL_MS);
 
-    const preview = await page.evaluate(() => {
+    const probe = await page.evaluate(() => {
       const frames = Array.from(document.querySelectorAll("iframe"));
       const previewFrames = frames
         .filter((element) => element.getAttribute("src")?.includes("figmaiframepreview.figma.site"))
@@ -167,27 +287,72 @@ async function waitForFigmaPreview(page) {
             height: rect.height,
             src: element.getAttribute("src"),
           };
-        })
-        .filter((frame) => frame.width > 0 && frame.height > 0);
+        });
 
       previewFrames.sort((left, right) => right.width * right.height - left.width * left.height);
-      return previewFrames[0] || null;
-    });
+      const bodyText = document.body?.innerText || "";
+      const visibleNodeCount = Array.from(document.querySelectorAll("body *")).filter((element) => {
+        if (!(element instanceof HTMLElement)) {
+          return false;
+        }
 
+        const style = window.getComputedStyle(element);
+        if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) {
+          return false;
+        }
+
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      }).length;
+
+      return {
+        preview: previewFrames[0] || null,
+        loadingVisible: /\bLoading\b/i.test(bodyText),
+        bodyTextLength: bodyText.trim().length,
+        visibleNodeCount,
+        docScrollHeight: document.documentElement.scrollHeight,
+        viewportHeight: window.innerHeight,
+      };
+    });
     const elapsedSeconds = attempt * (FIGMA_PROBE_INTERVAL_MS / 1000);
-    if (preview && preview.width >= 200 && preview.height >= 200) {
+    const resolvedPreview =
+      probe.preview &&
+      probe.preview.width >= 200 &&
+      probe.preview.height >= 200 &&
+      !probe.loadingVisible
+        ? probe.preview
+        : null;
+
+    if (resolvedPreview) {
       const viewportSize = page.viewportSize();
       const padding = 8;
-      const x = Math.max(0, Math.min(preview.x, (viewportSize?.width ?? preview.width) - padding));
-      const y = Math.max(0, Math.min(preview.y, (viewportSize?.height ?? preview.height) - padding));
-      const width = Math.max(1, Math.min(preview.width - padding * 2, (viewportSize?.width ?? preview.width) - x));
-      const height = Math.max(1, Math.min(preview.height - padding * 2, (viewportSize?.height ?? preview.height) - y));
-      console.log(`Found Figma preview iframe after ${elapsedSeconds}s`);
+      const x = Math.max(0, Math.min(resolvedPreview.x, (viewportSize?.width ?? resolvedPreview.width) - padding));
+      const y = Math.max(0, Math.min(resolvedPreview.y, (viewportSize?.height ?? resolvedPreview.height) - padding));
+      const width = Math.max(1, Math.min(resolvedPreview.width - padding * 2, (viewportSize?.width ?? resolvedPreview.width) - x));
+      const height = Math.max(1, Math.min(resolvedPreview.height - padding * 2, (viewportSize?.height ?? resolvedPreview.height) - y));
+      const sourceLabel = "iframe rect";
+      console.log(`Found Figma preview after ${elapsedSeconds}s using ${sourceLabel}`);
       await page.waitForTimeout(1000);
-      return { x, y, width, height };
+      return { mode: "host-clip", clip: { x, y, width, height } };
     }
 
-    console.log(`Still waiting for Figma preview iframe: ${elapsedSeconds}s elapsed`);
+    const blankHost =
+      probe.preview &&
+      probe.preview.width === 0 &&
+      probe.preview.height === 0 &&
+      !probe.loadingVisible &&
+      probe.bodyTextLength === 0 &&
+      probe.visibleNodeCount <= 2 &&
+      probe.docScrollHeight <= probe.viewportHeight + 8;
+
+    blankHostStreak = blankHost ? blankHostStreak + 1 : 0;
+    if (blankHostStreak >= FIGMA_BLANK_HOST_STREAK) {
+      throw new Error("Figma host entered blank render state before preview became visible");
+    }
+
+    console.log(
+      `Still waiting for Figma preview iframe: ${elapsedSeconds}s elapsed${probe.preview ? ` (rect ${Math.round(probe.preview.width)}x${Math.round(probe.preview.height)}, loading=${probe.loadingVisible}, blankHost=${blankHostStreak})` : ""}`,
+    );
   }
 
   throw new Error(`Figma preview iframe was not ready after ${Math.round(FIGMA_READY_TIMEOUT_MS / 1000)}s`);
@@ -218,17 +383,34 @@ async function advanceFigmaPreview(page, centerX, centerY, scrollStep, mode = "n
   }
 }
 
+function getFigmaPreviewFrame(page) {
+  return page.frames().find((frame) => frame.url().includes("figmaiframepreview.figma.site")) || null;
+}
+
+async function readFigmaPreviewScrollState(page) {
+  const frame = getFigmaPreviewFrame(page);
+  if (!frame) {
+    return null;
+  }
+
+  try {
+    return await frame.evaluate(() => ({
+      scrollY: window.scrollY,
+      scrollHeight: Math.max(
+        document.documentElement?.scrollHeight || 0,
+        document.body?.scrollHeight || 0,
+      ),
+      innerHeight: window.innerHeight,
+    }));
+  } catch {
+    return null;
+  }
+}
+
 async function stitchFigmaTiles(browser, outputPath, tiles, overlapPx) {
   const width = tiles[0].width;
-  const totalHeight = tiles.reduce((sum, tile, index) => {
-    if (index === 0) {
-      return sum + tile.height;
-    }
-    return sum + Math.max(1, tile.height - overlapPx);
-  }, 0);
-
   const composePage = await browser.newPage({
-    viewport: { width, height: Math.min(1400, Math.max(1, totalHeight)) },
+    viewport: { width, height: 1400 },
   });
 
   try {
@@ -237,18 +419,11 @@ async function stitchFigmaTiles(browser, outputPath, tiles, overlapPx) {
       { waitUntil: "domcontentloaded" },
     );
 
-    await composePage.evaluate(
-      async ({ width: canvasWidth, totalHeight: canvasHeight, overlapPx: overlap, tiles: encodedTiles }) => {
+    const stitchResult = await composePage.evaluate(
+      async ({ width: canvasWidth, overlapPx: overlap, tiles: encodedTiles }) => {
         const canvas = document.getElementById("out");
         if (!(canvas instanceof HTMLCanvasElement)) {
           throw new Error("Missing output canvas");
-        }
-
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          throw new Error("Missing 2D canvas context");
         }
 
         const loadImage = (dataUrl) =>
@@ -259,27 +434,146 @@ async function stitchFigmaTiles(browser, outputPath, tiles, overlapPx) {
             image.src = dataUrl;
           });
 
-        let offsetY = 0;
-        for (let index = 0; index < encodedTiles.length; index += 1) {
-          const tile = encodedTiles[index];
+        const buildLuma = (image, width, height) => {
+          const scratch = document.createElement("canvas");
+          scratch.width = width;
+          scratch.height = height;
+          const scratchCtx = scratch.getContext("2d");
+          if (!scratchCtx) {
+            throw new Error("Missing scratch canvas context");
+          }
+
+          scratchCtx.drawImage(image, 0, 0, width, height);
+          const { data } = scratchCtx.getImageData(0, 0, width, height);
+          const luma = new Uint8Array(width * height);
+          for (let pixel = 0; pixel < width * height; pixel += 1) {
+            const offset = pixel * 4;
+            luma[pixel] = Math.round(
+              data[offset] * 0.299 +
+              data[offset + 1] * 0.587 +
+              data[offset + 2] * 0.114,
+            );
+          }
+          return luma;
+        };
+
+        const compareOverlap = (previous, current, width, overlapHeight) => {
+          let diff = 0;
+          const sampleStepX = Math.max(1, Math.floor(width / 24));
+          const sampleStepY = Math.max(1, Math.floor(overlapHeight / 48));
+          for (let y = 0; y < overlapHeight; y += sampleStepY) {
+            const previousRow = (previous.height - overlapHeight + y) * width;
+            const currentRow = y * width;
+            for (let x = 0; x < width; x += sampleStepX) {
+              diff += Math.abs(previous.luma[previousRow + x] - current.luma[currentRow + x]);
+            }
+          }
+          return diff;
+        };
+
+        const findBestOverlap = (previous, current, defaultOverlap, expectedOverlap, tolerancePx) => {
+          const fallbackMinOverlap = Math.max(40, Math.floor(defaultOverlap * 0.45));
+          const maxOverlap = Math.min(
+            previous.height - 1,
+            current.height - 1,
+            Math.max(fallbackMinOverlap, Math.floor(defaultOverlap * 2.2)),
+          );
+          const minOverlap = expectedOverlap != null
+            ? Math.max(24, Math.min(maxOverlap, expectedOverlap - tolerancePx))
+            : fallbackMinOverlap;
+          const boundedMaxOverlap = expectedOverlap != null
+            ? Math.max(minOverlap, Math.min(maxOverlap, expectedOverlap + tolerancePx))
+            : maxOverlap;
+
+          let best = {
+            overlap: Math.min(expectedOverlap ?? defaultOverlap, boundedMaxOverlap),
+            score: Number.POSITIVE_INFINITY,
+          };
+
+          for (let overlapHeight = minOverlap; overlapHeight <= boundedMaxOverlap; overlapHeight += 4) {
+            const score = compareOverlap(previous, current, previous.width, overlapHeight);
+            if (score < best.score) {
+              best = { overlap: overlapHeight, score };
+            }
+          }
+
+          return best;
+        };
+
+        const preparedTiles = [];
+        for (const tile of encodedTiles) {
           const image = await loadImage(tile.dataUrl);
-          ctx.drawImage(image, 0, offsetY, tile.width, tile.height);
-          offsetY += index === 0 ? tile.height : Math.max(1, tile.height - overlap);
+          preparedTiles.push({
+            image,
+            width: tile.width,
+            height: tile.height,
+            luma: buildLuma(image, tile.width, tile.height),
+          });
         }
+
+        const overlaps = [];
+        let totalHeight = preparedTiles[0]?.height || 0;
+        for (let index = 1; index < preparedTiles.length; index += 1) {
+          const hint = encodedTiles[index].expectedOverlap ?? null;
+          const tolerance = encodedTiles[index].overlapTolerance ?? 48;
+          const match = findBestOverlap(preparedTiles[index - 1], preparedTiles[index], overlap, hint, tolerance);
+          overlaps.push(match);
+          totalHeight += Math.max(1, preparedTiles[index].height - match.overlap);
+        }
+
+        canvas.width = canvasWidth;
+        canvas.height = totalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          throw new Error("Missing 2D canvas context");
+        }
+
+        let offsetY = 0;
+        for (let index = 0; index < preparedTiles.length; index += 1) {
+          const tile = preparedTiles[index];
+          if (index === 0) {
+            ctx.drawImage(tile.image, 0, offsetY, tile.width, tile.height);
+            offsetY += tile.height;
+            continue;
+          }
+
+          const resolvedOverlap = overlaps[index - 1]?.overlap ?? overlap;
+          const sourceY = Math.max(0, resolvedOverlap);
+          const drawHeight = Math.max(1, tile.height - sourceY);
+          ctx.drawImage(
+            tile.image,
+            0,
+            sourceY,
+            tile.width,
+            drawHeight,
+            0,
+            offsetY - resolvedOverlap,
+            tile.width,
+            drawHeight,
+          );
+          offsetY += Math.max(1, tile.height - resolvedOverlap);
+        }
+
+        return {
+          totalHeight,
+          overlaps,
+        };
       },
       {
         width,
-        totalHeight,
         overlapPx,
         tiles: tiles.map((tile) => ({
           width: tile.width,
           height: tile.height,
           dataUrl: `data:image/png;base64,${tile.buffer.toString("base64")}`,
+          expectedOverlap: tile.expectedOverlap ?? null,
+          overlapTolerance: tile.overlapTolerance ?? FIGMA_JOIN_TOLERANCE_PX,
         })),
       },
     );
 
     await composePage.locator("#out").screenshot({ path: outputPath });
+    return stitchResult;
   } finally {
     await composePage.close();
   }
@@ -299,6 +593,7 @@ async function captureFigmaFullPage(page, clip, browser, outputPath) {
   );
 
   for (let tileIndex = 0; tileIndex < FIGMA_MAX_TILES; tileIndex += 1) {
+    const scrollState = await readFigmaPreviewScrollState(page);
     await hideFigmaHostBanners(page);
     const buffer = await captureFigmaTile(page, clip);
     const hash = hashBuffer(buffer);
@@ -322,6 +617,7 @@ async function captureFigmaFullPage(page, clip, browser, outputPath) {
       buffer,
       width: Math.round(clip.width),
       height: Math.round(clip.height),
+      scrollY: typeof scrollState?.scrollY === "number" ? scrollState.scrollY : null,
     });
     console.log(`Captured Figma tile ${tiles.length}/${FIGMA_MAX_TILES}`);
 
@@ -341,8 +637,24 @@ async function captureFigmaFullPage(page, clip, browser, outputPath) {
     return { tileCount: 1, overlapPx: 0 };
   }
 
-  await stitchFigmaTiles(browser, outputPath, tiles, effectiveOverlap);
-  return { tileCount: tiles.length, overlapPx: effectiveOverlap };
+  for (let index = 1; index < tiles.length; index += 1) {
+    const previous = tiles[index - 1];
+    const current = tiles[index];
+    if (typeof previous.scrollY === "number" && typeof current.scrollY === "number") {
+      const delta = Math.max(0, current.scrollY - previous.scrollY);
+      const expectedOverlap = Math.max(24, Math.min(current.height - 1, current.height - delta));
+      current.expectedOverlap = expectedOverlap;
+      current.overlapTolerance = FIGMA_JOIN_TOLERANCE_PX;
+    }
+  }
+
+  const stitchResult = await stitchFigmaTiles(browser, outputPath, tiles, effectiveOverlap);
+  return {
+    tileCount: tiles.length,
+    overlapPx: effectiveOverlap,
+    resolvedOverlaps: stitchResult?.overlaps || [],
+    totalHeight: stitchResult?.totalHeight || null,
+  };
 }
 
 async function captureFigmaPage(url, outputPath, viewport) {
@@ -358,18 +670,25 @@ async function captureFigmaPage(url, outputPath, viewport) {
         console.log(`Trying cookie consent buttons at ${viewport.width}x${viewport.height}`);
         const clickedCookies = await tryAcceptFigmaCookies(page);
         console.log(clickedCookies ? "Cookie banner dismissed via click" : "No cookie click action applied");
-        await hideFigmaHostBanners(page);
         console.log(`Waiting for Figma canvas readiness at ${viewport.width}x${viewport.height}`);
-        const clip = await waitForFigmaPreview(page);
+        const previewTarget = await waitForFigmaPreview(page);
+        const clip = previewTarget.clip;
+        await hideFigmaHostBanners(page);
         console.log(
           `Capturing Figma full-page preview from ${Math.round(clip.width)}x${Math.round(clip.height)} at ${Math.round(clip.x)},${Math.round(clip.y)}`,
         );
         const result = await captureFigmaFullPage(page, clip, browser, outputPath);
-        console.log(`Figma full-page screenshot completed with ${result.tileCount} tile(s)`);
+        const overlapSummary = Array.isArray(result.resolvedOverlaps)
+          ? result.resolvedOverlaps.map((item) => item.overlap).join(", ")
+          : "";
+        console.log(
+          `Figma full-page screenshot completed with ${result.tileCount} tile(s)${overlapSummary ? `; resolved overlaps: ${overlapSummary}` : ""}`,
+        );
         await page.close();
         return;
       } catch (error) {
         lastError = error;
+        await saveFigmaDebugArtifacts(page, outputPath, `attempt-${attempt}-failure`).catch(() => null);
         console.error(`Figma capture attempt ${attempt} failed: ${error.message}`);
         await page.close().catch(() => null);
       }

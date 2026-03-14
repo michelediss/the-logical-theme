@@ -6,14 +6,14 @@ This document explains how to sync a repository-local skill to the global Codex 
 
 Some Codex environments discover available skills from `~/.codex/skills` or `~/.kimi/skills` instead of using only the repository copy.
 
-This theme provides a sync utility so the repository version of a skill can be treated as the source of truth and then copied into the global skills directories when needed.
+This repository provides a sync utility so the repository version of a skill can be treated as the source of truth and then copied into the global skills directories when needed.
 
 ## Script
 
 The sync script is:
 
 ```text
-scripts/sync-codex-skill.sh
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh
 ```
 
 ## What It Does
@@ -25,41 +25,42 @@ scripts/sync-codex-skill.sh
 
 ## Default Paths
 
-- source root: `.agents/skills`
+- source root: `wp-content/plugins/the-logical-ai-workflows/.agents/skills` for AI workflow skills
+- source root: `wp-content/themes/the-logical-theme/.agents/skills` for `theme-docs-context`
 - target roots: `~/.codex/skills`, `~/.kimi/skills`
 
-Because these are defaults, the script works out of the box for theme-local skills and keeps the Codex and Kimi copies aligned in one run.
+Because these are defaults, the script works out of the box for plugin-local workflow skills and still resolves `theme-docs-context` from the theme in one run.
 
 ## Usage
 
 List available local skills:
 
 ```bash
-wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh --list
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --list
 ```
 
-Sync a specific skill:
+Sync a specific workflow skill:
 
 ```bash
-wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh --skill figma-make-theme-sync
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill wp-generate-page
 ```
 
-Sync another skill:
+Sync `theme-docs-context`:
 
 ```bash
-wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh --skill theme-docs-context
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill theme-docs-context
 ```
 
 Sync all local skills:
 
 ```bash
-wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh --skill all
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh --skill all
 ```
 
 Use custom roots:
 
 ```bash
-wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh \
+wp-content/plugins/the-logical-ai-workflows/scripts/sync-codex-skill.sh \
   --skill my-skill \
   --source-root /path/to/.agents/skills \
   --target-root /path/to/.codex/skills
@@ -72,5 +73,5 @@ wp-content/themes/the-logical-theme/scripts/sync-codex-skill.sh \
 - If a skill is not visible in Codex or Kimi but exists in the repository, check whether the global copy is missing or outdated.
 - The script syncs one skill at a time on purpose, so changes remain explicit and reviewable.
 - `--skill all` is available when you intentionally want to sync every local skill in one run.
-- When `figma-make-theme-sync` changes, sync the whole skill directory so `SKILL.md`, `README.md`, `skill.yaml`, and `scripts/` stay aligned across repository-local and global copies.
+- When `theme-docs-context` changes, sync the whole skill directory so `SKILL.md`, `skill.yaml`, and any future bundled files stay aligned across repository-local and global copies.
 - Apply the same whole-directory sync rule to repository-local workflow skills such as `wp-generate-page`, `wp-review-page`, and `wp-optimize-lighthouse`.
